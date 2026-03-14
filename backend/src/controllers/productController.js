@@ -2,6 +2,15 @@
 const Product   = require('../models/Product');
 const { cloudinary } = require('../config/cloudinary');
 
+
+// Helper: acepta "S, M, L" o ["S","M","L"] o JSON string
+const parseList = (val) => {
+  if (!val) return [];
+  if (Array.isArray(val)) return val.map(v => v.trim()).filter(Boolean);
+  try { const p = JSON.parse(val); return Array.isArray(p) ? p : []; } catch {}
+  return val.split(',').map(v => v.trim()).filter(Boolean);
+};
+
 // ── GET /api/products ─────────────────────────────────────────────────────
 exports.getProducts = async (req, res) => {
   const {
@@ -51,8 +60,8 @@ exports.createProduct = async (req, res) => {
 
   const product = new Product({
     name, description, price, oldPrice, category, badge,
-    sizes:    sizes    ? JSON.parse(sizes)    : [],
-    colors:   colors   ? JSON.parse(colors)   : [],
+    sizes:    parseList(sizes),
+    colors:   parseList(colors),
     stock:    stock    || 0,
     featured: featured === 'true',
   });
@@ -79,7 +88,7 @@ exports.updateProduct = async (req, res) => {
   allowed.forEach(field => {
     if (req.body[field] !== undefined) {
       product[field] = ['sizes','colors'].includes(field)
-        ? JSON.parse(req.body[field])
+        ? parseList(req.body[field])
         : req.body[field];
     }
   });

@@ -1,5 +1,5 @@
 // frontend/src/pages/AdminPage.jsx
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate }      from 'react-router-dom';
 import { useAuth }          from '../context/AuthContext';
 import { useProducts }      from '../hooks/useProducts';
@@ -272,7 +272,7 @@ function ProductModal({ product, onClose, onSaved }) {
     oldPrice:    product?.oldPrice    || '',
     category:    product?.category    || 'Mujer',
     badge:       product?.badge       || '',
-    sizes:       (product?.sizes || []).join(', '),
+    sizes:       product?.sizes || [],
     colors:      (product?.colors|| []).join(', '),
     stock:       product?.stock       || 0,
     featured:    product?.featured    || false,
@@ -342,8 +342,8 @@ function ProductModal({ product, onClose, onSaved }) {
               value={form.description} onChange={e => set('description', e.target.value)} />
           </Field>
           <div style={ms.row}>
-            <Field label="Tallas (ej: S, M, L)">
-              <input style={ms.input} value={form.sizes} onChange={e => set('sizes', e.target.value)} placeholder="S, M, L" />
+            <Field label="Tallas">
+              <SizeSelector selected={form.sizes} onChange={v => set('sizes', v)} />
             </Field>
             <Field label="Stock">
               <input style={ms.input} type="number" value={form.stock} onChange={e => set('stock', e.target.value)} />
@@ -361,6 +361,64 @@ function ProductModal({ product, onClose, onSaved }) {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+
+// ── Selector de tallas ─────────────────────────────────────────────────────
+const TALLAS_PRESET = ['XS','S','M','L','XL','XXL','6','7','8','9','10','11','12','Único'];
+
+function SizeSelector({ selected = [], onChange }) {
+  const [custom, setCustom] = React.useState('');
+
+  const toggle = (t) => {
+    if (selected.includes(t)) onChange(selected.filter(s => s !== t));
+    else onChange([...selected, t]);
+  };
+
+  const addCustom = () => {
+    const val = custom.trim().toUpperCase();
+    if (!val || selected.includes(val)) return;
+    onChange([...selected, val]);
+    setCustom('');
+  };
+
+  return (
+    <div>
+      <div style={{display:'flex', flexWrap:'wrap', gap:'0.4rem', marginBottom:'0.5rem'}}>
+        {TALLAS_PRESET.map(t => (
+          <button key={t} type="button"
+            style={{
+              padding:'0.3rem 0.75rem', borderRadius:999, fontSize:'0.82rem', cursor:'pointer',
+              border: selected.includes(t) ? '1.5px solid #1A1612' : '1.5px solid #E0D8CE',
+              background: selected.includes(t) ? '#1A1612' : 'transparent',
+              color: selected.includes(t) ? '#C9A96E' : '#8A7968',
+              fontWeight: selected.includes(t) ? 600 : 400,
+              transition:'all .15s',
+            }}
+            onClick={() => toggle(t)}>{t}</button>
+        ))}
+      </div>
+      <div style={{display:'flex', gap:'0.5rem'}}>
+        <input
+          style={{...ms.input, flex:1, minWidth:0}}
+          placeholder="Talla personalizada (ej: 38)"
+          value={custom}
+          onChange={e => setCustom(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustom())}
+        />
+        <button type="button" onClick={addCustom}
+          style={{background:'#C9A96E', color:'#1A1612', border:'none', borderRadius:8,
+            padding:'0 0.85rem', fontWeight:700, cursor:'pointer', fontSize:'0.85rem'}}>
+          +
+        </button>
+      </div>
+      {selected.length > 0 && (
+        <div style={{marginTop:'0.4rem', fontSize:'0.78rem', color:'#8A7968'}}>
+          Seleccionadas: {selected.join(', ')}
+        </div>
+      )}
     </div>
   );
 }
