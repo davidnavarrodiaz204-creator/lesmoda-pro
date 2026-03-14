@@ -4,10 +4,9 @@ import { productService } from '../services/api';
 export default function ProductCard({ product, waNumber, onClick }) {
   const handleBuy = async (e) => {
     e.stopPropagation();
-    // Registrar el click en el backend
     productService.trackClick(product._id).catch(() => {});
     const num = waNumber?.replace(/\D/g, '');
-    const msg = `¡Hola! Me interesa comprar: *${product.name}* (S/ ${product.price.toFixed(2)}). ¿Está disponible? 🛍️`;
+    const msg = `¡Hola! Me interesa comprar en LeisModa: *${product.name}* (S/ ${product.price.toFixed(2)}). ¿Está disponible? 🛍️`;
     const url = num
       ? `https://wa.me/${num}?text=${encodeURIComponent(msg)}`
       : `https://wa.me/?text=${encodeURIComponent(msg)}`;
