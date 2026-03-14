@@ -68,7 +68,7 @@ export default function StorePage() {
 
       {/* HERO */}
       <section className="lm-hero" style={s.hero}>
-        <div style={s.heroEyebrow}>Nueva Colección 2025</div>
+        <div style={s.heroEyebrow}>Nueva Colección 2026</div>
         <h1 style={s.heroH1}>Moda que te <em style={{color:'#C9A96E'}}>define</em></h1>
         <p style={s.heroP}>Tu look favorito, directo desde Paita</p>
         <div style={s.heroSocial}>
