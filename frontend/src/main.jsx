@@ -75,6 +75,27 @@ style.textContent = `
     .btn-whatsapp { font-size:.72rem; padding:.42rem .7rem; }
   }
 
+
+  /* ── ADMIN RESPONSIVE ─────────────────────────────────── */
+  @media (max-width: 768px) {
+    /* ocultar sidebar, mostrar header móvil */
+    aside { display:none !important; }
+    .lm-admin-main { padding:0.75rem !important; }
+    [style*="width:220"] { display:none !important; }
+
+    /* mostrar header y cards móvil */
+    .lm-mobile-header { display:flex !important; }
+    .lm-mobile-cards  { display:flex !important; }
+    .lm-table-wrap table { display:none; }
+
+    /* config row en columna */
+    .lm-config-row { flex-direction:column !important; }
+    .lm-config-row input, .lm-config-row select { min-width:100% !important; width:100% !important; }
+
+    /* modal producto en móvil */
+    .lm-prod-modal { max-width:100% !important; margin:0; border-radius:12px 12px 0 0 !important; }
+    .lm-prod-modal-row { grid-template-columns:1fr !important; }
+  }
   @media (max-width: 400px) {
     .lm-product-grid { grid-template-columns:repeat(2,1fr) !important; gap:0.5rem !important; }
     .lm-grid-section { padding:0.75rem 0.75rem 2rem !important; }

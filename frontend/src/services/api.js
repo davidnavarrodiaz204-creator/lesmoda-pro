@@ -38,8 +38,9 @@ export const productService = {
 
 // ── Auth ───────────────────────────────────────────────────────────────────
 export const authService = {
-  login: (creds) => api.post('/auth/login', creds),
-  me:    ()      => api.get('/auth/me'),
+  login:      (creds) => api.post('/auth/login', creds),
+  me:         ()      => api.get('/auth/me'),
+  createUser: (data)  => api.post('/auth/register', data),
 };
 
 // ── Config ─────────────────────────────────────────────────────────────────
