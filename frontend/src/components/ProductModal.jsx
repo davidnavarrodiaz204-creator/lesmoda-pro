@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { productService } from '../services/api';
 import { useCart } from './CartContext';
 import { WhatsAppIcon, CloseIcon, ChevronLeftIcon, ChevronRightIcon, MinusIcon, PlusIcon, CheckIcon, ImageIcon, LockIcon } from './Icons';
+import { buildOrderWhatsappMessage, openWhatsapp } from '../utils/whatsappMessage';
 
 function StockBadge({ stock }) {
   if (stock == null || stock === undefined) return <span className="stock-badge stock-consult">Consultar stock</span>;
@@ -25,7 +26,6 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
   const hasColors = product.colors?.length > 0;
 
   const currentImg = images[imgIndex]?.url || product.mainImage;
-  const num = waNumber?.replace(/\D/g, '');
 
   const handleAddToCart = () => {
     addItem(product, { size: selectedSize, color: selectedColor, quantity });
@@ -35,10 +35,19 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
   const handleBuyNow = () => {
     addItem(product, { size: selectedSize, color: selectedColor, quantity });
     productService.trackClick(product._id).catch(() => {});
-    const imgLink = currentImg ? `\nFoto: ${currentImg}` : '';
-    const msg = `*Nuevo Pedido - ${product.name}*\n\nPrecio: S/ ${product.price.toFixed(2)}${selectedSize ? `\nTalla: ${selectedSize}` : ''}${selectedColor ? `\nColor: ${selectedColor}` : ''}\nCantidad: ${quantity}\nSubtotal: S/ ${(product.price * quantity).toFixed(2)}${imgLink}`;
-    const waUrl = num ? `https://wa.me/${num}?text=${encodeURIComponent(msg)}` : '#';
-    window.open(waUrl, '_blank');
+    const msg = buildOrderWhatsappMessage({
+      storeName: '',
+      items: [{
+        name: product.name,
+        price: product.price,
+        quantity,
+        size: selectedSize,
+        color: selectedColor,
+        images: product.images,
+      }],
+      total: product.price * quantity,
+    });
+    if (waNumber) openWhatsapp({ phone: waNumber, message: msg });
     onClose();
   };
 

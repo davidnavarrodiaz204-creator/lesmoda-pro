@@ -36,6 +36,8 @@ export const productService = {
   update:    (id, data) => api.put(`/products/${id}`, data),   // data = FormData
   remove:    (id)     => api.delete(`/products/${id}`),
   trackClick: (id)   => api.post(`/products/${id}/click`),
+  deleteImage: (productId, imageId) => api.delete(`/products/${productId}/images/${imageId}`),
+  setMainImage: (productId, imageId) => api.patch(`/products/${productId}/images/${imageId}/main`),
 };
 
 // ── Auth ───────────────────────────────────────────────────────────────────

@@ -932,7 +932,7 @@ function ProductModal({ product, onClose, onSaved }) {
   const [formTab, setFormTab] = useState('info');
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
-  const [existingImages] = useState(product?.images || []);
+  const [images, setImages] = useState(product?.images || []);
   const [form, setForm] = useState({
     name:        product?.name        || '',
     description: product?.description || '',
@@ -952,10 +952,39 @@ function ProductModal({ product, onClose, onSaved }) {
   const handleFile = (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
-    setSelectedFiles(files);
+    setSelectedFiles(prev => [...prev, ...files]);
     const urls = files.map(f => URL.createObjectURL(f));
-    setPreviews(urls);
-    setPreview(urls[0]);
+    setPreviews(prev => [...prev, ...urls]);
+    if (!preview) setPreview(urls[0]);
+  };
+
+  const handleDeleteImage = async (imageId) => {
+    if (!confirm('Eliminar esta imagen?')) return;
+    try {
+      await productService.deleteImage(product._id, imageId);
+      setImages(prev => {
+        const deleted = prev.find(img => img._id === imageId);
+        const updated = prev.filter(img => img._id !== imageId);
+        if (deleted?.isMain && updated.length > 0) {
+          updated[0].isMain = true;
+        }
+        return updated;
+      });
+    } catch (err) {
+      alert('Error al eliminar imagen');
+    }
+  };
+
+  const handleSetMain = async (imageId) => {
+    try {
+      await productService.setMainImage(product._id, imageId);
+      setImages(prev => prev.map(img => ({
+        ...img,
+        isMain: img._id === imageId,
+      })));
+    } catch (err) {
+      alert('Error al marcar como principal');
+    }
   };
 
   const handleSave = async () => {
@@ -1059,26 +1088,52 @@ function ProductModal({ product, onClose, onSaved }) {
           )}
           {formTab === 'images' && (
             <div>
-              {existingImages.length > 0 && (
+              {images.length > 0 && (
                 <div style={{marginBottom:'0.75rem'}}>
-                  <label style={{fontSize:'0.7rem',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8A7968',display:'block',marginBottom:'0.35rem'}}>Imágenes existentes</label>
-                  <div style={{display:'flex',gap:'0.5rem',overflowX:'auto'}}>
-                    {existingImages.map((img, i) => (
-                      <button key={i} onClick={() => setPreview(img.url)}
-                        style={{
-                          flexShrink:0,width:64,height:64,borderRadius:8,overflow:'hidden',padding:0,cursor:'pointer',background:'none',
-                          border: preview === img.url ? '2px solid #C9A96E' : '2px solid transparent',
-                        }}>
+                  <label style={{fontSize:'0.7rem',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8A7968',display:'block',marginBottom:'0.4rem'}}>Imágenes existentes</label>
+                  <div style={{display:'flex',gap:'0.5rem',flexWrap:'wrap'}}>
+                    {images.map((img) => (
+                      <div key={img._id} style={{
+                        position:'relative', width:88, height:88, borderRadius:8, overflow:'hidden', flexShrink:0,
+                        border: img.isMain ? '2px solid #C9A96E' : '2px solid transparent',
+                      }}>
                         <img src={img.url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>
-                      </button>
+                        {img.isMain && (
+                          <span style={{
+                            position:'absolute', top:0, left:0,
+                            background:'#C9A96E', color:'#1A1612',
+                            fontSize:'0.55rem', fontWeight:700,
+                            padding:'1px 5px', borderBottomRightRadius:6,
+                          }}>Principal</span>
+                        )}
+                        <div style={{
+                          position:'absolute', bottom:0, left:0, right:0,
+                          display:'flex', gap:0,
+                        }}>
+                          {!img.isMain && (
+                            <button onClick={() => handleSetMain(img._id)} title="Marcar como principal"
+                              style={{
+                                flex:1, background:'rgba(26,22,18,0.75)', border:'none',
+                                color:'white', fontSize:'0.6rem', padding:'3px 0',
+                                cursor:'pointer', fontFamily:'inherit',
+                              }}>Principal</button>
+                          )}
+                          <button onClick={() => handleDeleteImage(img._id)} title="Eliminar imagen"
+                            style={{
+                              flex:1, background:'rgba(180,40,40,0.85)', border:'none',
+                              color:'white', fontSize:'0.6rem', padding:'3px 0',
+                              cursor:'pointer', fontFamily:'inherit',
+                            }}>Eliminar</button>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
               )}
-              <Field label="Imagen principal">
+              <Field label="Agregar imágenes">
                 <input type="file" ref={fileRef} accept="image/*" multiple onChange={handleFile} style={{fontSize:'0.88rem'}} />
               </Field>
-              {previews.length > 1 && (
+              {previews.length > 0 && (
                 <div style={{display:'flex',gap:'0.5rem',marginTop:'0.5rem',overflowX:'auto'}}>
                   {previews.map((url, i) => (
                     <button key={i} onClick={() => setPreview(url)}
@@ -1092,7 +1147,7 @@ function ProductModal({ product, onClose, onSaved }) {
                   ))}
                 </div>
               )}
-              {(preview || previews.length > 0) && (
+              {preview && (
                 <div style={{position:'relative',marginTop:'0.75rem',display:'inline-block'}}>
                   <img src={preview} style={{maxHeight:160,borderRadius:8,objectFit:'cover'}} alt="preview" />
                 </div>

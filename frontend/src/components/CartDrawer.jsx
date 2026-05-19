@@ -3,35 +3,29 @@ import toast from 'react-hot-toast';
 import { useCart } from './CartContext';
 import { orderService } from '../services/api';
 import { CloseIcon, MinusIcon, PlusIcon, TrashIcon, WhatsAppIcon, CheckIcon, CartIcon, ImageIcon } from './Icons';
+import { buildOrderWhatsappMessage, openWhatsapp } from '../utils/whatsappMessage';
 
 export default function CartDrawer({ open, onClose, waNumber, waMessage, storeName }) {
   const { items, removeItem, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
-  const num = waNumber?.replace(/\D/g, '');
   const [checkout, setCheckout] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [form, setForm] = useState({ name: '', phone: '', address: '' });
-
-  const generateWAMessage = () => {
-    const lines = items.map((item, i) =>
-      `${i + 1}. *${item.name}* - S/ ${(item.price * item.quantity).toFixed(2)}` +
-      (item.size ? `\n   Talla: ${item.size}` : '') +
-      (item.color ? ` | Color: ${item.color}` : '') +
-      `\n   Cant: ${item.quantity}`
-    );
-    const store = storeName || 'LeisModa';
-    const header = `*Nuevo Pedido - ${store}*\n\n`;
-    const extra = waMessage ? `\n${waMessage}\n` : '';
-    const footer = `\n────────────────\n*Total: S/ ${totalPrice.toFixed(2)}*`;
-    return header + lines.join('\n\n') + extra + footer;
-  };
 
   const handleCheckout = async () => {
     if (!form.name.trim() || !form.phone.trim()) {
       return toast.error('Nombre y celular son requeridos');
     }
     setSaving(true);
-    const waMsg = generateWAMessage();
+
+    const msg = buildOrderWhatsappMessage({
+      storeName,
+      customer: { name: form.name.trim(), phone: form.phone.trim(), address: form.address.trim() },
+      items,
+      total: totalPrice,
+      customMessage: waMessage,
+    });
+
     let orderSaved = false;
 
     try {
@@ -50,15 +44,14 @@ export default function CartDrawer({ open, onClose, waNumber, waMessage, storeNa
           price: i.price,
         })),
         total: totalPrice,
-        whatsappMessage: waMsg,
+        whatsappMessage: msg,
       });
       orderSaved = true;
     } catch {
       toast.error('No se pudo guardar el pedido, pero igual puedes enviarlo por WhatsApp');
     } finally { setSaving(false); }
 
-    const waUrl = num ? `https://wa.me/${num}?text=${encodeURIComponent(waMsg)}` : '#';
-    window.open(waUrl, '_blank');
+    if (waNumber) openWhatsapp({ phone: waNumber, message: msg });
     if (orderSaved) {
       clearCart();
       setCheckout(false);

@@ -140,15 +140,52 @@ exports.updateProduct = async (req, res) => {
 
   const files = req.files || (req.file ? [req.file] : []);
   if (files.length > 0) {
-    for (const img of product.images) {
-      if (img.publicId) await cloudinary.uploader.destroy(img.publicId).catch(() => {});
-    }
-    product.images = files.map((f, i) => ({
+    const hasMain = product.images.some(img => img.isMain);
+    const newImages = files.map((f, i) => ({
       url:      f.path,
       publicId: f.filename,
-      isMain:   i === 0,
+      isMain:   !hasMain && i === 0,
     }));
+    product.images.push(...newImages);
   }
+
+  await product.save();
+  res.json({ success: true, data: product });
+};
+
+// ── DELETE /api/products/:id/images/:imageId  (admin) ─────────────────────
+exports.deleteImage = async (req, res) => {
+  const product = await Product.findById(req.params.id);
+  if (!product) return res.status(404).json({ success: false, message: 'Producto no encontrado' });
+
+  const image = product.images.id(req.params.imageId);
+  if (!image) return res.status(404).json({ success: false, message: 'Imagen no encontrada' });
+
+  if (image.publicId) {
+    await cloudinary.uploader.destroy(image.publicId).catch(() => {});
+  }
+
+  const wasMain = image.isMain;
+  image.deleteOne();
+
+  if (wasMain && product.images.length > 0) {
+    product.images[0].isMain = true;
+  }
+
+  await product.save();
+  res.json({ success: true, data: product });
+};
+
+// ── PATCH /api/products/:id/images/:imageId/main  (admin) ────────────────
+exports.setMainImage = async (req, res) => {
+  const product = await Product.findById(req.params.id);
+  if (!product) return res.status(404).json({ success: false, message: 'Producto no encontrado' });
+
+  const image = product.images.id(req.params.imageId);
+  if (!image) return res.status(404).json({ success: false, message: 'Imagen no encontrada' });
+
+  product.images.forEach(img => { img.isMain = false; });
+  image.isMain = true;
 
   await product.save();
   res.json({ success: true, data: product });
