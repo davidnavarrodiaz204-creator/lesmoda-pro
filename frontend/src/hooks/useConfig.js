@@ -23,16 +23,28 @@ const defaults = {
   promoBannerEnabled: true,
   featuredProductsEnabled: true,
   stockVisible: true,
+  siteTitle: '',
+  siteDescription: '',
+  keywords: '',
+  ogImage: '',
+  favicon: '',
+  indexable: true,
 };
 
 export function useConfig() {
   const [config, setConfig] = useState(defaults);
   const [loading, setLoading] = useState(true);
 
+  const boolKeys = ['promoBannerEnabled','featuredProductsEnabled','stockVisible','newOrderSound','showOutOfStock','relatedProductsEnabled','shareProductEnabled','indexable'];
+
   useEffect(() => {
     configService.get().then(({ data }) => {
       if (data?.data) {
-        setConfig((prev) => ({ ...prev, ...data.data }));
+        const norm = {};
+        Object.entries(data.data).forEach(([k, v]) => {
+          norm[k] = boolKeys.includes(k) ? (v === true || v === 'true' || v === 1) : v;
+        });
+        setConfig((prev) => ({ ...prev, ...norm }));
       }
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);

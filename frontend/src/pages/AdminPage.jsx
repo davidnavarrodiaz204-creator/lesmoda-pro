@@ -1261,10 +1261,16 @@ function ConfigSection() {
   const [logoPreview, setLogoPreview] = useState('');
   const [bannerPreview, setBannerPreview] = useState('');
 
+  const boolKeys = ['promoBannerEnabled','featuredProductsEnabled','stockVisible','newOrderSound','showOutOfStock','relatedProductsEnabled','shareProductEnabled','indexable'];
+
   useEffect(() => {
     configService.get().then(({data}) => {
       if (data?.data) {
-        setForm(f => ({...f, ...data.data}));
+        const norm = {};
+        Object.entries(data.data).forEach(([k, v]) => {
+          norm[k] = boolKeys.includes(k) ? (v === true || v === 'true' || v === 1) : v;
+        });
+        setForm(f => ({...f, ...norm}));
         if (data.data.logo) setLogoPreview(data.data.logo);
         if (data.data.banner) setBannerPreview(data.data.banner);
       }
@@ -1286,6 +1292,14 @@ function ConfigSection() {
         else fd.append(k, v);
       });
       await api.put('/config', fd);
+      const {data} = await configService.get();
+      if (data?.data) {
+        const norm = {};
+        Object.entries(data.data).forEach(([k, v]) => {
+          norm[k] = boolKeys.includes(k) ? (v === true || v === 'true' || v === 1) : v;
+        });
+        setForm(f => ({...f, ...norm}));
+      }
       toast.success('Configuracion guardada correctamente');
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Error al guardar configuracion');
@@ -1652,7 +1666,7 @@ function ConfigSection() {
               </Field>
             </div>
             <div style={{display:'flex',flexWrap:'wrap',gap:'0.65rem'}}>
-              <Toggle label="Indexable (permitir a Google indexar)" checked={form.indexable !== false} onChange={v => set('indexable', v)} />
+              <Toggle label="Indexable (permitir a Google indexar)" checked={form.indexable === true} onChange={v => set('indexable', v)} />
             </div>
             <div style={{fontSize:'0.8rem',color:'#8A7968',background:'#F5F1EB',borderRadius:8,padding:'0.75rem 1rem',lineHeight:1.6}}>
               Sitemap disponible en: <code style={{background:'#EBE5DB',padding:'0.15rem 0.4rem',borderRadius:4}}>/sitemap.xml</code><br />
