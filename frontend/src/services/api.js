@@ -38,6 +38,8 @@ export const productService = {
   trackClick: (id)   => api.post(`/products/${id}/click`),
   deleteImage: (productId, imageId) => api.delete(`/products/${productId}/images/${imageId}`),
   setMainImage: (productId, imageId) => api.patch(`/products/${productId}/images/${imageId}/main`),
+  duplicate: (id) => api.post(`/products/${id}/duplicate`),
+  getRelated: (id) => api.get(`/products/${id}/related`),
 };
 
 // ── Auth ───────────────────────────────────────────────────────────────────

@@ -36,7 +36,7 @@ const productSchema = new mongoose.Schema(
     },
     badge: {
       type:    String,
-      enum:    ['new', 'sale', 'hot', null],
+      enum:    ['new', 'sale', 'hot', 'last', 'featured', null],
       default: null,
     },
     // Imágenes en Cloudinary

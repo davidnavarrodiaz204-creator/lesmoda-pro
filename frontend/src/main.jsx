@@ -29,6 +29,8 @@ style.textContent = `
   .card-badge.new  { background:#C9A96E; color:#1A1612; }
   .card-badge.sale { background:#C25E5E; color:white; }
   .card-badge.hot  { background:#1A1612; color:#C9A96E; }
+  .card-badge.last  { background:#C25E5E; color:white; }
+  .card-badge.featured { background:#1A1612; color:#C9A96E; }
   .card-discount-badge { position:absolute;top:10px;right:10px;font-size:.62rem;font-weight:700;
     background:#C25E5E;color:white;padding:.2rem .5rem;border-radius:4px;z-index:2; }
   .card-image-overlay { position:absolute;bottom:0;left:0;right:0;padding:.75rem;
@@ -172,6 +174,8 @@ style.textContent = `
   .modal-badge.new  { background:#C9A96E;color:#1A1612; }
   .modal-badge.sale { background:#C25E5E;color:white; }
   .modal-badge.hot  { background:#1A1612;color:#C9A96E; }
+  .modal-badge.last  { background:#C25E5E; color:white; }
+  .modal-badge.featured { background:#1A1612; color:#C9A96E; }
   .modal-pricing { display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap; }
   .modal-price { font-size:1.7rem;font-weight:700;color:#1A1612; }
   .modal-old-price { font-size:.95rem;color:#8A7968;text-decoration:line-through; }
@@ -222,6 +226,22 @@ style.textContent = `
     background:#25D366;color:white;border:none;cursor:pointer;transition:all .25s;
     text-decoration:none;font-family:inherit; }
   .modal-wa-btn:hover { background:#1ebe5d; }
+
+  .modal-share-tooltip { font-size:.65rem;color:#2E7D52;position:absolute;top:0;right:0; }
+
+  .modal-related { border-top:1px solid #F0EAE0;padding-top:1rem;margin-top:.5rem; }
+  .modal-related-title { font-family:'Playfair Display',serif;font-size:.85rem;color:#1A1612;margin-bottom:.75rem; }
+  .modal-related-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem; }
+  .modal-related-card { display:flex;gap:.5rem;padding:.5rem;border-radius:8px;border:1px solid #F0EAE0;
+    background:white;cursor:pointer;transition:all .2s;text-align:left;font-family:inherit;
+    text-decoration:none;color:inherit;width:100%; }
+  .modal-related-card:hover { border-color:#C9A96E;box-shadow:0 2px 8px rgba(201,169,110,.12); }
+  .modal-related-img-wrap { width:48px;height:60px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#F0EBE3; }
+  .modal-related-img { width:100%;height:100%;object-fit:cover; }
+  .modal-related-no-img { width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#8A7968; }
+  .modal-related-body { flex:1;min-width:0;display:flex;flex-direction:column;gap:.15rem;justify-content:center; }
+  .modal-related-name { font-size:.72rem;font-weight:500;color:#1A1612;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+  .modal-related-price { font-size:.75rem;font-weight:700;color:#C9A96E; }
 
   /* ── CART DRAWER ──────────────────────────────────────── */
   .cart-checkout-form { padding:.75rem 1.5rem 0; display:flex; flex-direction:column; gap:.65rem; overflow-y:auto; }

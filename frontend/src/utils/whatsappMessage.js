@@ -66,9 +66,9 @@ export function openWhatsapp({ phone, message }) {
   } else {
     const desktopUrl = `https://web.whatsapp.com/send?phone=${num}&text=${text}`;
     const fallbackUrl = `https://wa.me/${num}?text=${text}`;
-    const w = window.open(desktopUrl, '_blank');
+    const w = window.open(desktopUrl, 'lesmoda_whatsapp');
     if (!w || w.closed) {
-      window.open(fallbackUrl, '_blank');
+      window.open(fallbackUrl, 'lesmoda_whatsapp');
     }
   }
 }

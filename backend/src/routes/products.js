@@ -9,6 +9,7 @@ router.get('/',           ctrl.getProducts);
 router.get('/stats',      ctrl.getStats);
 router.get('/:slug',      ctrl.getProduct);
 router.post('/:id/click', ctrl.trackWhatsappClick);
+router.get('/:id/related', ctrl.getRelatedProducts);
 
 // Protegidas (requieren login)
 router.post('/',           protect, upload.array('images', 10), ctrl.createProduct);
@@ -16,5 +17,6 @@ router.put('/:id',         protect, upload.array('images', 10), ctrl.updateProdu
 router.delete('/:id',      protect, ctrl.deleteProduct);
 router.delete('/:id/images/:imageId', protect, ctrl.deleteImage);
 router.patch('/:id/images/:imageId/main', protect, ctrl.setMainImage);
+router.post('/:id/duplicate', protect, ctrl.duplicateProduct);
 
 module.exports = router;

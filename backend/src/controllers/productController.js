@@ -205,6 +205,46 @@ exports.deleteProduct = async (req, res) => {
   res.json({ success: true, message: 'Producto eliminado' });
 };
 
+// ── POST /api/products/:id/duplicate ──────────────────────────────────────
+exports.duplicateProduct = async (req, res) => {
+  const original = await Product.findById(req.params.id);
+  if (!original) return res.status(404).json({ success: false, message: 'Producto no encontrado' });
+
+  const copy = new Product({
+    name:        original.name + ' (Copia)',
+    description: original.description,
+    price:       original.price,
+    oldPrice:    original.oldPrice,
+    category:    original.category,
+    badge:       original.badge,
+    sizes:       [...original.sizes],
+    colors:      [...original.colors],
+    stock:       original.stock,
+    featured:    false,
+    isActive:    false,
+  });
+
+  await copy.save();
+  res.status(201).json({ success: true, data: copy });
+};
+
+// ── GET /api/products/:id/related ─────────────────────────────────────────
+exports.getRelatedProducts = async (req, res) => {
+  const product = await Product.findById(req.params.id).lean();
+  if (!product) return res.status(404).json({ success: false, message: 'Producto no encontrado' });
+
+  const related = await Product.find({
+    _id: { $ne: product._id },
+    isActive: true,
+    category: product.category,
+  })
+    .sort({ createdAt: -1 })
+    .limit(4)
+    .lean({ virtuals: true });
+
+  res.json({ success: true, data: related });
+};
+
 // ── POST /api/products/:id/click-whatsapp ─────────────────────────────────
 exports.trackWhatsappClick = async (req, res) => {
   await Product.findByIdAndUpdate(req.params.id, { $inc: { whatsappClicks: 1 } });

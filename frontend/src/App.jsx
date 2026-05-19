@@ -7,6 +7,7 @@ import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 import AboutPage from './pages/AboutPage';
 import HowToBuyPage from './pages/HowToBuyPage';
+import ProductPage from './pages/ProductPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function PrivateRoute({ children }) {
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/"            element={<StorePage />} />
             <Route path="/about"       element={<AboutPage />} />
             <Route path="/how-to-buy"  element={<HowToBuyPage />} />
+            <Route path="/producto/:slug" element={<ProductPage />} />
             <Route path="/admin/login" element={<LoginPage />} />
             <Route path="/admin"       element={<PrivateRoute><AdminPage /></PrivateRoute>} />
             <Route path="*"            element={<NotFoundPage />} />

@@ -4,7 +4,7 @@ import { useCart } from './CartContext';
 import { WhatsAppIcon, CheckIcon, ImageIcon } from './Icons';
 import { openWhatsapp } from '../utils/whatsappMessage';
 
-const badgeLabel = { new: 'NUEVO', sale: 'OFERTA', hot: 'TREND' };
+const badgeLabel = { new: 'NUEVO', sale: 'OFERTA', hot: 'TREND', last: 'ULTIMAS UNIDADES', featured: 'DESTACADO' };
 
 const PREMIUM_STYLE_ID = 'pcard-premium';
 

@@ -572,6 +572,16 @@ function ProductSection({ onEdit, onAdd }) {
     fetchProducts();
   };
 
+  const handleDuplicate = async (id) => {
+    try {
+      await productService.duplicate(id);
+      toast.success('Producto duplicado como inactivo');
+      fetchProducts();
+    } catch {
+      toast.error('Error al duplicar producto');
+    }
+  };
+
   return (
     <div style={s.card}>
       <div style={s.cardHeader}>
@@ -665,6 +675,7 @@ function ProductSection({ onEdit, onAdd }) {
                 <td style={{...s.td, textAlign:'center', color:'#25D366', fontWeight:600}}>{p.whatsappClicks ?? 0}</td>
                 <td style={s.td}>
                   <button style={s.btnEdit} onClick={() => onEdit(p)}><PencilIcon size={14} /></button>
+                  <button style={s.btnEdit} onClick={() => handleDuplicate(p._id)} title="Duplicar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
                   <button style={s.btnDel} onClick={() => handleDelete(p._id)}><TrashIcon size={14} /></button>
                 </td>
               </tr>
@@ -691,6 +702,7 @@ function ProductSection({ onEdit, onAdd }) {
             </div>
             <div style={{display:'flex', gap:'0.5rem', marginTop:'0.75rem'}}>
               <button style={{...s.btnEdit, flex:1, textAlign:'center'}} onClick={() => onEdit(p)}><PencilIcon size={14} /> Editar</button>
+              <button style={{...s.btnEdit, flex:1, textAlign:'center'}} onClick={() => handleDuplicate(p._id)}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Duplicar</button>
               <button style={{...s.btnDel, flex:1, textAlign:'center'}} onClick={() => handleDelete(p._id)}><TrashIcon size={14} /> Borrar</button>
             </div>
           </div>
@@ -1044,6 +1056,7 @@ function ConfigSection() {
     freeShippingText: '', freeShippingMin: '', waMessage: '',
     promoBannerEnabled: false, featuredProductsEnabled: false, stockVisible: false,
     newOrderSound: true, pollInterval: '30', showOutOfStock: true,
+    relatedProductsEnabled: true, shareProductEnabled: true, ctaText: '', trustText: '',
   });
   const [saving, setSaving] = useState(false);
   const [waError, setWaError] = useState('');
@@ -1109,6 +1122,7 @@ function ConfigSection() {
     { key: 'social', label: 'Social/Contacto' },
     { key: 'whatsapp', label: 'WhatsApp' },
     { key: 'marketing', label: 'Marketing' },
+    { key: 'commercial', label: 'Comercial' },
     { key: 'appearance', label: 'Apariencia' },
     { key: 'advanced', label: 'Avanzado' },
   ];
@@ -1231,6 +1245,23 @@ function ConfigSection() {
               <Toggle label="Productos destacados" checked={form.featuredProductsEnabled} onChange={v => set('featuredProductsEnabled', v)} />
               <Toggle label="Stock visible" checked={form.stockVisible} onChange={v => set('stockVisible', v)} />
             </div>
+          </div>
+        )}
+
+        {activeTab === 'commercial' && (
+          <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Configuracion comercial</h3>
+            <div style={{display:'flex',flexWrap:'wrap',gap:'0.65rem'}}>
+              <Toggle label="Productos relacionados" checked={form.relatedProductsEnabled} onChange={v => set('relatedProductsEnabled', v)} />
+              <Toggle label="Compartir producto" checked={form.shareProductEnabled} onChange={v => set('shareProductEnabled', v)} />
+              <Toggle label="Mostrar sin stock" checked={form.showOutOfStock} onChange={v => set('showOutOfStock', v)} />
+            </div>
+            <Field label="Texto CTA principal">
+              <input style={s.input} value={form.ctaText || ''} onChange={e => set('ctaText', e.target.value)} placeholder="Ej: Compra ahora por WhatsApp" />
+            </Field>
+            <Field label="Texto de confianza bajo carrito">
+              <textarea style={{...s.input, minHeight:60, resize:'vertical'}} value={form.trustText || ''} onChange={e => set('trustText', e.target.value)} placeholder="Ej: Compra 100% segura, paga contra entrega" />
+            </Field>
           </div>
         )}
 
@@ -1423,6 +1454,8 @@ function ProductModal({ product, onClose, onSaved }) {
                     <option value="new">Nuevo</option>
                     <option value="sale">Oferta</option>
                     <option value="hot">Trending</option>
+                    <option value="last">Ultimas unidades</option>
+                    <option value="featured">Destacado</option>
                   </select>
                 </Field>
               </div>

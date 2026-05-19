@@ -15,7 +15,13 @@ import { useCart } from '../components/CartContext';
 import { CartIcon, WarningIcon, DressIcon } from '../components/Icons';
 import Footer from '../components/Footer';
 
-const BADGES = [{ label: 'Nuevo', value: 'new' }, { label: 'Oferta', value: 'sale' }];
+const BADGES = [
+  { label: 'Nuevo', value: 'new' },
+  { label: 'Oferta', value: 'sale' },
+  { label: 'Trending', value: 'hot' },
+  { label: 'Ult. unidades', value: 'last' },
+  { label: 'Destacado', value: 'featured' },
+];
 
 export default function StorePage() {
   const [filter, setFilter] = useState({});
@@ -27,6 +33,9 @@ export default function StorePage() {
   const { config } = useConfig();
 
   const { products, loading, error } = useProducts(filter);
+  const visibleProducts = config.showOutOfStock === false
+    ? products.filter(p => p.stock > 0)
+    : products;
 
   const waNumber = normalizeWaNumber(config.waNumber || '');
 
@@ -115,10 +124,10 @@ export default function StorePage() {
         {error && <div style={s.center}><WarningIcon size={16} /> {error}</div>}
 
         {!loading && !error && (
-          products.length === 0
+          visibleProducts.length === 0
             ? <EmptyState />
             : <div className="lm-product-grid" style={s.productGrid}>
-                {products.map(p => (
+                {visibleProducts.map(p => (
                   <ProductCard key={p._id} product={p} waNumber={waNumber} onClick={setSelected} stockVisible={config.stockVisible} />
                 ))}
               </div>
