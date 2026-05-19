@@ -40,6 +40,12 @@ export const productService = {
   setMainImage: (productId, imageId) => api.patch(`/products/${productId}/images/${imageId}/main`),
   duplicate: (id) => api.post(`/products/${id}/duplicate`),
   getRelated: (id) => api.get(`/products/${id}/related`),
+  importPreview: (file) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    return api.post('/products/import/preview', fd);
+  },
+  importConfirm: (rows) => api.post('/products/import/confirm', { rows }),
 };
 
 // ── Auth ───────────────────────────────────────────────────────────────────

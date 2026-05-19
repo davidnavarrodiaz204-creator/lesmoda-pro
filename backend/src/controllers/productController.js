@@ -1,6 +1,7 @@
 // backend/src/controllers/productController.js
 const Product   = require('../models/Product');
 const { cloudinary } = require('../config/cloudinary');
+const importService = require('../services/importService');
 
 
 // Helper: acepta "S, M, L" o ["S","M","L"] o JSON string
@@ -249,4 +250,113 @@ exports.getRelatedProducts = async (req, res) => {
 exports.trackWhatsappClick = async (req, res) => {
   await Product.findByIdAndUpdate(req.params.id, { $inc: { whatsappClicks: 1 } });
   res.json({ success: true });
+};
+
+// ── POST /api/products/import/preview ─────────────────────────────────────
+exports.importPreview = async (req, res) => {
+  if (!req.file) return res.status(400).json({ success: false, message: 'Archivo requerido' });
+
+  const content = req.file.buffer.toString('utf-8');
+  let records;
+  try {
+    records = importService.parseCSV(content);
+  } catch (err) {
+    return res.status(400).json({ success: false, message: 'Error al leer el archivo CSV: ' + err.message });
+  }
+
+  if (records.length === 0) {
+    return res.status(400).json({ success: false, message: 'El archivo no contiene datos' });
+  }
+
+  if (records.length > importService.MAX_ROWS) {
+    return res.status(400).json({
+      success: false,
+      message: `Maximo ${importService.MAX_ROWS} filas por importacion. El archivo tiene ${records.length}`,
+    });
+  }
+
+  const result = importService.validateRows(records);
+
+  res.json({
+    success: true,
+    data: {
+      total: result.total,
+      validCount: result.validCount,
+      invalidCount: result.invalidCount,
+      valid: result.valid,
+      invalid: result.invalid,
+    },
+  });
+};
+
+// ── POST /api/products/import/confirm ─────────────────────────────────────
+exports.importConfirm = async (req, res) => {
+  const { rows } = req.body;
+
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return res.status(400).json({ success: false, message: 'Se requiere un array de productos validos' });
+  }
+
+  if (rows.length > importService.MAX_ROWS) {
+    return res.status(400).json({ success: false, message: `Maximo ${importService.MAX_ROWS} productos` });
+  }
+
+  const created = [];
+  const skipped = [];
+  const errors = [];
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const validation = importService.validateRow(row, i);
+    if (!validation.valid) {
+      errors.push({ index: i, errors: validation.errors });
+      continue;
+    }
+
+    const data = validation.data;
+
+    try {
+      const existingSlug = await Product.findOne({ name: data.name }).collation({ locale: 'es', strength: 2 });
+      if (existingSlug) {
+        skipped.push({ index: i, name: data.name, reason: 'Ya existe un producto con este nombre' });
+        continue;
+      }
+
+      const productData = {
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        category: data.category,
+        stock: data.stock,
+        badge: data.badge,
+        sizes: data.sizes,
+        colors: data.colors,
+        isActive: data.isActive,
+        featured: data.featured,
+      };
+
+      if (data.oldPrice !== undefined) productData.oldPrice = data.oldPrice;
+      if (data.imageUrl) {
+        productData.images = [{ url: data.imageUrl, isMain: true }];
+      }
+
+      const product = await Product.create(productData);
+      created.push({ index: i, name: data.name, _id: product._id });
+    } catch (err) {
+      errors.push({ index: i, name: data.name, errors: [err.message] });
+    }
+  }
+
+  res.json({
+    success: true,
+    data: {
+      total: rows.length,
+      created: created.length,
+      skipped: skipped.length,
+      errors: errors.length,
+      createdDetails: created,
+      skippedDetails: skipped,
+      errorDetails: errors,
+    },
+  });
 };

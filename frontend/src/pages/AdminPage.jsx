@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api, { productService, configService, authService, orderService } from '../services/api';
+import ImportModal from '../components/ImportModal';
 import { validatePeruNumber, normalizeWaNumber } from '../utils/waNumber';
 import {
   ChartIcon, PackageIcon, ClipboardIcon, UsersIcon, GearIcon,
@@ -548,6 +549,7 @@ function ProductSection({ onEdit, onAdd }) {
   const [lowStockOnly, setLowStockOnly] = useState(false);
   const [sortBy, setSortBy] = useState('-createdAt');
   const [activeFilter, setActiveFilter] = useState('todos');
+  const [showImport, setShowImport] = useState(false);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -586,7 +588,15 @@ function ProductSection({ onEdit, onAdd }) {
     <div style={s.card}>
       <div style={s.cardHeader}>
         <h3 style={s.cardTitle}>Productos ({products.length})</h3>
-        <button style={s.btnAdd} onClick={onAdd}>+ Agregar</button>
+        <div style={{display:'flex',gap:'0.5rem'}}>
+          <button style={s.btnAdd} onClick={onAdd}>+ Agregar</button>
+          <button style={{...s.btnSave}} onClick={() => setShowImport(true)}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:'0.3rem',verticalAlign:'middle'}}>
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Importar
+          </button>
+        </div>
       </div>
 
       {/* Filtros */}
@@ -708,6 +718,7 @@ function ProductSection({ onEdit, onAdd }) {
           </div>
         ))}
       </div>
+      {showImport && <ImportModal onClose={() => { setShowImport(false); fetchProducts(); }} />}
     </div>
   );
 }
