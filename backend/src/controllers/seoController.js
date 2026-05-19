@@ -31,8 +31,8 @@ ${products}</urlset>`;
 
 exports.robots = async (req, res) => {
   const base = domain(req);
-  const indexable = await Config.get('indexable');
-  const allow = indexable !== false;
+  const raw = await Config.get('indexable');
+  const allow = raw !== false && raw !== 'false';
 
   const lines = [];
   if (!allow) lines.push('User-agent: *\nDisallow: /');

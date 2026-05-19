@@ -1062,6 +1062,7 @@ function UserSection() {
 function BannersManager() {
   const [banners, setBanners] = useState([]);
   const [editing, setEditing] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const fetch = () => {
     bannerService.getAllAdmin()
@@ -1072,46 +1073,67 @@ function BannersManager() {
   useEffect(() => { fetch(); }, []);
 
   const handleCreate = async () => {
+    setSaving(true);
     try {
-      await bannerService.create({ text: 'Nuevo banner', isActive: true });
+      const { data } = await bannerService.create({ text: 'Nuevo banner', subtitle: '', isActive: true });
+      setEditing(data?.data || { text: 'Nuevo banner', subtitle: '', isActive: true });
       fetch();
-      toast.success('Banner creado');
+      toast.success('Banner creado — editalo');
     } catch { toast.error('Error al crear banner'); }
+    setSaving(false);
   };
 
   const handleUpdate = async (id, data) => {
+    setSaving(true);
     try {
       await bannerService.update(id, data);
       fetch();
       setEditing(null);
       toast.success('Banner actualizado');
     } catch { toast.error('Error al actualizar banner'); }
+    setSaving(false);
   };
 
   const handleDelete = async (id) => {
     if (!confirm('Eliminar este banner?')) return;
+    setSaving(true);
     try {
       await bannerService.remove(id);
       fetch();
       toast.success('Banner eliminado');
     } catch { toast.error('Error al eliminar banner'); }
+    setSaving(false);
+  };
+
+  const handleToggleActive = async (b) => {
+    setSaving(true);
+    try {
+      await bannerService.update(b._id, { isActive: !b.isActive });
+      fetch();
+      toast.success(b.isActive ? 'Banner desactivado' : 'Banner activado');
+    } catch { toast.error('Error al cambiar estado'); }
+    setSaving(false);
   };
 
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
         <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612'}}>Banners promocionales</h3>
-        <button onClick={handleCreate} style={{...s.btnAdd, padding:'0.45rem 0.9rem', fontSize:'0.78rem'}}>
+        <button onClick={handleCreate} disabled={saving} style={{...s.btnAdd, padding:'0.45rem 0.9rem', fontSize:'0.78rem'}}>
           <PlusCircleIcon size={12} /> Agregar banner
         </button>
       </div>
       {banners.length === 0 && <p style={{fontSize:'0.85rem',color:'#8A7968'}}>No hay banners aun. Crea uno para mostrar promociones.</p>}
-      {banners.map(b => (
+      {banners.map(b => {
+        const isEditing = editing?._id === b._id;
+        return (
         <div key={b._id} style={{
           background:'#FAF7F2', borderRadius:10, padding:'0.75rem 1rem',
-          border: '1.5px solid #E8D5B0', display:'flex', flexDirection:'column', gap:'0.5rem',
+          border: `1.5px solid ${isEditing ? '#C9A96E' : '#E8D5B0'}`,
+          display:'flex', flexDirection:'column', gap:'0.5rem',
+          opacity: b.isActive ? 1 : 0.6,
         }}>
-          {editing === b._id ? (
+          {isEditing ? (
             <>
               <input style={s.input} value={editing.text} onChange={e => setEditing({...editing, text: e.target.value})} placeholder="Texto del banner" />
               <input style={s.input} value={editing.subtitle || ''} onChange={e => setEditing({...editing, subtitle: e.target.value})} placeholder="Subtitulo (opcional)" />
@@ -1128,8 +1150,16 @@ function BannersManager() {
                   Activo
                 </label>
               </div>
+              <div style={{
+                padding:'0.5rem 1rem', borderRadius:6, textAlign:'center', fontSize:'0.82rem',
+                background: editing.color || '#C9A96E', color:'white', fontWeight:500,
+              }}>
+                {editing.text} {editing.cta && <span style={{textDecoration:'underline',marginLeft:'0.5rem'}}>{editing.cta}</span>}
+              </div>
               <div style={{display:'flex',gap:'0.5rem'}}>
-                <button onClick={() => handleUpdate(b._id, editing)} style={{...s.btnSave, fontSize:'0.78rem', padding:'0.4rem 0.9rem'}}><SaveIcon size={12} /> Guardar</button>
+                <button onClick={() => handleUpdate(b._id, editing)} disabled={saving} style={{...s.btnSave, fontSize:'0.78rem', padding:'0.4rem 0.9rem'}}>
+                  {saving ? 'Guardando...' : <><SaveIcon size={12} /> Guardar</>}
+                </button>
                 <button onClick={() => setEditing(null)} style={{fontSize:'0.78rem',padding:'0.4rem 0.9rem',background:'transparent',border:'1.5px solid #D0C8BE',borderRadius:6,color:'#8A7968',cursor:'pointer',fontFamily:'inherit'}}>Cancelar</button>
               </div>
             </>
@@ -1138,11 +1168,14 @@ function BannersManager() {
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <div style={{display:'flex',alignItems:'center',gap:'0.5rem'}}>
                   <span style={{width:10,height:10,borderRadius:'50%',background:b.isActive?'#2E7D52':'#E0D8CE'}} />
-                  <strong style={{fontSize:'0.88rem',color:'#1A1612'}}>{b.text}</strong>
+                  <strong style={{fontSize:'0.88rem',color:'#1A1612'}}>{b.text || '(sin texto)'}</strong>
                 </div>
                 <div style={{display:'flex',gap:'0.3rem'}}>
-                  <button onClick={() => setEditing({...b})} style={{background:'none',border:'none',color:'#8A7968',cursor:'pointer',padding:'0.2rem'}} title="Editar"><PencilIcon size={14} /></button>
-                  <button onClick={() => handleDelete(b._id)} style={{background:'none',border:'none',color:'#C25E5E',cursor:'pointer',padding:'0.2rem'}} title="Eliminar"><TrashIcon size={14} /></button>
+                  <button onClick={() => handleToggleActive(b)} disabled={saving} style={{background:'none',border:'none',color:'#8A7968',cursor:'pointer',padding:'0.2rem'}} title={b.isActive ? 'Desactivar' : 'Activar'}>
+                    {b.isActive ? <EyeIcon size={14} /> : <EyeOffIcon size={14} />}
+                  </button>
+                  <button onClick={() => setEditing({...b})} disabled={saving} style={{background:'none',border:'none',color:'#8A7968',cursor:'pointer',padding:'0.2rem'}} title="Editar"><PencilIcon size={14} /></button>
+                  <button onClick={() => handleDelete(b._id)} disabled={saving} style={{background:'none',border:'none',color:'#C25E5E',cursor:'pointer',padding:'0.2rem'}} title="Eliminar"><TrashIcon size={14} /></button>
                 </div>
               </div>
               {b.subtitle && <div style={{fontSize:'0.78rem',color:'#8A7968'}}>{b.subtitle}</div>}
@@ -1156,7 +1189,8 @@ function BannersManager() {
             </>
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -1245,17 +1279,16 @@ function ConfigSection() {
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => {
-        if (v !== '' && v != null) {
-          if (k === 'waNumber') fd.append(k, normalizeWaNumber(v));
-          else if (v instanceof File) fd.append(k, v);
-          else if (typeof v === 'boolean') fd.append(k, v ? 'true' : 'false');
-          else fd.append(k, v);
-        }
+        if (v === undefined || v === null) return;
+        if (k === 'waNumber') fd.append(k, normalizeWaNumber(v));
+        else if (v instanceof File) fd.append(k, v);
+        else if (typeof v === 'boolean') fd.append(k, v ? 'true' : 'false');
+        else fd.append(k, v);
       });
       await api.put('/config', fd);
       toast.success('Configuracion guardada correctamente');
-    } catch {
-      toast.error('Error al guardar configuracion');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Error al guardar configuracion');
     } finally {
       setSaving(false);
     }

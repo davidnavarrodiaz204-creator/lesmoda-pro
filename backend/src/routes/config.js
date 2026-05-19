@@ -24,11 +24,14 @@ router.put('/', protect, configUpload.fields([
     if (req.files.banner) updates.banner = req.files.banner[0].path;
   }
 
+  const updatedKeys = [];
   for (const [key, value] of Object.entries(updates)) {
     if (value !== undefined && value !== null) {
       await Config.set(key, value);
+      updatedKeys.push(key);
     }
   }
+  console.log(`[config] updated: ${updatedKeys.join(', ')}`);
   res.json({ success: true, message: 'Configuracion guardada' });
 });
 
