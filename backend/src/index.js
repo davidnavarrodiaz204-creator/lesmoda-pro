@@ -29,6 +29,9 @@ connectDB();
 
 const app = express();
 
+// ── Trust proxy (Render, Railway, Nginx) ────────────────────────────────────
+app.set('trust proxy', 1);
+
 // ── Compresion (gzip) ───────────────────────────────────────────────────────
 app.use(compression({ level: 6 }));
 

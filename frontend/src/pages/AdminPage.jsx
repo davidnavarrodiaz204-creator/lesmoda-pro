@@ -8,7 +8,7 @@ import {
   ChartIcon, PackageIcon, ClipboardIcon, UsersIcon, GearIcon,
   StoreIcon, DoorIcon, UserIcon, MobileIcon, SaveIcon,
   NewBadgeIcon, FireIcon, WarningIcon, ImageIcon, PencilIcon,
-  TrashIcon, EyeIcon, PlusCircleIcon, CloseIcon, TagIcon, CheckIcon,
+  TrashIcon, EyeIcon, EyeOffIcon, PlusCircleIcon, CloseIcon, TagIcon, CheckIcon,
 } from '../components/Icons';
 import toast from 'react-hot-toast';
 
