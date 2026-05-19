@@ -6,6 +6,7 @@ import { CloseIcon, MinusIcon, PlusIcon, TrashIcon, WhatsAppIcon, CheckIcon, Car
 import { buildOrderWhatsappMessage, openWhatsapp } from '../utils/whatsappMessage';
 
 export default function CartDrawer({ open, onClose, waNumber, waMessage, storeName }) {
+  console.log('API URL', import.meta.env.VITE_API_URL);
   const { items, removeItem, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
   const [checkout, setCheckout] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -13,6 +14,7 @@ export default function CartDrawer({ open, onClose, waNumber, waMessage, storeNa
   const [form, setForm] = useState({ name: '', phone: '', address: '' });
 
   const handleCheckout = async () => {
+    console.log('creating order');
     if (!form.name.trim() || !form.phone.trim()) {
       return toast.error('Nombre y celular son requeridos');
     }

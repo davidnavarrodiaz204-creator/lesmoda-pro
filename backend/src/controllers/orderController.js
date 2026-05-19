@@ -3,7 +3,16 @@ const telegram = require('../services/telegram');
 
 // ── POST /api/orders (público) ─────────────────────────────────────────────
 exports.createOrder = async (req, res) => {
+  console.log('[orders] createOrder hit');
+
   const { customerName, customerPhone, customerAddress, items, total, whatsappMessage } = req.body;
+
+  console.log('[orders] body received:', {
+    itemsCount: items?.length || 0,
+    total,
+    customerNameExists: !!customerName,
+    source: req.body.source || 'whatsapp',
+  });
 
   if (!customerName || !customerPhone || !items?.length) {
     return res.status(400).json({ success: false, message: 'Nombre, celular y items son requeridos' });
@@ -29,7 +38,10 @@ exports.createOrder = async (req, res) => {
     source: 'whatsapp',
   });
 
+  console.log('[orders] order saved:', { orderId: order._id, total: order.total });
+
   // Telegram notification (no bloqueante — no debe afectar la respuesta)
+  console.log('[orders] triggering telegram notification');
   setImmediate(async () => {
     try {
       const cleanPhone = customerPhone.replace(/\D/g, '');
