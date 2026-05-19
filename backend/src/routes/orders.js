@@ -9,6 +9,7 @@ router.post('/', ctrl.createOrder);
 router.get('/stats', protect, ctrl.getOrderStats);
 router.get('/test-telegram', protect, ctrl.testTelegram);
 router.get('/',       protect, ctrl.getOrders);
+router.patch('/:id/viewed', protect, ctrl.markViewed);
 router.get('/:id',    protect, ctrl.getOrder);
 router.patch('/:id/status', protect, ctrl.updateStatus);
 router.patch('/:id/notes',  protect, ctrl.updateNotes);

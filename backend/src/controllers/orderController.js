@@ -46,6 +46,7 @@ exports.createOrder = async (req, res) => {
     try {
       const cleanPhone = customerPhone.replace(/\D/g, '');
       let tgMessage = '<b>Nuevo Pedido</b>\n\n';
+      tgMessage += `<b>Pedido #${order._id}</b>\n\n`;
       tgMessage += `<b>Cliente:</b> ${customerName.trim()}\n`;
       tgMessage += `<b>Celular:</b> ${customerPhone.trim()}\n`;
       if (customerAddress) tgMessage += `<b>Direccion:</b> ${customerAddress.trim()}\n`;
@@ -107,10 +108,19 @@ exports.getOrderStats = async (req, res) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+  weekStart.setHours(0, 0, 0, 0);
+
   const [
     todayCount,
     pendingCount,
-    totalRevenue,
+    totalRevenueResult,
+    weekCount,
+    weekRevenueResult,
+    unviewedCount,
+    mostOrdered,
+    recentOrders,
   ] = await Promise.all([
     Order.countDocuments({ createdAt: { $gte: today } }),
     Order.countDocuments({ status: 'pending' }),
@@ -118,17 +128,31 @@ exports.getOrderStats = async (req, res) => {
       { $match: { status: { $ne: 'cancelled' } } },
       { $group: { _id: null, total: { $sum: '$total' } } },
     ]),
+    Order.countDocuments({ createdAt: { $gte: weekStart } }),
+    Order.aggregate([
+      { $match: { status: { $ne: 'cancelled' }, createdAt: { $gte: weekStart } } },
+      { $group: { _id: null, total: { $sum: '$total' } } },
+    ]),
+    Order.countDocuments({ isViewed: false }),
+    Order.aggregate([
+      { $unwind: '$items' },
+      { $group: { _id: '$items.name', count: { $sum: '$items.quantity' }, total: { $sum: { $multiply: ['$items.price', '$items.quantity'] } } } },
+      { $sort: { count: -1 } },
+      { $limit: 5 },
+    ]),
     Order.find().sort({ createdAt: -1 }).limit(5).lean(),
   ]);
-
-  const recentOrders = await Order.find().sort({ createdAt: -1 }).limit(5).lean();
 
   res.json({
     success: true,
     data: {
       todayOrders: todayCount,
+      weekOrders: weekCount,
       pendingOrders: pendingCount,
-      potentialRevenue: totalRevenue[0]?.total || 0,
+      potentialRevenue: totalRevenueResult[0]?.total || 0,
+      weekRevenue: weekRevenueResult[0]?.total || 0,
+      unviewedCount,
+      mostOrderedProducts: mostOrdered,
       recentOrders,
     },
   });
@@ -149,6 +173,17 @@ exports.updateStatus = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Estado inválido' });
   }
   const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true }).lean();
+  if (!order) return res.status(404).json({ success: false, message: 'Pedido no encontrado' });
+  res.json({ success: true, data: order });
+};
+
+// ── PATCH /api/orders/:id/viewed (admin) ─────────────────────────────────
+exports.markViewed = async (req, res) => {
+  const order = await Order.findByIdAndUpdate(
+    req.params.id,
+    { isViewed: true, viewedAt: new Date() },
+    { new: true }
+  ).lean();
   if (!order) return res.status(404).json({ success: false, message: 'Pedido no encontrado' });
   res.json({ success: true, data: order });
 };

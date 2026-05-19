@@ -7,8 +7,11 @@ const cors       = require('cors');
 const helmet     = require('helmet');
 const morgan     = require('morgan');
 const rateLimit  = require('express-rate-limit');
+const mongoose   = require('mongoose');
 
 const connectDB      = require('./config/db');
+const telegram       = require('./services/telegram');
+const { cloudinary } = require('./config/cloudinary');
 const errorHandler   = require('./middleware/errorHandler');
 
 const productRoutes  = require('./routes/products');
@@ -49,7 +52,17 @@ app.use('/api/config',   configRoutes);
 app.use('/api/orders',   orderRoutes);
 
 // Health check (para Railway/Render)
-app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date() }));
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    environment: process.env.NODE_ENV || 'development',
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    telegram: process.env.TELEGRAM_NOTIFICATIONS_ENABLED === 'true' && !!process.env.TELEGRAM_BOT_TOKEN && !!process.env.TELEGRAM_CHAT_ID ? 'enabled' : 'disabled',
+    cloudinary: !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) ? 'configured' : 'not configured',
+    uptime: Math.floor(process.uptime()),
+    timestamp: new Date(),
+  });
+});
 
 // ── 404 ────────────────────────────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ success: false, message: 'Ruta no encontrada' }));

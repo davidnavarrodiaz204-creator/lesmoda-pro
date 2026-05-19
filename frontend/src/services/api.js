@@ -55,6 +55,8 @@ export const orderService = {
   getOne:     (id)    => api.get(`/orders/${id}`),
   updateStatus: (id, status) => api.patch(`/orders/${id}/status`, { status }),
   updateNotes:  (id, notes)  => api.patch(`/orders/${id}/notes`, { notes }),
+  markViewed:   (id)        => api.patch(`/orders/${id}/viewed`),
+  testTelegram: () => api.get('/orders/test-telegram'),
 };
 
 // ── Config ─────────────────────────────────────────────────────────────────

@@ -19,10 +19,39 @@ export default function AdminPage() {
   const [config, setConfig] = useState({ waNumber: '', storeName: 'LeisModa' });
   const [saving, setSaving] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [unviewedCount, setUnviewedCount] = useState(0);
 
   useState(() => {
     configService.get().then(({ data }) => setConfig(c => ({ ...c, ...data.data }))).catch(() => {});
   });
+
+  useEffect(() => {
+    const fetchUnviewed = async () => {
+      try {
+        const { data } = await orderService.getStats();
+        setUnviewedCount(data?.data?.unviewedCount ?? 0);
+      } catch {}
+    };
+    fetchUnviewed();
+    const interval = setInterval(fetchUnviewed, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const prevUnviewed = useRef(unviewedCount);
+  useEffect(() => {
+    if (prevUnviewed.current > 0 && unviewedCount > prevUnviewed.current) {
+      toast((t) => (
+        <div style={{display:'flex',alignItems:'center',gap:'0.75rem'}}>
+          <span style={{fontWeight:600}}>{unviewedCount - prevUnviewed.current} pedido(s) nuevo(s)</span>
+          <button onClick={() => { toast.dismiss(t.id); setActiveSection('orders'); }}
+            style={{background:'#C9A96E',color:'#1A1612',border:'none',borderRadius:6,padding:'0.3rem 0.8rem',fontWeight:600,cursor:'pointer',fontSize:'0.75rem',fontFamily:'inherit'}}>
+            Ver pedido
+          </button>
+        </div>
+      ));
+    }
+    prevUnviewed.current = unviewedCount;
+  }, [unviewedCount]);
 
   const handleLogout = () => { logout(); navigate('/admin/login'); };
 
@@ -36,6 +65,7 @@ export default function AdminPage() {
     <div style={s.page}>
       <aside style={s.sidebar}>
         <div style={s.sidebarLogo}>Leis<em style={{color:'#C9A96E',fontStyle:'normal'}}>Mo</em>da</div>
+        <div style={{fontSize:'0.6rem',color:'#5A5045',letterSpacing:'0.05em',marginBottom:'1.5rem',marginTop:'-0.5rem'}}>v1.0 estable</div>
         <nav style={s.sidebarNav}>
           {[
             ['dashboard', 'Dashboard', <ChartIcon size={16} />],
@@ -47,6 +77,9 @@ export default function AdminPage() {
             <div key={k} style={{...s.sideLink, ...(activeSection===k?s.sideLinkActive:{})}}
               onClick={() => setActiveSection(k)}>
               <span style={{display:'inline-flex',alignItems:'center',gap:'0.5rem'}}>{icon} {label}</span>
+              {k === 'orders' && unviewedCount > 0 && (
+                <span style={{marginLeft:'auto',background:'#C25E5E',color:'white',fontSize:'0.6rem',fontWeight:700,minWidth:18,height:18,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 4px',lineHeight:1}}>{unviewedCount}</span>
+              )}
             </div>
           ))}
           <div style={s.sideLink} onClick={() => navigate('/')}>
@@ -75,6 +108,9 @@ export default function AdminPage() {
               <div key={k} style={{...s.mobileMenuItem, ...(activeSection===k?s.mobileMenuActive:{})}}
                 onClick={() => { setActiveSection(k); setMenuOpen(false); }}>
                 <span style={{display:'inline-flex',alignItems:'center',gap:'0.5rem'}}>{icon} {label}</span>
+                {k === 'orders' && unviewedCount > 0 && (
+                  <span style={{marginLeft:'auto',background:'#C25E5E',color:'white',fontSize:'0.6rem',fontWeight:700,minWidth:18,height:18,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 4px',lineHeight:1}}>{unviewedCount}</span>
+                )}
               </div>
             ))}
             <div style={s.mobileMenuItem} onClick={() => navigate('/')}><span style={{display:'inline-flex',alignItems:'center',gap:'0.5rem'}}><StoreIcon size={16} /> Ver tienda</span></div>
@@ -89,7 +125,7 @@ export default function AdminPage() {
             onAdd={() => setModal('new')}
           />
         )}
-        {activeSection === 'orders' && <OrdersSection waNumber={config.waNumber} />}
+        {activeSection === 'orders' && <OrdersSection waNumber={config.waNumber} unviewedCount={unviewedCount} onUnviewedChange={setUnviewedCount} />}
         {activeSection === 'users' && <UserSection />}
         {activeSection === 'config' && <ConfigSection />}
       </main>
@@ -116,7 +152,12 @@ export default function AdminPage() {
               fontSize: '0.6rem', fontWeight: 500, cursor: 'pointer', padding: '0.3rem 0.6rem',
               fontFamily: 'inherit',
             }}>
-            <ActionIcon type={icon} size={18} />
+            <div style={{position:'relative'}}>
+              <ActionIcon type={icon} size={18} />
+              {k === 'orders' && unviewedCount > 0 && (
+                <span style={{position:'absolute',top:-6,right:-8,background:'#C25E5E',color:'white',fontSize:'0.55rem',fontWeight:700,minWidth:16,height:16,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 3px',lineHeight:1}}>{unviewedCount}</span>
+              )}
+            </div>
             <span>{label}</span>
           </button>
         ))}
@@ -128,6 +169,77 @@ export default function AdminPage() {
           onClose={() => setModal(null)}
           onSaved={() => setModal(null)}
         />
+      )}
+    </div>
+  );
+}
+
+// ── SYSTEM STATUS ──────────────────────────────────────────────────────────
+function SystemStatusCard() {
+  const [status, setStatus] = useState(null);
+  const [telegramResult, setTelegramResult] = useState(null);
+  const [testing, setTesting] = useState(false);
+
+  useEffect(() => {
+    fetch('/health').then(r => r.json()).then(setStatus).catch(() => setStatus({ status: 'error' }));
+  }, []);
+
+  const handleTestTelegram = async () => {
+    setTesting(true);
+    setTelegramResult(null);
+    try {
+      const { data } = await orderService.testTelegram();
+      setTelegramResult(data.success ? 'ok' : 'error');
+    } catch {
+      setTelegramResult('error');
+    } finally { setTesting(false); }
+  };
+
+  if (!status) return null;
+
+  const rows = [
+    { label: 'API', value: status.status === 'ok' ? 'Conectada' : 'Desconectada', ok: status.status === 'ok' },
+    { label: 'Base de datos', value: status.mongodb === 'connected' ? 'Conectada' : 'Desconectada', ok: status.mongodb === 'connected' },
+    { label: 'Cloudinary', value: status.cloudinary === 'configured' ? 'Configurado' : 'No configurado', ok: status.cloudinary === 'configured' },
+    { label: 'Telegram', value: status.telegram === 'enabled' ? 'Activo' : 'Inactivo', ok: status.telegram === 'enabled' },
+  ];
+
+  return (
+    <div style={s.configCard}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'0.75rem'}}>
+        <h3 style={s.cardTitle}>Estado del sistema</h3>
+        <span style={{fontSize:'0.7rem',color:'#8A7968'}}>v1.0 estable</span>
+      </div>
+      <div style={{display:'flex',flexDirection:'column',gap:'0.5rem'}}>
+        {rows.map((r, i) => (
+          <div key={i} style={{display:'flex',alignItems:'center',gap:'0.5rem',fontSize:'0.85rem'}}>
+            <span style={{
+              width:8,height:8,borderRadius:'50%',flexShrink:0,
+              background: r.ok ? '#2E7D52' : '#C25E5E',
+            }}/>
+            <span style={{color:'#1A1612',fontWeight:500,minWidth:100}}>{r.label}</span>
+            <span style={{color:'#8A7968'}}>{r.value}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{marginTop:'0.75rem',display:'flex',gap:'0.5rem',flexWrap:'wrap'}}>
+        <button onClick={handleTestTelegram} disabled={testing}
+          style={{...s.btnSave, fontSize:'0.75rem', padding:'0.4rem 0.9rem'}}>
+          {testing ? 'Enviando...' : 'Probar Telegram'}
+        </button>
+        <button onClick={() => window.location.href = '/'}
+          style={{...s.btnAdd, fontSize:'0.75rem', padding:'0.4rem 0.9rem'}}>
+          Ver tienda
+        </button>
+      </div>
+      {telegramResult && (
+        <div style={{
+          marginTop:'0.5rem', fontSize:'0.8rem', padding:'0.4rem 0.75rem', borderRadius:6,
+          background: telegramResult === 'ok' ? '#E0F5EC' : '#FFF5F5',
+          color: telegramResult === 'ok' ? '#2E7D52' : '#C25E5E',
+        }}>
+          {telegramResult === 'ok' ? 'Mensaje de prueba enviado a Telegram correctamente' : 'Error al enviar mensaje de prueba a Telegram'}
+        </div>
       )}
     </div>
   );
@@ -148,7 +260,10 @@ function DashboardSection({ onNavigate }) {
         orderService.getStats(),
       ]);
       if (pRes.status === 'fulfilled') setStats(pRes.value.data?.data || null);
-      if (oRes.status === 'fulfilled') setOrderStats(oRes.value.data?.data || null);
+      if (oRes.status === 'fulfilled') {
+        const d = oRes.value.data?.data || null;
+        setOrderStats(d);
+      }
     } catch {} finally { setLoading(false); }
   };
 
@@ -189,6 +304,9 @@ function DashboardSection({ onNavigate }) {
     { label: 'Pendientes', value: orderStats?.pendingOrders ?? '—', color: '#C25E5E' },
     { label: 'Ventas potenciales', value: orderStats?.potentialRevenue != null ? `S/ ${orderStats.potentialRevenue.toFixed(0)}` : '—', color: '#25D366' },
     { label: 'Clicks WhatsApp', value: stats?.totalWhatsappClicks ?? '—', color: '#1A1612' },
+    { label: 'Pedidos semana', value: orderStats?.weekOrders ?? '---', color: '#C9A96E' },
+    { label: 'Total potencial semana', value: orderStats?.weekRevenue != null ? `S/ ${orderStats.weekRevenue.toFixed(0)}` : '---', color: '#25D366' },
+    ...(stats?.totalWhatsappClicks > 0 ? [{ label: 'Tasa conversion', value: ((orderStats?.todayOrders ?? 0) / stats.totalWhatsappClicks * 100).toFixed(1) + '%', color: '#1A73E8' }] : [{ label: 'Tasa conversion', value: '---', color: '#1A73E8' }]),
   ];
 
   const topProducts = stats?.topProducts || [];
@@ -289,6 +407,29 @@ function DashboardSection({ onNavigate }) {
         </div>
       </div>
 
+      {/* Most Ordered Products */}
+      {orderStats?.mostOrderedProducts?.length > 0 && (
+        <div style={{background:'white',borderRadius:12,padding:'1.25rem 1.5rem',boxShadow:'0 2px 16px rgba(0,0,0,0.06)'}}>
+          <h3 style={{fontFamily:'serif',fontSize:'0.95rem',color:'#1A1612',marginBottom:'1rem'}}>Productos mas pedidos</h3>
+          <div style={{display:'flex',flexDirection:'column',gap:'0.6rem'}}>
+            {orderStats.mostOrderedProducts.map((p, i) => {
+              const maxQty = Math.max(...orderStats.mostOrderedProducts.map(x => x.count), 1);
+              const pct = (p.count / maxQty) * 100;
+              return (
+                <div key={p._id || i} style={{display:'flex',alignItems:'center',gap:'0.5rem'}}>
+                  <span style={{fontSize:'0.72rem',fontWeight:700,color:'#C9A96E',minWidth:18}}>#{i+1}</span>
+                  <span style={{flex:1,fontSize:'0.75rem',color:'#1A1612',fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</span>
+                  <div style={{flex:'0 0 100px',height:12,background:'#F0EBE3',borderRadius:6,overflow:'hidden'}}>
+                    <div style={{width:`${pct}%`,height:'100%',background:'#C9A96E',borderRadius:6,transition:'width .4s'}} />
+                  </div>
+                  <span style={{fontSize:'0.7rem',color:'#C9A96E',fontWeight:600,minWidth:30,textAlign:'right'}}>{p.count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* API Status */}
       <div style={{background:'white',borderRadius:12,padding:'1rem 1.5rem',boxShadow:'0 2px 16px rgba(0,0,0,0.06)',display:'flex',alignItems:'center',gap:'0.75rem'}}>
         <div style={{
@@ -353,6 +494,8 @@ function DashboardSection({ onNavigate }) {
           </div>
         </div>
       )}
+
+      <SystemStatusCard />
     </div>
   );
 }
@@ -567,12 +710,13 @@ const STATUS_OPTIONS = [
   ['cancelled', 'Cancelado'],
 ];
 
-function OrdersSection({ waNumber }) {
+function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
   const [detail, setDetail] = useState(null);
+  const [quickFilter, setQuickFilter] = useState('');
   const num = waNumber?.replace(/\D/g, '');
 
   const fetchOrders = async () => {
@@ -581,12 +725,17 @@ function OrdersSection({ waNumber }) {
       const params = { limit: 100 };
       if (statusFilter) params.status = statusFilter;
       if (search) params.search = search;
+      if (quickFilter === 'unviewed') params.isViewed = 'false';
+      if (quickFilter === 'today') {
+        const today = new Date();
+        params.startDate = today.toISOString().split('T')[0];
+      }
       const { data } = await orderService.getAll(params);
       setOrders(data?.data || []);
     } catch {} finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchOrders(); }, [statusFilter, search]);
+  useEffect(() => { fetchOrders(); }, [statusFilter, search, quickFilter]);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -620,13 +769,42 @@ function OrdersSection({ waNumber }) {
         display:'flex',flexWrap:'wrap',gap:'0.6rem',alignItems:'center',
         padding:'1rem 1.5rem',borderBottom:'1px solid #F0EAE0',background:'#FAF7F2',
       }}>
-        <input placeholder="Buscar por nombre o celular…"
+        <input placeholder="Buscar por nombre, celular o producto…"
           value={search} onChange={e => setSearch(e.target.value)}
           style={{...s.input,minWidth:180,flex:1}} />
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
           style={{...s.input,minWidth:120,flex:'0 0 auto'}}>
           {STATUS_OPTIONS.map(([v,l]) => <option key={v} value={v}>{l}</option>)}
         </select>
+      </div>
+      <div style={{
+        display:'flex',flexWrap:'wrap',gap:'0.4rem',alignItems:'center',
+        padding:'0 1.5rem 0.75rem',borderBottom:'1px solid #F0EAE0',background:'#FAF7F2',
+      }}>
+        {[
+          ['', 'Pendientes', 'pending'],
+          ['unviewed', 'No vistos', 'unviewed'],
+          ['today', 'Hoy', 'today'],
+        ].map(([val, lab]) => (
+          <button key={val} onClick={() => setQuickFilter(prev => prev === val ? '' : val)}
+            style={{
+              padding:'0.3rem 0.75rem',borderRadius:999,fontSize:'0.7rem',fontWeight:600,
+              border: quickFilter === val ? '1.5px solid #C9A96E' : '1.5px solid #E0D8CE',
+              background: quickFilter === val ? '#C9A96E' : 'transparent',
+              color: quickFilter === val ? '#1A1612' : '#8A7968',
+              cursor:'pointer',fontFamily:'inherit',transition:'all .15s',
+            }}>{lab}</button>
+        ))}
+        {['contacted','confirmed','delivered','cancelled'].map(st => (
+          <button key={st} onClick={() => setStatusFilter(prev => prev === st ? '' : st)}
+            style={{
+              padding:'0.3rem 0.75rem',borderRadius:999,fontSize:'0.7rem',fontWeight:600,
+              border: statusFilter === st ? '1.5px solid #C9A96E' : '1.5px solid #E0D8CE',
+              background: statusFilter === st ? '#C9A96E' : 'transparent',
+              color: statusFilter === st ? '#1A1612' : '#8A7968',
+              cursor:'pointer',fontFamily:'inherit',transition:'all .15s',
+            }}>{STATUS_OPTIONS.find(([v])=>v===st)?.[1] || st}</button>
+        ))}
       </div>
 
       {loading && <p style={{padding:'2rem',color:'#8A7968'}}>Cargando pedidos…</p>}
@@ -661,6 +839,28 @@ function OrdersSection({ waNumber }) {
                 style={{marginLeft:'0.5rem',padding:'0.25rem 0.5rem',borderRadius:6,border:'1.5px solid #E0D8CE',fontSize:'0.82rem'}}>
                 {STATUS_OPTIONS.filter(([v]) => v).map(([v,l]) => <option key={v} value={v}>{l}</option>)}
               </select>
+              {detail.isViewed === false && (
+                <button onClick={async () => {
+                  await orderService.markViewed(detail._id);
+                  setDetail(prev => prev ? {...prev, isViewed: true} : prev);
+                  setOrders(prev => prev.map(o => o._id === detail._id ? {...o, isViewed: true} : o));
+                  if (onUnviewedChange && unviewedCount > 0) onUnviewedChange(unviewedCount - 1);
+                }}
+                  style={{marginLeft:'0.75rem',padding:'0.3rem 0.7rem',borderRadius:6,border:'1.5px solid #C9A96E',background:'#C9A96E',color:'#1A1612',fontSize:'0.75rem',fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                  Marcar como visto
+                </button>
+              )}
+            </div>
+            <div style={{gridColumn:'1/-1',display:'flex',gap:'0.4rem',flexWrap:'wrap'}}>
+              {[['contacted','Contactado'],['confirmed','Confirmado'],['delivered','Entregado']].map(([st,lab]) => (
+                <button key={st} onClick={() => handleStatusChange(detail._id, st)}
+                  style={{
+                    padding:'0.3rem 0.7rem',borderRadius:6,border:'1.5px solid #E0D8CE',
+                    background: detail.status === st ? '#1A1612' : 'transparent',
+                    color: detail.status === st ? '#C9A96E' : '#8A7968',
+                    fontSize:'0.75rem',fontWeight:600,cursor:'pointer',fontFamily:'inherit',
+                  }}>{lab}</button>
+              ))}
             </div>
             <div style={{gridColumn:'1/-1'}}>
               <strong>Notas internas:</strong>
@@ -716,7 +916,10 @@ function OrdersSection({ waNumber }) {
               <tbody>
                 {orders.map(o => (
                   <tr key={o._id} style={s.tr}>
-                    <td style={{...s.td,fontWeight:500}}>{o.customerName}</td>
+                    <td style={{...s.td,fontWeight:500}}>
+                      {o.isViewed === false && <NewBadgeIcon size={12} style={{marginRight:'0.3rem',verticalAlign:'middle',color:'#C25E5E'}} />}
+                      {o.customerName}
+                    </td>
                     <td style={s.td}>{o.customerPhone}</td>
                     <td style={{...s.td,textAlign:'center'}}>{o.items?.length ?? 0}</td>
                     <td style={{...s.td,fontWeight:600}}>S/ {o.total.toFixed(2)}</td>
@@ -741,7 +944,10 @@ function OrdersSection({ waNumber }) {
               <div key={o._id} style={s.mobileCard}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'start'}}>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontWeight:600,fontSize:'0.92rem',color:'#1A1612'}}>{o.customerName}</div>
+                    <div style={{fontWeight:600,fontSize:'0.92rem',color:'#1A1612'}}>
+                      {o.isViewed === false && <NewBadgeIcon size={12} style={{marginRight:'0.3rem',verticalAlign:'middle',color:'#C25E5E'}} />}
+                      {o.customerName}
+                    </div>
                     <div style={{fontSize:'0.8rem',color:'#8A7968',marginTop:'0.2rem'}}>{o.customerPhone} · {o.items?.length} items</div>
                   </div>
                   <StatusBadge status={o.status} />
@@ -837,6 +1043,7 @@ function ConfigSection() {
     logo: '', banner: '', primaryColor: '#C9A96E', secondaryColor: '#1A1612', bgColor: '#FAF7F2', visualMode: 'claro-premium',
     freeShippingText: '', freeShippingMin: '', waMessage: '',
     promoBannerEnabled: false, featuredProductsEnabled: false, stockVisible: false,
+    newOrderSound: true, pollInterval: '30', showOutOfStock: true,
   });
   const [saving, setSaving] = useState(false);
   const [waError, setWaError] = useState('');
@@ -903,6 +1110,7 @@ function ConfigSection() {
     { key: 'whatsapp', label: 'WhatsApp' },
     { key: 'marketing', label: 'Marketing' },
     { key: 'appearance', label: 'Apariencia' },
+    { key: 'advanced', label: 'Avanzado' },
   ];
 
   const tabStyle = (isActive) => ({
@@ -1045,6 +1253,24 @@ function ConfigSection() {
                 <option value="claro-premium">Claro Premium</option>
                 <option value="oscuro-premium">Oscuro Premium</option>
                 <option value="blanco-azul-premium">Blanco Azul Premium</option>
+              </select>
+            </Field>
+          </div>
+        )}
+
+        {activeTab === 'advanced' && (
+          <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Configuracion avanzada</h3>
+            <div style={{display:'flex',flexWrap:'wrap',gap:'0.65rem'}}>
+              <Toggle label="Sonido de pedido nuevo" checked={form.newOrderSound} onChange={v => set('newOrderSound', v)} />
+              <Toggle label="Mostrar stock publico" checked={form.stockVisible} onChange={v => set('stockVisible', v)} />
+              <Toggle label="Mostrar productos sin stock" checked={form.showOutOfStock} onChange={v => set('showOutOfStock', v)} />
+            </div>
+            <Field label="Intervalo de revision">
+              <select style={{...s.input, maxWidth:200}} value={String(form.pollInterval)} onChange={e => set('pollInterval', e.target.value)}>
+                <option value="20">20 segundos</option>
+                <option value="30">30 segundos</option>
+                <option value="60">60 segundos</option>
               </select>
             </Field>
           </div>

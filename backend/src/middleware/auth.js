@@ -4,6 +4,11 @@ const User = require('../models/User');
 
 // Verifica el token JWT
 exports.protect = async (req, res, next) => {
+  if (!process.env.JWT_SECRET) {
+    console.error('JWT_SECRET no está definido');
+    return res.status(500).json({ success: false, message: 'Error de configuración del servidor' });
+  }
+
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) {
     return res.status(401).json({ success: false, message: 'No autorizado' });

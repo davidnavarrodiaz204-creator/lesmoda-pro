@@ -72,7 +72,7 @@ export default function Footer({
         </div>
       </div>
       <div style={s.bottom}>
-        {storeName} &copy; {new Date().getFullYear()} · Todos los derechos reservados
+        {storeName} &copy; {new Date().getFullYear()} · Todos los derechos reservados · Catalogo digital administrable
       </div>
     </footer>
   );
