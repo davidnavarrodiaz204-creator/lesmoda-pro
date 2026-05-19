@@ -10,8 +10,9 @@ function StockBadge({ stock }) {
   return <span className="stock-badge stock-consult">Consultar stock</span>;
 }
 
-export default function ProductModal({ product, waNumber, onClose }) {
+export default function ProductModal({ product: rawProduct, waNumber, onClose }) {
   const { addItem } = useCart();
+  const product = rawProduct || {};
   const images = product.images || [];
   const [imgIndex, setImgIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');

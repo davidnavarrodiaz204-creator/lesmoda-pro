@@ -136,8 +136,8 @@ function DashboardSection() {
         productService.getStats(),
         orderService.getStats(),
       ]);
-      if (pRes.status === 'fulfilled') setStats(pRes.value.data.data);
-      if (oRes.status === 'fulfilled') setOrderStats(oRes.value.data.data);
+      if (pRes.status === 'fulfilled') setStats(pRes.value.data?.data || null);
+      if (oRes.status === 'fulfilled') setOrderStats(oRes.value.data?.data || null);
     } catch {} finally { setLoading(false); }
   };
 
@@ -150,7 +150,7 @@ function DashboardSection() {
     { label: 'Activos', value: stats?.activeProducts ?? '—', color: '#2E7D52' },
     { label: 'Pedidos hoy', value: orderStats?.todayOrders ?? '—', color: '#C9A96E' },
     { label: 'Pendientes', value: orderStats?.pendingOrders ?? '—', color: '#C25E5E' },
-    { label: 'Ventas potenciales', value: orderStats ? `S/ ${orderStats.potentialRevenue.toFixed(0)}` : '—', color: '#25D366' },
+    { label: 'Ventas potenciales', value: orderStats?.potentialRevenue != null ? `S/ ${orderStats.potentialRevenue.toFixed(0)}` : '—', color: '#25D366' },
     { label: 'Clicks WhatsApp', value: stats?.totalWhatsappClicks ?? '—', color: '#1A1612' },
   ];
 
@@ -275,7 +275,7 @@ function ProductSection({ onEdit, onAdd }) {
       if (activeFilter === 'activos') params.isActive = 'true';
       else if (activeFilter === 'inactivos') params.isActive = 'false';
       const { data } = await productService.getAllAdmin(params);
-      setProducts(data.data);
+      setProducts(data?.data || []);
     } catch {} finally { setLoading(false); }
   };
 
@@ -440,7 +440,7 @@ function OrdersSection({ waNumber }) {
       if (statusFilter) params.status = statusFilter;
       if (search) params.search = search;
       const { data } = await orderService.getAll(params);
-      setOrders(data.data);
+      setOrders(data?.data || []);
     } catch {} finally { setLoading(false); }
   };
 

@@ -14,8 +14,8 @@ export function useProducts(initialParams = {}) {
     setError(null);
     try {
       const { data } = await productService.getAll(params);
-      setProducts(data.data);
-      setMeta({ total: data.total, page: data.page, pages: data.pages });
+      setProducts(data?.data || []);
+      setMeta({ total: data?.total ?? 0, page: data?.page ?? 1, pages: data?.pages ?? 1 });
     } catch (err) {
       setError(err.response?.data?.message || 'Error cargando productos');
     } finally {

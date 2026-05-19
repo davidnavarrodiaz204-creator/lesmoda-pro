@@ -56,4 +56,8 @@ export function CartProvider({ children }) {
   );
 }
 
-export const useCart = () => useContext(CartContext);
+export const useCart = () => {
+  const ctx = useContext(CartContext);
+  if (!ctx) return { items: [], addItem: () => {}, removeItem: () => {}, updateQuantity: () => {}, clearCart: () => {}, totalItems: 0, totalPrice: 0 };
+  return ctx;
+};
