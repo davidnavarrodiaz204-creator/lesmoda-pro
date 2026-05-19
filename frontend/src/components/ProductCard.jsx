@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { productService } from '../services/api';
 import { useCart } from './CartContext';
 import { WhatsAppIcon, CheckIcon, ImageIcon } from './Icons';
+import { openWhatsapp } from '../utils/whatsappMessage';
 
 const badgeLabel = { new: 'NUEVO', sale: 'OFERTA', hot: 'TREND' };
 
@@ -93,12 +94,8 @@ export default function ProductCard({ product: rawProduct, waNumber, onClick, st
   const handleBuy = async (e) => {
     e.stopPropagation();
     productService.trackClick(product._id).catch(() => {});
-    const num = waNumber?.replace(/\D/g, '');
     const msg = `Hola! Me interesa comprar: ${product.name} (S/ ${product.price.toFixed(2)}). Esta disponible?`;
-    const url = num
-      ? `https://wa.me/${num}?text=${encodeURIComponent(msg)}`
-      : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank');
+    if (waNumber) openWhatsapp({ phone: waNumber, message: msg });
   };
 
   return (

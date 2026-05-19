@@ -46,9 +46,29 @@ export function buildOrderWhatsappMessage({ storeName, customer = {}, items = []
   return parts.join('\n');
 }
 
+function isMobile() {
+  return /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 export function openWhatsapp({ phone, message }) {
   const num = phone.replace(/\D/g, '');
   if (!num) return;
-  const url = `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank');
+  const text = encodeURIComponent(message);
+
+  if (isMobile()) {
+    const mobileUrl = `whatsapp://send?phone=${num}&text=${text}`;
+    const fallbackUrl = `https://wa.me/${num}?text=${text}`;
+    window.location.href = mobileUrl;
+    setTimeout(() => {
+      if (document.hidden) return;
+      window.location.href = fallbackUrl;
+    }, 2000);
+  } else {
+    const desktopUrl = `https://web.whatsapp.com/send?phone=${num}&text=${text}`;
+    const fallbackUrl = `https://wa.me/${num}?text=${text}`;
+    const w = window.open(desktopUrl, '_blank');
+    if (!w || w.closed) {
+      window.open(fallbackUrl, '_blank');
+    }
+  }
 }
