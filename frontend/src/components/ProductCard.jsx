@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { productService } from '../services/api';
 import { useCart } from './CartContext';
 import { WhatsAppIcon, CheckIcon, ImageIcon } from './Icons';
 
 const badgeLabel = { new: 'NUEVO', sale: 'OFERTA', hot: 'TREND' };
+
+const PREMIUM_STYLE_ID = 'pcard-premium';
 
 export default function ProductCard({ product: rawProduct, waNumber, onClick, stockVisible = true }) {
   if (!rawProduct) return null;
@@ -13,6 +15,73 @@ export default function ProductCard({ product: rawProduct, waNumber, onClick, st
   const [adding, setAdding] = useState(false);
 
   const img = product.images?.[0]?.url || product.mainImage;
+
+  useEffect(() => {
+    if (document.getElementById(PREMIUM_STYLE_ID)) return;
+    const el = document.createElement('style');
+    el.id = PREMIUM_STYLE_ID;
+    el.textContent = `
+      .product-card {
+        transition: transform .3s cubic-bezier(.25,.46,.45,.94), box-shadow .3s ease;
+      }
+      .product-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 12px 40px rgba(26,22,18,.14);
+      }
+      .card-badge {
+        border-radius: 999px;
+        padding: .25rem .7rem;
+        font-size: .6rem;
+      }
+      .card-pricing {
+        display: flex;
+        align-items: baseline;
+        gap: .35rem;
+      }
+      .card-price-current {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #1A1612;
+      }
+      .card-price-old {
+        font-size: .78rem;
+        color: #8A7968;
+        text-decoration: line-through;
+      }
+      .card-image-overlay {
+        opacity: 0;
+        transform: translateY(100%);
+        transition: all .3s cubic-bezier(.25,.46,.45,.94);
+      }
+      .product-card:hover .card-image-overlay {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .card-image-skeleton {
+        background: linear-gradient(90deg,#F0EBE3 25%,#F8F4EE 50%,#F0EBE3 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.2s ease-in-out infinite;
+      }
+      @media (max-width: 480px) {
+        .product-card .card-body {
+          padding: .65rem .75rem .85rem;
+        }
+        .product-card .card-name {
+          font-size: .85rem;
+        }
+        .product-card .card-price-current {
+          font-size: .9rem;
+        }
+        .product-card .card-price-old {
+          font-size: .7rem;
+        }
+        .product-card .card-category {
+          font-size: .58rem;
+        }
+      }
+    `;
+    document.head.appendChild(el);
+  }, []);
 
   const handleQuickAdd = async (e) => {
     e.stopPropagation();
@@ -25,7 +94,7 @@ export default function ProductCard({ product: rawProduct, waNumber, onClick, st
     e.stopPropagation();
     productService.trackClick(product._id).catch(() => {});
     const num = waNumber?.replace(/\D/g, '');
-    const msg = `¡Hola! Me interesa comprar en LeisModa: *${product.name}* (S/ ${product.price.toFixed(2)}). ¿Está disponible?`;
+    const msg = `Hola! Me interesa comprar: ${product.name} (S/ ${product.price.toFixed(2)}). Esta disponible?`;
     const url = num
       ? `https://wa.me/${num}?text=${encodeURIComponent(msg)}`
       : `https://wa.me/?text=${encodeURIComponent(msg)}`;
@@ -71,12 +140,12 @@ export default function ProductCard({ product: rawProduct, waNumber, onClick, st
         <div className="card-name">{product.name}</div>
         {product.description && (
           <div className="card-desc">
-            {product.description.substring(0, 60)}{product.description.length > 60 ? '…' : ''}
+            {product.description.substring(0, 60)}{product.description.length > 60 ? '...' : ''}
           </div>
         )}
         <div className="card-footer">
-          <div>
-            <span className="card-price">S/ {product.price.toFixed(2)}</span>
+          <div className="card-pricing">
+            <span className="card-price-current">S/ {product.price.toFixed(2)}</span>
             {product.oldPrice && (
               <span className="card-price-old">S/ {product.oldPrice.toFixed(2)}</span>
             )}

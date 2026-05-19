@@ -81,6 +81,7 @@ export default function StorePage() {
         instagram={config.instagram}
         tiktok={config.tiktok}
         logo={config.logo}
+        banner={config.banner}
       />
 
       <CategorySection

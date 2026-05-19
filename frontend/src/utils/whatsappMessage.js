@@ -1,8 +1,12 @@
 export function buildOrderWhatsappMessage({ storeName, customer = {}, items = [], total, customMessage }) {
   const store = storeName || 'LeisModa';
+  const prefix = store.charAt(0).toUpperCase();
+  const randomCode = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const orderCode = `${prefix}${randomCode}`;
   const parts = [];
 
   parts.push(`Nuevo pedido - ${store}`);
+  parts.push(`Pedido #${orderCode}`);
   parts.push('');
 
   if (customer.name || customer.phone) {
@@ -19,21 +23,25 @@ export function buildOrderWhatsappMessage({ storeName, customer = {}, items = []
     const mainImg = item.images?.find?.(im => im.isMain)?.url || img;
     parts.push(`${i + 1}. ${item.name}`);
     parts.push(`Cantidad: ${item.quantity}`);
-    parts.push(`Talla: ${item.size || 'No indicada'}`);
-    parts.push(`Color: ${item.color || 'No indicado'}`);
+    if (item.size && item.size !== 'No indicada' && item.size !== 'No indicado') {
+      parts.push(`Talla: ${item.size}`);
+    }
+    if (item.color && item.color !== 'No indicado' && item.color !== 'No indicada') {
+      parts.push(`Color: ${item.color}`);
+    }
     parts.push(`Precio: S/ ${Number(item.price).toFixed(2)}`);
     parts.push(`Subtotal: S/ ${(item.price * item.quantity).toFixed(2)}`);
     if (mainImg) parts.push(`Imagen: ${mainImg}`);
+    if (i < items.length - 1) parts.push('---');
   });
 
   parts.push('');
   parts.push(`Total: S/ ${Number(total).toFixed(2)}`);
 
-  if (customMessage) {
-    parts.push('');
-    parts.push('Mensaje:');
-    parts.push(customMessage);
-  }
+  const message = customMessage || 'Hola, quiero confirmar este pedido y coordinar entrega y pago.';
+  parts.push('');
+  parts.push('Mensaje:');
+  parts.push(message);
 
   return parts.join('\n');
 }

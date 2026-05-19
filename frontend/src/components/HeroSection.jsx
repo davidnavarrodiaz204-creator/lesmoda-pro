@@ -8,6 +8,7 @@ export default function HeroSection({
   instagram = '',
   tiktok = '',
   logo = '',
+  banner = '',
 }) {
   const num = waNumber?.replace(/\D/g, '');
   const waUrl = num ? `https://wa.me/${num}` : '#';
@@ -21,12 +22,22 @@ export default function HeroSection({
   const lastWord = titleWords[titleWords.length - 1] || '';
 
   return (
-    <section className="hero-section">
-      <div className="hero-bg" />
-      <div className="hero-overlay" />
+    <section className={`hero-section${banner ? ' hero-section--with-banner' : ''}`}
+      style={banner ? { backgroundImage: `url(${banner})` } : {}}>
+      {banner ? (
+        <div className="hero-overlay-banner" />
+      ) : (
+        <>
+          <div className="hero-bg" />
+          <div className="hero-overlay" />
+        </>
+      )}
       <div className="hero-content">
-        {logo && <img src={logo} alt={storeName} style={{maxHeight:60,marginBottom:'0.75rem'}} />}
-        <span className="hero-eyebrow">Nueva Coleccion 2026</span>
+        {logo && (
+          <div className="hero-logo-wrap">
+            <img src={logo} alt={storeName} className="hero-logo" />
+          </div>
+        )}
         <h1 className="hero-title">
           {firstPart ? <>{firstPart} <span className="hero-gold">{lastWord}</span></> : <>{storeName} <span className="hero-gold">que te define</span></>}
         </h1>
@@ -41,18 +52,18 @@ export default function HeroSection({
         </div>
         <div className="hero-social">
           {facebook && (
-            <a href={facebook} target="_blank" rel="noopener noreferrer" className="hero-social-link">
-              <FacebookIcon size={14} /> Facebook
+            <a href={facebook} target="_blank" rel="noopener noreferrer" className="hero-social-link" aria-label="Facebook">
+              <FacebookIcon size={14} />
             </a>
           )}
           {instagram && (
-            <a href={instagram} target="_blank" rel="noopener noreferrer" className="hero-social-link">
-              <InstagramIcon size={14} /> Instagram
+            <a href={instagram} target="_blank" rel="noopener noreferrer" className="hero-social-link" aria-label="Instagram">
+              <InstagramIcon size={14} />
             </a>
           )}
           {tiktok && (
-            <a href={tiktok} target="_blank" rel="noopener noreferrer" className="hero-social-link">
-              <TikTokIcon size={14} /> TikTok
+            <a href={tiktok} target="_blank" rel="noopener noreferrer" className="hero-social-link" aria-label="TikTok">
+              <TikTokIcon size={14} />
             </a>
           )}
         </div>

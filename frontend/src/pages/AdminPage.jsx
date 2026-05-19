@@ -162,6 +162,26 @@ function DashboardSection({ onNavigate }) {
 
   if (loading) return <div style={{padding:'2rem',color:'#8A7968'}}>Cargando dashboard…</div>;
 
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterdayStart = new Date(todayStart.getTime() - 86400000);
+  const weekStart = new Date(todayStart.getTime() - todayStart.getDay() * 86400000);
+  const orders = orderStats?.recentOrders || [];
+  const todayCount = orderStats?.todayOrders ?? orders.filter(o => new Date(o.createdAt) >= todayStart).length;
+  const yesterdayCount = orders.filter(o => {
+    const d = new Date(o.createdAt);
+    return d >= yesterdayStart && d < todayStart;
+  }).length;
+  const weekCount = orders.filter(o => new Date(o.createdAt) >= weekStart).length;
+  const barData = [
+    { label: 'Hoy', value: todayCount },
+    { label: 'Ayer', value: yesterdayCount },
+    { label: 'Semana', value: weekCount },
+  ];
+  const maxBar = Math.max(...barData.map(d => d.value), 1);
+  const barH = 180;
+  const barW = 240;
+
   const metricCards = [
     { label: 'Total productos', value: stats?.totalProducts ?? '—', color: '#1A1612' },
     { label: 'Activos', value: stats?.activeProducts ?? '—', color: '#2E7D52' },
@@ -171,10 +191,14 @@ function DashboardSection({ onNavigate }) {
     { label: 'Clicks WhatsApp', value: stats?.totalWhatsappClicks ?? '—', color: '#1A1612' },
   ];
 
+  const topProducts = stats?.topProducts || [];
+  const maxClicks = Math.max(...topProducts.map(p => p.whatsappClicks || 0), 1);
+
   return (
-    <div style={{display:'flex',flexDirection:'column',gap:'1.5rem'}}>
+    <div style={{display:'flex',flexDirection:'column',gap:'2rem'}}>
       <h2 style={{fontFamily:'serif',fontSize:'1.3rem',color:'#1A1612'}}>Dashboard</h2>
 
+      {/* Metric Cards */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(150px,1fr))',gap:'1rem'}}>
         {metricCards.map((m, i) => (
           <div key={i} style={{
@@ -188,42 +212,115 @@ function DashboardSection({ onNavigate }) {
       </div>
 
       {/* Quick Actions */}
-      <div style={s.quickActions}>
-        {[
-          { label: 'Agregar producto', icon: 'plus', section: 'products', action: 'add' },
-          { label: 'Ver pedidos', icon: 'clipboard', section: 'orders' },
-          { label: 'Configurar tienda', icon: 'gear', section: 'config' },
-          { label: 'Ver tienda', icon: 'store', section: null, href: '/' },
-        ].map((item, i) => (
-          <button key={i} style={s.quickBtn}
-            onClick={() => {
-              if (item.href) window.location.href = item.href;
-              else onNavigate?.(item.section);
-            }}>
-            <ActionIcon type={item.icon} />
-            <span>{item.label}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* API Status */}
-      <div style={s.card}>
-        <div style={s.cardHeader}><h3 style={s.cardTitle}>Estado de conexion</h3></div>
-        <div style={{padding:'0.75rem 1.5rem 1rem', display:'flex', alignItems:'center', gap:'0.75rem'}}>
-          <span style={{
-            width:10, height:10, borderRadius:'50%',
-            background: apiConnected ? '#2E7D52' : '#C25E5E',
-            flexShrink:0,
-          }}/>
-          <span style={{fontSize:'0.85rem', color:'#1A1612'}}>
-            {apiConnected ? 'Backend conectado' : 'Backend no disponible'}
-          </span>
+      <div>
+        <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.75rem'}}>Acciones rapidas</h3>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(150px, 1fr))',gap:'0.75rem'}}>
+          {[
+            { label: 'Agregar producto', icon: 'plus', section: 'products' },
+            { label: 'Ver pedidos', icon: 'clipboard', section: 'orders' },
+            { label: 'Configurar tienda', icon: 'gear', section: 'config' },
+            { label: 'Ver tienda', icon: 'store', section: null, href: '/' },
+          ].map((item, i) => (
+            <button key={i} style={{
+              display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
+              padding:'1.25rem 1rem',
+              border:'1.5px solid #E8D5B0', borderRadius:12,
+              background:'white', cursor:'pointer', fontFamily:'inherit',
+              fontSize:'0.78rem', fontWeight:600, color:'#1A1612',
+              transition:'all .2s', boxShadow:'0 2px 8px rgba(0,0,0,0.04)',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#C9A96E'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(201,169,110,0.2)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#E8D5B0'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}
+              onClick={() => {
+                if (item.href) window.location.href = item.href;
+                else onNavigate?.(item.section);
+              }}>
+              <ActionIcon type={item.icon} size={24} />
+              <span>{item.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
+      {/* Charts row */}
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1.5rem'}}>
+        {/* Orders bar chart */}
+        <div style={{background:'white',borderRadius:12,padding:'1.25rem 1.5rem',boxShadow:'0 2px 16px rgba(0,0,0,0.06)'}}>
+          <h3 style={{fontFamily:'serif',fontSize:'0.95rem',color:'#1A1612',marginBottom:'1rem'}}>Pedidos recibidos</h3>
+          <svg width="100%" height={barH} viewBox={`0 0 ${barW} ${barH}`} style={{display:'block'}}>
+            {barData.map((d, i) => {
+              const colW = 60;
+              const x = 15 + i * 75;
+              const h = (d.value / maxBar) * (barH - 40);
+              const y = barH - 20 - h;
+              return (
+                <g key={i}>
+                  <rect x={x} y={y} width={30} height={Math.max(h, 0)} rx={4} fill={i === 0 ? '#C9A96E' : i === 1 ? '#B0A899' : '#8A7968'} />
+                  <text x={x + 15} y={barH - 4} textAnchor="middle" fontSize="11" fill="#8A7968" fontWeight="600">{d.label}</text>
+                  <text x={x + 15} y={y - 6} textAnchor="middle" fontSize="13" fill="#1A1612" fontWeight="700">{d.value}</text>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+
+        {/* Top products horizontal bar */}
+        <div style={{background:'white',borderRadius:12,padding:'1.25rem 1.5rem',boxShadow:'0 2px 16px rgba(0,0,0,0.06)'}}>
+          <h3 style={{fontFamily:'serif',fontSize:'0.95rem',color:'#1A1612',marginBottom:'1rem'}}>Top {topProducts.length} mas consultados</h3>
+          {topProducts.length === 0 ? (
+            <p style={{fontSize:'0.82rem',color:'#8A7968'}}>Sin datos aun</p>
+          ) : (
+            <div style={{display:'flex',flexDirection:'column',gap:'0.6rem'}}>
+              {topProducts.map((p, i) => {
+                const pct = ((p.whatsappClicks || 0) / maxClicks) * 100;
+                return (
+                  <div key={p._id} style={{display:'flex',alignItems:'center',gap:'0.5rem'}}>
+                    <span style={{fontSize:'0.72rem',fontWeight:700,color:'#C9A96E',minWidth:18}}>#{i+1}</span>
+                    <span style={{flex:1,fontSize:'0.75rem',color:'#1A1612',fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</span>
+                    <div style={{flex:'0 0 100px',height:12,background:'#F0EBE3',borderRadius:6,overflow:'hidden'}}>
+                      <div style={{width:`${pct}%`,height:'100%',background:'#25D366',borderRadius:6,transition:'width .4s'}} />
+                    </div>
+                    <span style={{fontSize:'0.7rem',color:'#25D366',fontWeight:600,minWidth:30,textAlign:'right'}}>{p.whatsappClicks ?? 0}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* API Status */}
+      <div style={{background:'white',borderRadius:12,padding:'1rem 1.5rem',boxShadow:'0 2px 16px rgba(0,0,0,0.06)',display:'flex',alignItems:'center',gap:'0.75rem'}}>
+        <div style={{
+          width:36,height:36,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,
+          background: apiConnected ? '#E0F5EC' : '#FDE8E8',
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={apiConnected ? '#2E7D52' : '#C25E5E'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {apiConnected ? (
+              <><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></>
+            ) : (
+              <><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></>
+            )}
+          </svg>
+        </div>
+        <div>
+          <div style={{fontSize:'0.85rem',fontWeight:600,color:'#1A1612'}}>
+            {apiConnected ? 'Backend conectado' : 'Backend no disponible'}
+          </div>
+          <div style={{fontSize:'0.72rem',color:'#8A7968',marginTop:'0.1rem'}}>
+            {apiConnected ? 'API operativa' : 'Verifica que el servidor este corriendo'}
+          </div>
+        </div>
+        <span style={{
+          marginLeft:'auto',width:10,height:10,borderRadius:'50%',flexShrink:0,
+          background: apiConnected ? '#2E7D52' : '#C25E5E',
+        }}/>
+      </div>
+
+      {/* Recent Orders */}
       {orderStats?.recentOrders?.length > 0 && (
         <div style={s.card}>
-          <div style={s.cardHeader}><h3 style={s.cardTitle}>Últimos pedidos</h3></div>
+          <div style={s.cardHeader}><h3 style={s.cardTitle}>Ultimos pedidos</h3></div>
           <div style={{padding:'0.75rem 1.5rem 1rem'}}>
             {orderStats.recentOrders.map((o, i) => (
               <div key={o._id} style={{
@@ -239,24 +336,7 @@ function DashboardSection({ onNavigate }) {
         </div>
       )}
 
-      {stats?.topProducts?.length > 0 && (
-        <div style={s.card}>
-          <div style={s.cardHeader}><h3 style={s.cardTitle}>Top 5 más consultados</h3></div>
-          <div style={{padding:'0.75rem 1.5rem 1rem'}}>
-            {stats.topProducts.map((p, i) => (
-              <div key={p._id} style={{
-                display:'flex',alignItems:'center',gap:'0.75rem',
-                padding:'0.6rem 0',borderBottom:i<stats.topProducts.length-1?'1px solid #F5F0EB':'none',
-              }}>
-                <span style={{fontSize:'0.82rem',fontWeight:700,color:'#C9A96E',minWidth:20}}>#{i+1}</span>
-                <span style={{flex:1,fontSize:'0.85rem',color:'#1A1612',fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</span>
-                <span style={{fontSize:'0.78rem',color:'#25D366',fontWeight:600,whiteSpace:'nowrap'}}>{p.whatsappClicks ?? 0} clicks</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
+      {/* Low Stock */}
       {stats?.lowStockProducts?.length > 0 && (
         <div style={{...s.card,borderLeft:'3px solid #C25E5E'}}>
           <div style={s.cardHeader}><h3 style={{...s.cardTitle,color:'#C25E5E'}}>Stock bajo ({stats.lowStockProducts.length})</h3></div>
@@ -760,6 +840,7 @@ function ConfigSection() {
   });
   const [saving, setSaving] = useState(false);
   const [waError, setWaError] = useState('');
+  const [activeTab, setActiveTab] = useState('general');
   const logoRef = useRef();
   const bannerRef = useRef();
   const [logoPreview, setLogoPreview] = useState('');
@@ -815,105 +896,163 @@ function ConfigSection() {
 
   const set = (k, v) => setForm(f => ({...f, [k]: v}));
 
+  const tabs = [
+    { key: 'general', label: 'General' },
+    { key: 'branding', label: 'Branding' },
+    { key: 'social', label: 'Social/Contacto' },
+    { key: 'whatsapp', label: 'WhatsApp' },
+    { key: 'marketing', label: 'Marketing' },
+    { key: 'appearance', label: 'Apariencia' },
+  ];
+
+  const tabStyle = (isActive) => ({
+    padding:'0.5rem 1rem', borderRadius:8, fontSize:'0.78rem', fontWeight:600,
+    border:'none', cursor:'pointer', whiteSpace:'nowrap', fontFamily:'inherit',
+    background: isActive ? '#1A1612' : 'transparent',
+    color: isActive ? '#C9A96E' : '#8A7968',
+    transition:'all .2s',
+  });
+
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'1.5rem'}}>
-      <div style={s.configCard}>
-        <h3 style={s.cardTitle}>Identidad de la tienda</h3>
-        <div style={s.configRow}>
-          <Field label="Nombre de la tienda">
-            <input style={s.input} value={form.storeName || ''} onChange={e => set('storeName', e.target.value)} />
-          </Field>
-          <Field label="Eslogan">
-            <input style={s.input} value={form.storeSlogan || ''} onChange={e => set('storeSlogan', e.target.value)} />
-          </Field>
-          <Field label="Descripcion">
-            <textarea style={{...s.input, minHeight:70, resize:'vertical'}} value={form.storeDescription || ''} onChange={e => set('storeDescription', e.target.value)} />
-          </Field>
-        </div>
+      {/* Tab buttons */}
+      <div style={{
+        display:'flex', gap:'0.25rem', flexWrap:'wrap',
+        background:'white', borderRadius:12, padding:'0.5rem',
+        boxShadow:'0 2px 16px rgba(0,0,0,0.06)',
+      }}>
+        {tabs.map(t => (
+          <button key={t.key} onClick={() => setActiveTab(t.key)} style={tabStyle(activeTab === t.key)}>
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      <div style={s.configCard}>
-        <h3 style={s.cardTitle}>Contacto y Redes</h3>
-        <div style={s.configRow}>
-          <Field label="WhatsApp (9 digitos)">
-            <input style={{...s.input, borderColor: waError ? '#C25E5E' : undefined}} placeholder="987654321" maxLength={9}
-              value={(form.waNumber || '').replace(/\D/g, '')}
-              onChange={e => { set('waNumber', e.target.value.replace(/\D/g, '').slice(0,9)); setWaError(''); }} />
-            {waError && <span style={{fontSize:'0.72rem',color:'#C25E5E',marginTop:'0.2rem'}}>{waError}</span>}
-          </Field>
-          <Field label="Facebook">
-            <input style={s.input} placeholder="URL de Facebook" value={form.facebook || ''} onChange={e => set('facebook', e.target.value)} />
-          </Field>
-          <Field label="Instagram">
-            <input style={s.input} placeholder="URL de Instagram" value={form.instagram || ''} onChange={e => set('instagram', e.target.value)} />
-          </Field>
-          <Field label="TikTok">
-            <input style={s.input} placeholder="URL de TikTok" value={form.tiktok || ''} onChange={e => set('tiktok', e.target.value)} />
-          </Field>
-          <Field label="Direccion">
-            <input style={s.input} placeholder="Direccion de la tienda" value={form.address || ''} onChange={e => set('address', e.target.value)} />
-          </Field>
-          <Field label="Horario">
-            <input style={s.input} placeholder="Ej: Lunes a Sabado 9:00 am – 7:00 pm" value={form.hours || ''} onChange={e => set('hours', e.target.value)} />
-          </Field>
-        </div>
+      {/* Tab content */}
+      <div style={{background:'white',borderRadius:12,padding:'1.5rem',boxShadow:'0 2px 16px rgba(0,0,0,0.06)'}}>
+        {activeTab === 'general' && (
+          <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Informacion general</h3>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+              <Field label="Nombre de la tienda">
+                <input style={s.input} value={form.storeName || ''} onChange={e => set('storeName', e.target.value)} />
+              </Field>
+              <Field label="Eslogan">
+                <input style={s.input} value={form.storeSlogan || ''} onChange={e => set('storeSlogan', e.target.value)} />
+              </Field>
+            </div>
+            <Field label="Descripcion">
+              <textarea style={{...s.input, minHeight:70, resize:'vertical'}} value={form.storeDescription || ''} onChange={e => set('storeDescription', e.target.value)} />
+            </Field>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+              <Field label="Direccion">
+                <input style={s.input} placeholder="Direccion de la tienda" value={form.address || ''} onChange={e => set('address', e.target.value)} />
+              </Field>
+              <Field label="Horario">
+                <input style={s.input} placeholder="Ej: Lunes a Sabado 9:00 am - 7:00 pm" value={form.hours || ''} onChange={e => set('hours', e.target.value)} />
+              </Field>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'branding' && (
+          <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Marca</h3>
+            <Field label="Logo">
+              <input type="file" ref={logoRef} accept="image/*" onChange={handleLogoFile} style={{fontSize:'0.85rem'}} />
+              <input style={{...s.input, marginTop:'0.3rem'}} placeholder="o pegar URL" value={form.logo && typeof form.logo === 'string' ? form.logo : ''}
+                onChange={e => { set('logo', e.target.value); setLogoPreview(e.target.value); }} />
+              {logoPreview && <img src={logoPreview} style={{maxHeight:60,marginTop:'0.35rem',borderRadius:6}} alt="logo preview" />}
+            </Field>
+            <Field label="Banner">
+              <input type="file" ref={bannerRef} accept="image/*" onChange={handleBannerFile} style={{fontSize:'0.85rem'}} />
+              <input style={{...s.input, marginTop:'0.3rem'}} placeholder="o pegar URL" value={form.banner && typeof form.banner === 'string' ? form.banner : ''}
+                onChange={e => { set('banner', e.target.value); setBannerPreview(e.target.value); }} />
+              {bannerPreview && <img src={bannerPreview} style={{maxHeight:80,marginTop:'0.35rem',borderRadius:6}} alt="banner preview" />}
+            </Field>
+          </div>
+        )}
+
+        {activeTab === 'social' && (
+          <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Redes sociales y contacto</h3>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+              <Field label="Facebook">
+                <input style={s.input} placeholder="URL de Facebook" value={form.facebook || ''} onChange={e => set('facebook', e.target.value)} />
+              </Field>
+              <Field label="Instagram">
+                <input style={s.input} placeholder="URL de Instagram" value={form.instagram || ''} onChange={e => set('instagram', e.target.value)} />
+              </Field>
+              <Field label="TikTok">
+                <input style={s.input} placeholder="URL de TikTok" value={form.tiktok || ''} onChange={e => set('tiktok', e.target.value)} />
+              </Field>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'whatsapp' && (
+          <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>WhatsApp</h3>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+              <Field label="WhatsApp (9 digitos)">
+                <input style={{...s.input, borderColor: waError ? '#C25E5E' : undefined}} placeholder="987654321" maxLength={9}
+                  value={(form.waNumber || '').replace(/\D/g, '')}
+                  onChange={e => { set('waNumber', e.target.value.replace(/\D/g, '').slice(0,9)); setWaError(''); }} />
+                {waError && <span style={{fontSize:'0.72rem',color:'#C25E5E',marginTop:'0.2rem'}}>{waError}</span>}
+              </Field>
+            </div>
+            <Field label="Mensaje WhatsApp">
+              <textarea style={{...s.input, minHeight:80, resize:'vertical'}} placeholder="Mensaje automatico para WhatsApp" value={form.waMessage || ''} onChange={e => set('waMessage', e.target.value)} />
+            </Field>
+          </div>
+        )}
+
+        {activeTab === 'marketing' && (
+          <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Marketing</h3>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+              <Field label="Texto envio gratis">
+                <input style={s.input} value={form.freeShippingText || ''} onChange={e => set('freeShippingText', e.target.value)} />
+              </Field>
+              <Field label="Monto minimo envio gratis">
+                <input style={s.input} type="number" value={form.freeShippingMin || ''} onChange={e => set('freeShippingMin', e.target.value)} />
+              </Field>
+            </div>
+            <div style={{display:'flex', gap:'0.65rem', flexWrap:'wrap', marginTop:'0.5rem'}}>
+              <Toggle label="Banner promocional" checked={form.promoBannerEnabled} onChange={v => set('promoBannerEnabled', v)} />
+              <Toggle label="Productos destacados" checked={form.featuredProductsEnabled} onChange={v => set('featuredProductsEnabled', v)} />
+              <Toggle label="Stock visible" checked={form.stockVisible} onChange={v => set('stockVisible', v)} />
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'appearance' && (
+          <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Apariencia</h3>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'1rem'}}>
+              <Field label="Color primario">
+                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.primaryColor} onChange={e => set('primaryColor', e.target.value)} />
+              </Field>
+              <Field label="Color secundario">
+                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.secondaryColor} onChange={e => set('secondaryColor', e.target.value)} />
+              </Field>
+              <Field label="Color de fondo">
+                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.bgColor} onChange={e => set('bgColor', e.target.value)} />
+              </Field>
+            </div>
+            <Field label="Modo visual">
+              <select style={{...s.input, maxWidth:300}} value={form.visualMode} onChange={e => set('visualMode', e.target.value)}>
+                <option value="claro-premium">Claro Premium</option>
+                <option value="oscuro-premium">Oscuro Premium</option>
+                <option value="blanco-azul-premium">Blanco Azul Premium</option>
+              </select>
+            </Field>
+          </div>
+        )}
       </div>
 
-      <div style={s.configCard}>
-        <h3 style={s.cardTitle}>Apariencia</h3>
-        <div style={s.configRow}>
-          <Field label="Logo">
-            <input type="file" ref={logoRef} accept="image/*" onChange={handleLogoFile} style={{fontSize:'0.85rem'}} />
-            <input style={{...s.input, marginTop:'0.3rem'}} placeholder="o pegar URL" value={form.logo && typeof form.logo === 'string' ? form.logo : ''}
-              onChange={e => { set('logo', e.target.value); setLogoPreview(e.target.value); }} />
-            {logoPreview && <img src={logoPreview} style={{maxHeight:60,marginTop:'0.35rem',borderRadius:6}} alt="logo preview" />}
-          </Field>
-          <Field label="Banner">
-            <input type="file" ref={bannerRef} accept="image/*" onChange={handleBannerFile} style={{fontSize:'0.85rem'}} />
-            <input style={{...s.input, marginTop:'0.3rem'}} placeholder="o pegar URL" value={form.banner && typeof form.banner === 'string' ? form.banner : ''}
-              onChange={e => { set('banner', e.target.value); setBannerPreview(e.target.value); }} />
-            {bannerPreview && <img src={bannerPreview} style={{maxHeight:80,marginTop:'0.35rem',borderRadius:6}} alt="banner preview" />}
-          </Field>
-          <Field label="Color primario">
-            <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.primaryColor} onChange={e => set('primaryColor', e.target.value)} />
-          </Field>
-          <Field label="Color secundario">
-            <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.secondaryColor} onChange={e => set('secondaryColor', e.target.value)} />
-          </Field>
-          <Field label="Color de fondo">
-            <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.bgColor} onChange={e => set('bgColor', e.target.value)} />
-          </Field>
-          <Field label="Modo visual">
-            <select style={s.input} value={form.visualMode} onChange={e => set('visualMode', e.target.value)}>
-              <option value="claro-premium">Claro Premium</option>
-              <option value="oscuro-premium">Oscuro Premium</option>
-              <option value="blanco-azul-premium">Blanco Azul Premium</option>
-            </select>
-          </Field>
-        </div>
-      </div>
-
-      <div style={s.configCard}>
-        <h3 style={s.cardTitle}>Marketing y Ventas</h3>
-        <div style={s.configRow}>
-          <Field label="Texto envio gratis">
-            <input style={s.input} value={form.freeShippingText || ''} onChange={e => set('freeShippingText', e.target.value)} />
-          </Field>
-          <Field label="Monto minimo envio gratis">
-            <input style={s.input} type="number" value={form.freeShippingMin || ''} onChange={e => set('freeShippingMin', e.target.value)} />
-          </Field>
-          <Field label="Mensaje WhatsApp">
-            <textarea style={{...s.input, minHeight:70, resize:'vertical'}} placeholder="Mensaje automatico para WhatsApp" value={form.waMessage || ''} onChange={e => set('waMessage', e.target.value)} />
-          </Field>
-        </div>
-        <div style={{display:'flex', gap:'0.65rem', flexWrap:'wrap', marginTop:'1rem'}}>
-          <Toggle label="Banner promocional" checked={form.promoBannerEnabled} onChange={v => set('promoBannerEnabled', v)} />
-          <Toggle label="Productos destacados" checked={form.featuredProductsEnabled} onChange={v => set('featuredProductsEnabled', v)} />
-          <Toggle label="Stock visible" checked={form.stockVisible} onChange={v => set('stockVisible', v)} />
-        </div>
-      </div>
-
-      <button style={s.btnSave} onClick={handleSave} disabled={saving}>
+      {/* Save button */}
+      <button style={{...s.btnSave, alignSelf:'flex-end', padding:'0.65rem 1.5rem', fontSize:'0.88rem'}} onClick={handleSave} disabled={saving}>
         {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar configuracion</>}
       </button>
     </div>
