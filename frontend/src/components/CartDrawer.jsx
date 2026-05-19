@@ -2,10 +2,10 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useCart } from './CartContext';
 import { orderService } from '../services/api';
-import { CloseIcon, MinusIcon, PlusIcon, TrashIcon, WhatsAppIcon, CheckIcon, CartIcon, ImageIcon } from './Icons';
+import { CloseIcon, MinusIcon, PlusIcon, TrashIcon, WhatsAppIcon, CheckIcon, CartIcon, ImageIcon, LockIcon } from './Icons';
 import { buildOrderWhatsappMessage, openWhatsapp } from '../utils/whatsappMessage';
 
-export default function CartDrawer({ open, onClose, waNumber, waMessage, storeName }) {
+export default function CartDrawer({ open, onClose, waNumber, waMessage, storeName, trustText = '' }) {
   const { items, removeItem, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
   const [checkout, setCheckout] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -214,6 +214,9 @@ export default function CartDrawer({ open, onClose, waNumber, waMessage, storeNa
                 <span style={{ fontWeight: 700, fontSize: 16 }}>Total</span>
                 <span className="cart-total-price" style={{ fontWeight: 800, fontSize: 20, color: '#111' }}>S/ {totalPrice.toFixed(2)}</span>
               </div>
+              {trustText && (
+                <div className="cta-trust" style={{margin:'0 16px 12px'}}><LockIcon size={12} /> {trustText}</div>
+              )}
               <button className="cart-checkout-btn" onClick={() => setCheckout(true)}
                 style={{ width: '100%', padding: 16, background: 'linear-gradient(135deg, #f59e0b, #d97706)', border: 'none', borderRadius: 10, color: '#fff', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer', transition: 'opacity 0.2s, transform 0.15s', animation: 'cartPulse 2s ease-in-out 3' }}>
                 <WhatsAppIcon size={20} /> Enviar pedido por WhatsApp
@@ -231,6 +234,12 @@ export default function CartDrawer({ open, onClose, waNumber, waMessage, storeNa
           0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(251,191,36,0); }
           50% { transform: scale(1.02); box-shadow: 0 0 0 6px rgba(251,191,36,0.25); }
         }
+        .cart-item { animation:fadeInUp .25s ease both; }
+        .cart-item:nth-child(1) { animation-delay:0s; }
+        .cart-item:nth-child(2) { animation-delay:.04s; }
+        .cart-item:nth-child(3) { animation-delay:.08s; }
+        .cart-item:nth-child(4) { animation-delay:.12s; }
+        .cart-item:nth-child(5) { animation-delay:.16s; }
       `}</style>
     </>
   );

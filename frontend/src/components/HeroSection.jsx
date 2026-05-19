@@ -1,4 +1,5 @@
-import { WhatsAppIcon, FacebookIcon, InstagramIcon, TikTokIcon } from './Icons';
+import { WhatsAppIcon, FacebookIcon, InstagramIcon, TikTokIcon, LockIcon } from './Icons';
+import ShareStoreButton from './ShareStoreButton';
 
 export default function HeroSection({
   waNumber,
@@ -9,6 +10,8 @@ export default function HeroSection({
   tiktok = '',
   logo = '',
   banner = '',
+  ctaText = '',
+  trustText = '',
 }) {
   const num = waNumber?.replace(/\D/g, '');
   const waUrl = num ? `https://wa.me/${num}` : '#';
@@ -44,12 +47,17 @@ export default function HeroSection({
         <p className="hero-subtitle">{storeSlogan}</p>
         <div className="hero-actions">
           <button className="hero-btn hero-btn-primary" onClick={scrollToProducts}>
-            Ver Coleccion
+            {ctaText || 'Ver Coleccion'}
           </button>
           <a href={waUrl} target="_blank" rel="noopener noreferrer" className="hero-btn hero-btn-secondary">
             <WhatsAppIcon size={16} /> Escríbenos
           </a>
         </div>
+        {trustText && (
+          <div className="cta-trust" style={{marginBottom:'1rem',background:'rgba(255,255,255,.06)',color:'#B0A899',border:'1px solid rgba(255,255,255,.1)',maxWidth:'360px',margin:'0 auto 1rem',fontSize:'.78rem'}}>
+            <LockIcon size={12} /> {trustText}
+          </div>
+        )}
         <div className="hero-social">
           {facebook && (
             <a href={facebook} target="_blank" rel="noopener noreferrer" className="hero-social-link" aria-label="Facebook">
@@ -66,6 +74,9 @@ export default function HeroSection({
               <TikTokIcon size={14} />
             </a>
           )}
+        </div>
+        <div style={{marginTop:'1rem'}}>
+          <ShareStoreButton storeName={storeName} />
         </div>
       </div>
     </section>

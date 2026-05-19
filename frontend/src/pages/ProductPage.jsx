@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { productService } from '../services/api';
 import ProductModal from '../components/ProductModal';
 import Footer from '../components/Footer';
 import { useConfig } from '../hooks/useConfig';
 import { normalizeWaNumber } from '../utils/waNumber';
+import { setMeta, injectStructuredData, getDomain } from '../utils/seo';
 
 export default function ProductPage() {
   const { slug } = useParams();
@@ -13,6 +14,7 @@ export default function ProductPage() {
   const [notFound, setNotFound] = useState(false);
   const { config } = useConfig();
   const waNumber = normalizeWaNumber(config.waNumber || '');
+  const ldRef = useRef(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -20,14 +22,40 @@ export default function ProductPage() {
     productService.getOne(slug)
       .then(({ data }) => {
         if (data?.data) {
-          setProduct(data.data);
-          document.title = `${data.data.name} — ${config.storeName || 'LeisModa'}`;
-          const ogTitle = document.querySelector('meta[property="og:title"]');
-          const ogDesc = document.querySelector('meta[property="og:description"]');
-          const ogImage = document.querySelector('meta[property="og:image"]');
-          if (ogTitle) ogTitle.content = `${data.data.name} — ${config.storeName || 'LeisModa'}`;
-          if (ogDesc) ogDesc.content = data.data.description || `Compra ${data.data.name} en ${config.storeName || 'LeisModa'}`;
-          if (ogImage && data.data.images?.[0]?.url) ogImage.content = data.data.images[0].url;
+          const p = data.data;
+          setProduct(p);
+          const domain = getDomain();
+          const img = p.images?.[0]?.url || '';
+          setMeta({
+            title: `${p.name} — ${config.storeName || 'LeisModa'}`,
+            description: p.description || `Compra ${p.name} en ${config.storeName || 'LeisModa'} — moda online en Paita`,
+            image: img || `${domain}/icons/icon.svg`,
+            url: `${domain}/producto/${p.slug}`,
+            type: 'product',
+          });
+          const schema = {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: p.name,
+            description: p.description || `${p.name} en ${config.storeName || 'LeisModa'}`,
+            image: img ? [img] : undefined,
+            url: `${domain}/producto/${p.slug}`,
+            sku: p._id,
+            brand: { '@type': 'Brand', name: (config.siteTitle || config.storeName || 'LeisModa') },
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: 'PEN',
+              price: p.price,
+              availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+              url: `${domain}/producto/${p.slug}`,
+            },
+          };
+          if (ldRef.current) ldRef.current.remove();
+          const el = document.createElement('script');
+          el.type = 'application/ld+json';
+          el.textContent = JSON.stringify(schema);
+          document.head.appendChild(el);
+          ldRef.current = el;
         } else {
           setNotFound(true);
         }
@@ -35,7 +63,7 @@ export default function ProductPage() {
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
     return () => {
-      document.title = 'LeisModa — Moda que te define';
+      try { if (ldRef.current) { ldRef.current.remove(); ldRef.current = null; } } catch {}
     };
   }, [slug]);
 

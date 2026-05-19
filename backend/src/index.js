@@ -7,6 +7,7 @@ const cors       = require('cors');
 const helmet     = require('helmet');
 const morgan     = require('morgan');
 const rateLimit  = require('express-rate-limit');
+const compression = require('compression');
 const mongoose   = require('mongoose');
 
 const connectDB      = require('./config/db');
@@ -18,11 +19,18 @@ const productRoutes  = require('./routes/products');
 const authRoutes     = require('./routes/auth');
 const configRoutes   = require('./routes/config');
 const orderRoutes    = require('./routes/orders');
+const systemRoutes   = require('./routes/system');
+const bannerRoutes   = require('./routes/banners');
+const analyticsRoutes = require('./routes/analytics');
+const seoRoutes      = require('./routes/seo');
 
 // ── Conectar BD ────────────────────────────────────────────────────────────
 connectDB();
 
 const app = express();
+
+// ── Compresion (gzip) ───────────────────────────────────────────────────────
+app.use(compression({ level: 6 }));
 
 // ── Seguridad ──────────────────────────────────────────────────────────────
 app.use(helmet());
@@ -50,17 +58,29 @@ app.use('/api/products', productRoutes);
 app.use('/api/auth',     authRoutes);
 app.use('/api/config',   configRoutes);
 app.use('/api/orders',   orderRoutes);
+app.use('/api/system',   systemRoutes);
+app.use('/api/banners',  bannerRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/seo',      seoRoutes);
+
+// Sitemap y robots (XML/plain-text publico)
+const seoCtrl = require('./controllers/seoController');
+app.get('/sitemap.xml', seoCtrl.sitemap);
+app.get('/robots.txt',  seoCtrl.robots);
 
 // Health check (para Railway/Render)
+const pkg = require('../package.json');
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
+    version: pkg.version || '1.0.0',
     environment: process.env.NODE_ENV || 'development',
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     telegram: process.env.TELEGRAM_NOTIFICATIONS_ENABLED === 'true' && !!process.env.TELEGRAM_BOT_TOKEN && !!process.env.TELEGRAM_CHAT_ID ? 'enabled' : 'disabled',
     cloudinary: !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) ? 'configured' : 'not configured',
     uptime: Math.floor(process.uptime()),
     timestamp: new Date(),
+    appName: 'lesmoda-api',
   });
 });
 

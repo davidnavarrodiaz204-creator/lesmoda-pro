@@ -52,7 +52,7 @@ function RelatedProducts({ productId, onSelect }) {
   );
 }
 
-export default function ProductModal({ product: rawProduct, waNumber, onClose, stockVisible = true, standalone }) {
+export default function ProductModal({ product: rawProduct, waNumber, onClose, stockVisible = true, standalone, onView, trustText = '' }) {
   const { addItem } = useCart();
   const product = rawProduct || {};
   const images = product.images || [];
@@ -63,6 +63,7 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
   const [added, setAdded] = useState(false);
   const [relatedProduct, setRelatedProduct] = useState(null);
   const [shared, setShared] = useState(false);
+  const [zoomed, setZoomed] = useState(false);
   const touchStartX = useRef(0);
 
   const hasMultipleImages = images.length > 1;
@@ -129,9 +130,18 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
     }
   }, [product]);
 
+  useEffect(() => {
+    if (product._id) onView?.(product);
+  }, [product._id]);
+
   const discount = product.oldPrice && product.oldPrice > product.price
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
     : 0;
+
+  const handleImageClick = () => {
+    if (!currentImg) return;
+    setZoomed(!zoomed);
+  };
 
   if (relatedProduct) {
     return (
@@ -163,7 +173,10 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}>
             {currentImg ? (
-              <img src={currentImg} alt={product.name} />
+              <img src={currentImg} alt={product.name}
+                className={zoomed ? 'img-zoomed' : ''}
+                onClick={handleImageClick}
+                onError={(e) => { e.target.style.display='none'; e.target.parentElement.classList.add('img-error-fallback'); }} />
             ) : (
               <div className="modal-no-img"><ImageIcon size={40} /></div>
             )}
@@ -254,7 +267,7 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
 
             <div className="modal-trust">
               {stockVisible && <StockBadge stock={product.stock} />}
-              <span className="modal-trust-wa"><LockIcon size={12} /> Sin pago online — todo por WhatsApp</span>
+              <span className="modal-trust-wa"><LockIcon size={12} /> {trustText || 'Sin pago online — todo por WhatsApp'}</span>
             </div>
 
             {product.description && (

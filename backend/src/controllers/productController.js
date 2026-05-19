@@ -289,6 +289,50 @@ exports.importPreview = async (req, res) => {
   });
 };
 
+// ── GET /api/products/export/csv ──────────────────────────────────────────
+exports.exportCSV = async (req, res) => {
+  console.log('[backup] exporting products');
+  const products = await Product.find({}).sort({ createdAt: -1 }).lean({ virtuals: true });
+
+  const headers = ['name','category','price','oldPrice','stock','badge','sizes','colors','description','imageUrl','isActive','featured','createdAt'];
+  const csvRows = [headers.join(',')];
+
+  products.forEach(p => {
+    const esc = (v) => {
+      if (v === null || v === undefined) return '';
+      const s = String(v);
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    };
+    const sizes = (p.sizes || []).join('|');
+    const colors = (p.colors || []).join('|');
+    const imageUrl = p.images?.[0]?.url || '';
+    const row = [
+      esc(p.name),
+      esc(p.category),
+      p.price ?? '',
+      p.oldPrice ?? '',
+      p.stock ?? 0,
+      esc(p.badge || ''),
+      esc(sizes),
+      esc(colors),
+      esc(p.description || ''),
+      esc(imageUrl),
+      p.isActive !== false ? 'true' : 'false',
+      p.featured ? 'true' : 'false',
+      p.createdAt ? new Date(p.createdAt).toISOString() : '',
+    ];
+    csvRows.push(row.join(','));
+  });
+
+  const csv = '\ufeff' + csvRows.join('\n');
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename=productos_export.csv');
+  res.send(csv);
+};
+
 // ── POST /api/products/import/confirm ─────────────────────────────────────
 exports.importConfirm = async (req, res) => {
   const { rows } = req.body;

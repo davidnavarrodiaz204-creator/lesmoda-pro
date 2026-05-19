@@ -1,5 +1,4 @@
-// frontend/src/hooks/useProducts.js
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { productService } from '../services/api';
 
 export function useProducts(initialParams = {}) {
@@ -8,6 +7,7 @@ export function useProducts(initialParams = {}) {
   const [error,    setError]    = useState(null);
   const [meta,     setMeta]     = useState({ total: 0, page: 1, pages: 1 });
   const [params,   setParams]   = useState(initialParams);
+  const debounceRef = useRef(null);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -23,7 +23,11 @@ export function useProducts(initialParams = {}) {
     }
   }, [params]);
 
-  useEffect(() => { fetchProducts(); }, [fetchProducts]);
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(fetchProducts, 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [fetchProducts]);
 
   return { products, loading, error, meta, setParams, refetch: fetchProducts };
 }

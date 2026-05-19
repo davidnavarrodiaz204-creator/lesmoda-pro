@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api, { productService, configService, authService, orderService } from '../services/api';
+import api, { productService, configService, authService, orderService, systemService, bannerService, analyticsService } from '../services/api';
 import ImportModal from '../components/ImportModal';
 import { validatePeruNumber, normalizeWaNumber } from '../utils/waNumber';
 import {
@@ -1058,6 +1058,155 @@ function UserSection() {
   );
 }
 
+// ── BANNERS MANAGER ───────────────────────────────────────────────────────
+function BannersManager() {
+  const [banners, setBanners] = useState([]);
+  const [editing, setEditing] = useState(null);
+
+  const fetch = () => {
+    bannerService.getAllAdmin()
+      .then(({ data }) => setBanners(data?.data || []))
+      .catch(() => {});
+  };
+
+  useEffect(() => { fetch(); }, []);
+
+  const handleCreate = async () => {
+    try {
+      await bannerService.create({ text: 'Nuevo banner', isActive: true });
+      fetch();
+      toast.success('Banner creado');
+    } catch { toast.error('Error al crear banner'); }
+  };
+
+  const handleUpdate = async (id, data) => {
+    try {
+      await bannerService.update(id, data);
+      fetch();
+      setEditing(null);
+      toast.success('Banner actualizado');
+    } catch { toast.error('Error al actualizar banner'); }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Eliminar este banner?')) return;
+    try {
+      await bannerService.remove(id);
+      fetch();
+      toast.success('Banner eliminado');
+    } catch { toast.error('Error al eliminar banner'); }
+  };
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612'}}>Banners promocionales</h3>
+        <button onClick={handleCreate} style={{...s.btnAdd, padding:'0.45rem 0.9rem', fontSize:'0.78rem'}}>
+          <PlusCircleIcon size={12} /> Agregar banner
+        </button>
+      </div>
+      {banners.length === 0 && <p style={{fontSize:'0.85rem',color:'#8A7968'}}>No hay banners aun. Crea uno para mostrar promociones.</p>}
+      {banners.map(b => (
+        <div key={b._id} style={{
+          background:'#FAF7F2', borderRadius:10, padding:'0.75rem 1rem',
+          border: '1.5px solid #E8D5B0', display:'flex', flexDirection:'column', gap:'0.5rem',
+        }}>
+          {editing === b._id ? (
+            <>
+              <input style={s.input} value={editing.text} onChange={e => setEditing({...editing, text: e.target.value})} placeholder="Texto del banner" />
+              <input style={s.input} value={editing.subtitle || ''} onChange={e => setEditing({...editing, subtitle: e.target.value})} placeholder="Subtitulo (opcional)" />
+              <div style={{display:'flex',gap:'0.5rem',flexWrap:'wrap'}}>
+                <input style={{...s.input, flex:1, minWidth:100}} value={editing.cta || ''} onChange={e => setEditing({...editing, cta: e.target.value})} placeholder="Texto del boton" />
+                <input style={{...s.input, flex:1, minWidth:100}} value={editing.link || ''} onChange={e => setEditing({...editing, link: e.target.value})} placeholder="URL del boton" />
+              </div>
+              <div style={{display:'flex',gap:'0.5rem',alignItems:'center',flexWrap:'wrap'}}>
+                <label style={{fontSize:'0.78rem',color:'#1A1612',display:'flex',alignItems:'center',gap:'0.3rem'}}>
+                  Color: <input type="color" value={editing.color || '#C9A96E'} onChange={e => setEditing({...editing, color: e.target.value})} style={{width:32,height:28,border:'1px solid #E0D8CE',borderRadius:4,cursor:'pointer',padding:0}} />
+                </label>
+                <label style={{fontSize:'0.78rem',color:'#1A1612',display:'flex',alignItems:'center',gap:'0.3rem'}}>
+                  <input type="checkbox" checked={editing.isActive} onChange={e => setEditing({...editing, isActive: e.target.checked})} />
+                  Activo
+                </label>
+              </div>
+              <div style={{display:'flex',gap:'0.5rem'}}>
+                <button onClick={() => handleUpdate(b._id, editing)} style={{...s.btnSave, fontSize:'0.78rem', padding:'0.4rem 0.9rem'}}><SaveIcon size={12} /> Guardar</button>
+                <button onClick={() => setEditing(null)} style={{fontSize:'0.78rem',padding:'0.4rem 0.9rem',background:'transparent',border:'1.5px solid #D0C8BE',borderRadius:6,color:'#8A7968',cursor:'pointer',fontFamily:'inherit'}}>Cancelar</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div style={{display:'flex',alignItems:'center',gap:'0.5rem'}}>
+                  <span style={{width:10,height:10,borderRadius:'50%',background:b.isActive?'#2E7D52':'#E0D8CE'}} />
+                  <strong style={{fontSize:'0.88rem',color:'#1A1612'}}>{b.text}</strong>
+                </div>
+                <div style={{display:'flex',gap:'0.3rem'}}>
+                  <button onClick={() => setEditing({...b})} style={{background:'none',border:'none',color:'#8A7968',cursor:'pointer',padding:'0.2rem'}} title="Editar"><PencilIcon size={14} /></button>
+                  <button onClick={() => handleDelete(b._id)} style={{background:'none',border:'none',color:'#C25E5E',cursor:'pointer',padding:'0.2rem'}} title="Eliminar"><TrashIcon size={14} /></button>
+                </div>
+              </div>
+              {b.subtitle && <div style={{fontSize:'0.78rem',color:'#8A7968'}}>{b.subtitle}</div>}
+              {b.cta && <div style={{fontSize:'0.72rem',color:'#C9A96E',fontWeight:600}}>CTA: {b.cta}{b.link ? ' → '+b.link : ''}</div>}
+              <div style={{
+                padding:'0.5rem 1rem', borderRadius:6, textAlign:'center', fontSize:'0.82rem',
+                background: b.color || '#C9A96E', color:'white', fontWeight:500,
+              }}>
+                {b.text} {b.cta && <span style={{textDecoration:'underline',marginLeft:'0.5rem'}}>{b.cta}</span>}
+              </div>
+            </>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── ANALYTICS DASHBOARD ──────────────────────────────────────────────────
+function AnalyticsDashboard() {
+  const [localData, setLocalData] = useState(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('lesmoda_analytics');
+      if (raw) setLocalData(JSON.parse(raw));
+    } catch {}
+  }, []);
+
+  const counts = localData ? {
+    views: localData.views?.length || 0,
+    shares: localData.shares?.length || 0,
+    favorites: localData.favorites?.length || 0,
+    waClicks: localData.waClicks?.length || 0,
+  } : { views: 0, shares: 0, favorites: 0, waClicks: 0 };
+
+  const todayCount = localData ? {
+    views: localData.views?.filter(v => Date.now() - v.timestamp < 86400000).length || 0,
+  } : { views: 0 };
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+      <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Analytics comerciales (local)</h3>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:'0.75rem'}}>
+        {[
+          { label: 'Productos vistos', value: counts.views, color: '#1A1612' },
+          { label: 'Vistos hoy', value: todayCount.views, color: '#C9A96E' },
+          { label: 'Clicks WhatsApp', value: counts.waClicks, color: '#25D366' },
+          { label: 'Favoritos', value: localData?.favorites?.length ? [...new Set(localData.favorites.map(f => f.productId))].length : 0, color: '#C25E5E' },
+          { label: 'Veces compartido', value: counts.shares, color: '#1A73E8' },
+        ].map((m, i) => (
+          <div key={i} style={{
+            background:'white', borderRadius:10, padding:'1rem', textAlign:'center',
+            boxShadow:'0 2px 8px rgba(0,0,0,0.04)', border:'1.5px solid #F0EAE0',
+          }}>
+            <div style={{fontSize:'1.4rem',fontWeight:700,color:m.color}}>{m.value}</div>
+            <div style={{fontSize:'0.68rem',color:'#8A7968',fontWeight:500,letterSpacing:'0.05em',marginTop:'0.25rem'}}>{m.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── CONFIGURACION (CENTRO DE OPERACION) ──────────────────────────────────
 function ConfigSection() {
   const [form, setForm] = useState({
@@ -1068,6 +1217,7 @@ function ConfigSection() {
     promoBannerEnabled: false, featuredProductsEnabled: false, stockVisible: false,
     newOrderSound: true, pollInterval: '30', showOutOfStock: true,
     relatedProductsEnabled: true, shareProductEnabled: true, ctaText: '', trustText: '',
+    siteTitle: '', siteDescription: '', keywords: '', ogImage: '', favicon: '', indexable: true,
   });
   const [saving, setSaving] = useState(false);
   const [waError, setWaError] = useState('');
@@ -1127,6 +1277,87 @@ function ConfigSection() {
 
   const set = (k, v) => setForm(f => ({...f, [k]: v}));
 
+  const handleExportProducts = async () => {
+    try {
+      const { data } = await productService.exportCSV();
+      const url = URL.createObjectURL(new Blob([data]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'productos_export.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('Productos exportados');
+    } catch { toast.error('Error al exportar productos'); }
+  };
+
+  const handleExportOrders = async () => {
+    try {
+      const { data } = await orderService.exportCSV();
+      const url = URL.createObjectURL(new Blob([data]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'pedidos_export.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('Pedidos exportados');
+    } catch { toast.error('Error al exportar pedidos'); }
+  };
+
+  const handleDownloadBackup = async () => {
+    try {
+      const { data } = await systemService.backup();
+      if (data.success) {
+        const blob = new Blob([JSON.stringify(data.data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_lesmoda_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success('Backup descargado');
+      }
+    } catch { toast.error('Error al generar backup'); }
+  };
+
+  const [restoreOpen, setRestoreOpen] = useState(false);
+  const [restoreResult, setRestoreResult] = useState(null);
+  const [restoreMerge, setRestoreMerge] = useState(false);
+
+  const handleRestore = async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const backup = JSON.parse(text);
+        if (!backup.products || !backup.orders) {
+          toast.error('El archivo no es un backup valido');
+          return;
+        }
+        setRestoreResult({ backup, file });
+      } catch {
+        toast.error('Error al leer el archivo JSON');
+      }
+    };
+    input.click();
+  };
+
+  const handleConfirmRestore = async () => {
+    if (!restoreResult) return;
+    try {
+      const { data } = await systemService.restore(restoreResult.backup, restoreMerge);
+      if (data.success) {
+        toast.success(`Restauracion completada: ${data.data.imported.products} productos, ${data.data.imported.orders} pedidos`);
+        setRestoreResult(null);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Error al restaurar');
+    }
+  };
+
   const tabs = [
     { key: 'general', label: 'General' },
     { key: 'branding', label: 'Branding' },
@@ -1134,6 +1365,10 @@ function ConfigSection() {
     { key: 'whatsapp', label: 'WhatsApp' },
     { key: 'marketing', label: 'Marketing' },
     { key: 'commercial', label: 'Comercial' },
+    { key: 'seo', label: 'SEO' },
+    { key: 'banners', label: 'Banners' },
+    { key: 'analytics', label: 'Analytics' },
+    { key: 'backups', label: 'Backups' },
     { key: 'appearance', label: 'Apariencia' },
     { key: 'advanced', label: 'Avanzado' },
   ];
@@ -1274,6 +1509,131 @@ function ConfigSection() {
               <textarea style={{...s.input, minHeight:60, resize:'vertical'}} value={form.trustText || ''} onChange={e => set('trustText', e.target.value)} placeholder="Ej: Compra 100% segura, paga contra entrega" />
             </Field>
           </div>
+        )}
+
+        {activeTab === 'backups' && (
+          <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Exportacion y respaldos</h3>
+
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:'0.75rem'}}>
+              <button onClick={handleExportProducts} style={{
+                display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
+                padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid #E8D5B0',
+                background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
+                fontWeight:600, color:'#1A1612', transition:'all .2s',
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Exportar productos CSV
+              </button>
+
+              <button onClick={handleExportOrders} style={{
+                display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
+                padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid #E8D5B0',
+                background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
+                fontWeight:600, color:'#1A1612', transition:'all .2s',
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Exportar pedidos CSV
+              </button>
+
+              <button onClick={handleDownloadBackup} style={{
+                display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
+                padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid #E8D5B0',
+                background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
+                fontWeight:600, color:'#1A1612', transition:'all .2s',
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Descargar backup completo
+              </button>
+
+              <button onClick={handleRestore} style={{
+                display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
+                padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid #F5C0C0',
+                background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
+                fontWeight:600, color:'#C25E5E', transition:'all .2s',
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+                </svg>
+                Restaurar backup
+              </button>
+            </div>
+
+            {restoreResult && (
+              <div style={{
+                background:'#FFF5F5', border:'1.5px solid #F5C0C0', borderRadius:12,
+                padding:'1.25rem', display:'flex', flexDirection:'column', gap:'0.75rem',
+              }}>
+                <div style={{fontSize:'0.9rem',fontWeight:600,color:'#C25E5E'}}>Restaurar backup</div>
+                <div style={{fontSize:'0.82rem',color:'#8A7968',lineHeight:1.6}}>
+                  Se encontraron {restoreResult.backup.products?.length || 0} productos y {restoreResult.backup.orders?.length || 0} pedidos en el archivo.
+                  Los productos con nombre existente se saltaran.
+                </div>
+                <label style={{display:'flex',alignItems:'center',gap:'0.5rem',fontSize:'0.82rem',color:'#1A1612',cursor:'pointer'}}>
+                  <input type="checkbox" checked={restoreMerge} onChange={e => setRestoreMerge(e.target.checked)} />
+                  Actualizar productos existentes (merge)
+                </label>
+                <div style={{display:'flex',gap:'0.5rem'}}>
+                  <button onClick={handleConfirmRestore} style={{
+                    padding:'0.55rem 1.25rem', borderRadius:6, border:'none',
+                    background:'#C25E5E', color:'white', fontWeight:600, fontSize:'0.85rem',
+                    cursor:'pointer', fontFamily:'inherit',
+                  }}>Confirmar restauracion</button>
+                  <button onClick={() => setRestoreResult(null)} style={{
+                    padding:'0.55rem 1.25rem', borderRadius:6, border:'1.5px solid #D0C8BE',
+                    background:'transparent', color:'#8A7968', fontWeight:500, fontSize:'0.85rem',
+                    cursor:'pointer', fontFamily:'inherit',
+                  }}>Cancelar</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'seo' && (
+          <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
+            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>SEO y posicionamiento</h3>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+              <Field label="Site Title (para buscadores)">
+                <input style={s.input} value={form.siteTitle || ''} onChange={e => set('siteTitle', e.target.value)} placeholder="LeisModa — Moda que te define" />
+              </Field>
+              <Field label="Site Description">
+                <input style={s.input} value={form.siteDescription || ''} onChange={e => set('siteDescription', e.target.value)} placeholder="Tienda de ropa online en Paita..." />
+              </Field>
+            </div>
+            <Field label="Keywords (separadas por coma)">
+              <input style={s.input} value={form.keywords || ''} onChange={e => set('keywords', e.target.value)} placeholder="ropa, moda, Paita, vestidos, mujer, hombre, accesorios" />
+            </Field>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+              <Field label="OG Image URL">
+                <input style={s.input} value={form.ogImage || ''} onChange={e => set('ogImage', e.target.value)} placeholder="https://..." />
+              </Field>
+              <Field label="Favicon URL">
+                <input style={s.input} value={form.favicon || ''} onChange={e => set('favicon', e.target.value)} placeholder="/icons/icon.svg" />
+              </Field>
+            </div>
+            <div style={{display:'flex',flexWrap:'wrap',gap:'0.65rem'}}>
+              <Toggle label="Indexable (permitir a Google indexar)" checked={form.indexable !== false} onChange={v => set('indexable', v)} />
+            </div>
+            <div style={{fontSize:'0.8rem',color:'#8A7968',background:'#F5F1EB',borderRadius:8,padding:'0.75rem 1rem',lineHeight:1.6}}>
+              Sitemap disponible en: <code style={{background:'#EBE5DB',padding:'0.15rem 0.4rem',borderRadius:4}}>/sitemap.xml</code><br />
+              Robots.txt disponible en: <code style={{background:'#EBE5DB',padding:'0.15rem 0.4rem',borderRadius:4}}>/robots.txt</code>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'banners' && (
+          <BannersManager />
+        )}
+
+        {activeTab === 'analytics' && (
+          <AnalyticsDashboard />
         )}
 
         {activeTab === 'appearance' && (

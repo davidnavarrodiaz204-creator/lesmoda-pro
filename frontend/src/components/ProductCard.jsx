@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { productService } from '../services/api';
 import { useCart } from './CartContext';
-import { WhatsAppIcon, CheckIcon, ImageIcon } from './Icons';
+import { WhatsAppIcon, CheckIcon, ImageIcon, HeartIcon, HeartFilledIcon } from './Icons';
 import { openWhatsapp } from '../utils/whatsappMessage';
 
 const badgeLabel = { new: 'NUEVO', sale: 'OFERTA', hot: 'TREND', last: 'ULTIMAS UNIDADES', featured: 'DESTACADO' };
 
 const PREMIUM_STYLE_ID = 'pcard-premium';
 
-export default function ProductCard({ product: rawProduct, waNumber, onClick, stockVisible = true }) {
+const ProductCard = React.memo(function ProductCard({ product: rawProduct, waNumber, onClick, stockVisible = true, isFavorite, onToggleFavorite }) {
   if (!rawProduct) return null;
   const product = rawProduct;
   const { addItem } = useCart();
@@ -16,6 +16,7 @@ export default function ProductCard({ product: rawProduct, waNumber, onClick, st
   const [adding, setAdding] = useState(false);
 
   const img = product.images?.[0]?.url || product.mainImage;
+  const fav = isFavorite ? isFavorite(product._id) : false;
 
   useEffect(() => {
     if (document.getElementById(PREMIUM_STYLE_ID)) return;
@@ -91,15 +92,25 @@ export default function ProductCard({ product: rawProduct, waNumber, onClick, st
     setTimeout(() => setAdding(false), 400);
   };
 
-  const handleBuy = async (e) => {
+  const handleBuy = useCallback(async (e) => {
     e.stopPropagation();
     productService.trackClick(product._id).catch(() => {});
     const msg = `Hola! Me interesa comprar: ${product.name} (S/ ${product.price.toFixed(2)}). Esta disponible?`;
     if (waNumber) openWhatsapp({ phone: waNumber, message: msg });
+  }, [product._id, product.name, product.price, waNumber]);
+
+  const handleToggleFav = (e) => {
+    e.stopPropagation();
+    onToggleFavorite?.(product._id);
   };
 
   return (
     <div className="product-card" onClick={() => onClick?.(product)}>
+      {onToggleFavorite && (
+        <button className={`wishlist-btn ${fav ? 'wishlist-btn-active' : ''}`} onClick={handleToggleFav} title={fav ? 'Quitar de favoritos' : 'Agregar a favoritos'}>
+          {fav ? <HeartFilledIcon size={16} /> : <HeartIcon size={16} />}
+        </button>
+      )}
       <div className="card-image">
         {!imgLoaded && <div className="card-image-skeleton" />}
         {img ? (
@@ -108,7 +119,8 @@ export default function ProductCard({ product: rawProduct, waNumber, onClick, st
             alt={product.name}
             loading="lazy"
             onLoad={() => setImgLoaded(true)}
-            style={{ opacity: imgLoaded ? 1 : 0 }}
+            onError={(e) => { e.target.style.display='none'; e.target.parentElement.classList.add('img-error-fallback'); }}
+            style={{ opacity: imgLoaded ? 1 : 0, transition:'opacity .3s ease' }}
           />
         ) : (
           <div className="img-placeholder"><ImageIcon size={22} /> Sin imagen</div>
@@ -155,7 +167,9 @@ export default function ProductCard({ product: rawProduct, waNumber, onClick, st
       </div>
     </div>
   );
-}
+});
+
+export default ProductCard;
 
 function StockBadge({ stock }) {
   if (stock == null || stock === undefined) {

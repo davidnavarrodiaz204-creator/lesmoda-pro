@@ -205,3 +205,45 @@ exports.updateNotes = async (req, res) => {
   if (!order) return res.status(404).json({ success: false, message: 'Pedido no encontrado' });
   res.json({ success: true, data: order });
 };
+
+// ── GET /api/orders/export/csv ────────────────────────────────────────────
+exports.exportOrdersCSV = async (req, res) => {
+  console.log('[backup] exporting orders');
+  const orders = await Order.find({}).sort({ createdAt: -1 }).lean();
+
+  const headers = ['orderId','customerName','customerPhone','customerAddress','total','status','itemsCount','products','source','createdAt','isViewed'];
+  const csvRows = [headers.join(',')];
+
+  orders.forEach(o => {
+    const esc = (v) => {
+      if (v === null || v === undefined) return '';
+      const s = String(v);
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    };
+    const productsStr = (o.items || []).map(item =>
+      `${item.name} x${item.quantity} S/${item.subtotal?.toFixed(2) || '0.00'}`
+    ).join(' | ');
+    const row = [
+      o._id || '',
+      esc(o.customerName),
+      esc(o.customerPhone),
+      esc(o.customerAddress || ''),
+      o.total ?? '',
+      esc(o.status || ''),
+      o.items?.length ?? 0,
+      esc(productsStr),
+      esc(o.source || ''),
+      o.createdAt ? new Date(o.createdAt).toISOString() : '',
+      o.isViewed !== false ? 'true' : 'false',
+    ];
+    csvRows.push(row.join(','));
+  });
+
+  const csv = '\ufeff' + csvRows.join('\n');
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename=pedidos_export.csv');
+  res.send(csv);
+};

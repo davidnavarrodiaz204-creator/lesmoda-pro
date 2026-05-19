@@ -20,6 +20,7 @@ const csvUpload = multer({
 // Públicas (stats va antes de :slug para evitar conflicto)
 router.get('/',           ctrl.getProducts);
 router.get('/stats',      ctrl.getStats);
+router.get('/export/csv', protect, ctrl.exportCSV);
 router.get('/:slug',      ctrl.getProduct);
 router.post('/:id/click', ctrl.trackWhatsappClick);
 router.get('/:id/related', ctrl.getRelatedProducts);

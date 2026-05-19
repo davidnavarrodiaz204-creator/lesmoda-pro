@@ -76,6 +76,12 @@ const productSchema = new mongoose.Schema(
       type:    Number,
       default: 0,
     },
+    // SaaS: identificador de tienda (preparacion multi-tenant)
+    storeId: {
+      type:    String,
+      default: 'default',
+      index:   true,
+    },
   },
   {
     timestamps: true,   // crea createdAt y updatedAt automáticamente

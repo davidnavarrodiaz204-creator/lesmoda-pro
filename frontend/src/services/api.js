@@ -46,6 +46,7 @@ export const productService = {
     return api.post('/products/import/preview', fd);
   },
   importConfirm: (rows) => api.post('/products/import/confirm', { rows }),
+  exportCSV: () => api.get('/products/export/csv', { responseType: 'blob' }),
 };
 
 // ── Auth ───────────────────────────────────────────────────────────────────
@@ -65,12 +66,32 @@ export const orderService = {
   updateNotes:  (id, notes)  => api.patch(`/orders/${id}/notes`, { notes }),
   markViewed:   (id)        => api.patch(`/orders/${id}/viewed`),
   testTelegram: () => api.get('/orders/test-telegram'),
+  exportCSV: () => api.get('/orders/export/csv', { responseType: 'blob' }),
+};
+
+// ── System ─────────────────────────────────────────────────────────────────
+export const systemService = {
+  backup: () => api.get('/system/backup'),
+  restore: (backup, merge) => api.post('/system/restore', { backup, merge }),
 };
 
 // ── Config ─────────────────────────────────────────────────────────────────
 export const configService = {
   get:  ()      => api.get('/config'),
   save: (data)  => api.put('/config', data),
+};
+
+export const bannerService = {
+  getAll:  ()          => api.get('/banners'),
+  getAllAdmin: ()      => api.get('/banners', { params: { admin: 'true' } }),
+  create:  (data)      => api.post('/banners', data),
+  update:  (id, data)  => api.put(`/banners/${id}`, data),
+  remove:  (id)        => api.delete(`/banners/${id}`),
+};
+
+export const analyticsService = {
+  track: (type, payload) => api.post('/analytics/track', { type, ...payload }),
+  getStats: ()           => api.get('/analytics/stats'),
 };
 
 export default api;

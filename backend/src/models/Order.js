@@ -28,6 +28,7 @@ const orderSchema = new mongoose.Schema({
   notes:          { type: String, default: '' },
   isViewed:  { type: Boolean, default: false },
   viewedAt:  { type: Date, default: null },
+  storeId:   { type: String, default: 'default', index: true },
 }, { timestamps: true });
 
 orderSchema.index({ status: 1, createdAt: -1 });
