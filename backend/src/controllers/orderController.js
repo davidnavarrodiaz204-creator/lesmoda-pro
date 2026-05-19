@@ -30,23 +30,29 @@ exports.createOrder = async (req, res) => {
   });
 
   // Telegram notification (no bloqueante — no debe afectar la respuesta)
-  const cleanPhone = customerPhone.replace(/\D/g, '');
-  let tgMessage = '<b>Nuevo Pedido</b>\n\n';
-  tgMessage += `<b>Cliente:</b> ${customerName.trim()}\n`;
-  tgMessage += `<b>Celular:</b> ${customerPhone.trim()}\n`;
-  if (customerAddress) tgMessage += `<b>Direccion:</b> ${customerAddress.trim()}\n`;
-  tgMessage += `<b>Total:</b> S/ ${Number(total).toFixed(2)}\n\n`;
-  tgMessage += `<b>Productos:</b>\n`;
-  items.forEach((item, i) => {
-    tgMessage += `${i + 1}. ${item.name}`;
-    if (item.size) tgMessage += ` — T: ${item.size}`;
-    if (item.color) tgMessage += ` — C: ${item.color}`;
-    tgMessage += ` x${item.quantity} — S/ ${(item.price * item.quantity).toFixed(2)}\n`;
+  setImmediate(async () => {
+    try {
+      const cleanPhone = customerPhone.replace(/\D/g, '');
+      let tgMessage = '<b>Nuevo Pedido</b>\n\n';
+      tgMessage += `<b>Cliente:</b> ${customerName.trim()}\n`;
+      tgMessage += `<b>Celular:</b> ${customerPhone.trim()}\n`;
+      if (customerAddress) tgMessage += `<b>Direccion:</b> ${customerAddress.trim()}\n`;
+      tgMessage += `<b>Total:</b> S/ ${Number(total).toFixed(2)}\n\n`;
+      tgMessage += `<b>Productos:</b>\n`;
+      items.forEach((item, i) => {
+        tgMessage += `${i + 1}. ${item.name}`;
+        if (item.size) tgMessage += ` — T: ${item.size}`;
+        if (item.color) tgMessage += ` — C: ${item.color}`;
+        tgMessage += ` x${item.quantity} — S/ ${(item.price * item.quantity).toFixed(2)}\n`;
+      });
+      if (cleanPhone) {
+        tgMessage += `\n<a href="https://wa.me/${cleanPhone}">Contactar por WhatsApp</a>`;
+      }
+      await telegram.sendNotification(tgMessage);
+    } catch (err) {
+      console.error('[telegram] error in notification:', err.message);
+    }
   });
-  if (cleanPhone) {
-    tgMessage += `\n<a href="https://wa.me/${cleanPhone}">Contactar por WhatsApp</a>`;
-  }
-  telegram.sendNotification(tgMessage).catch(() => {});
 
   res.status(201).json({ success: true, data: order });
 };
@@ -133,6 +139,16 @@ exports.updateStatus = async (req, res) => {
   const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true }).lean();
   if (!order) return res.status(404).json({ success: false, message: 'Pedido no encontrado' });
   res.json({ success: true, data: order });
+};
+
+// ── GET /api/orders/test-telegram (admin) ────────────────────────────────
+exports.testTelegram = async (req, res) => {
+  const sent = await telegram.sendNotification('<b>Prueba Telegram LesModa desde backend</b>\n\nSi ves esto, Telegram funciona correctamente.');
+  if (sent) {
+    res.json({ success: true, message: 'Mensaje de prueba enviado a Telegram' });
+  } else {
+    res.status(500).json({ success: false, message: 'Error enviando mensaje de prueba a Telegram' });
+  }
 };
 
 // ── PATCH /api/orders/:id/notes (admin) ────────────────────────────────────

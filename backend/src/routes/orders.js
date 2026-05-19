@@ -5,8 +5,9 @@ const { protect } = require('../middleware/auth');
 // Pública (crear pedido desde el carrito)
 router.post('/', ctrl.createOrder);
 
-// Admin (stats va antes de :id para evitar conflicto)
+// Admin (stats y test-telegram van antes de :id para evitar conflicto)
 router.get('/stats', protect, ctrl.getOrderStats);
+router.get('/test-telegram', protect, ctrl.testTelegram);
 router.get('/',       protect, ctrl.getOrders);
 router.get('/:id',    protect, ctrl.getOrder);
 router.patch('/:id/status', protect, ctrl.updateStatus);
