@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { useConfig } from '../hooks/useConfig';
+import { normalizeWaNumber } from '../utils/waNumber';
 import ProductCard from '../components/ProductCard';
 import HeroSection from '../components/HeroSection';
 import CategorySection from '../components/CategorySection';
@@ -27,23 +28,31 @@ export default function StorePage() {
 
   const { products, loading, error } = useProducts(filter);
 
-  const waNumber = config.waNumber || '';
+  const waNumber = normalizeWaNumber(config.waNumber || '');
 
   const handleFilter = (type, value) => {
-    setActiveTab(value === 'Todos' ? 'Todos' : value);
+    if (value === 'Todos') {
+      setActiveTab('Todos');
+      return setFilter({});
+    }
+    setActiveTab(value);
     setMenuOpen(false);
-    if (value === 'Todos') return setFilter({});
-    if (type === 'badge') return setFilter({ badge: value });
-    if (type === 'category') return setFilter({ category: value });
+    setFilter(prev => {
+      const next = { ...prev };
+      if (type === 'badge') {
+        next.badge = value;
+      } else if (type === 'category') {
+        next.category = value;
+      }
+      return next;
+    });
   };
 
   return (
     <div className="store-page">
       <header style={s.header}>
         <div style={s.headerInner}>
-          <div style={s.logo}>
-            {config.storeName?.split(' ')[0] || 'Leis'}<em style={{color:'#C9A96E',fontStyle:'normal'}}>Mo</em>da
-          </div>
+          <div style={s.logo}>{config.storeName || 'LeisModa'}</div>
           <div style={s.headerActions}>
             <button className="lm-hamburger" style={s.hamburger} onClick={() => setMenuOpen(!menuOpen)}>
               <span style={{...s.bar, ...(menuOpen?{transform:'rotate(45deg) translate(5px,5px)'}:{})}}/>
@@ -71,6 +80,7 @@ export default function StorePage() {
         facebook={config.facebook}
         instagram={config.instagram}
         tiktok={config.tiktok}
+        logo={config.logo}
       />
 
       <CategorySection
@@ -131,6 +141,7 @@ export default function StorePage() {
         instagram={config.instagram}
         tiktok={config.tiktok}
         hours={config.hours}
+        logo={config.logo}
       />
     </div>
   );
@@ -169,3 +180,4 @@ const s = {
   productGrid:     { display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:'1.25rem' },
   center:          { textAlign:'center', padding:'3rem', color:'#8A7968' },
 };
+

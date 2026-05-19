@@ -111,13 +111,13 @@ exports.createProduct = async (req, res) => {
     featured: featured === 'true',
   });
 
-  // Si viene imagen desde Cloudinary (multer ya la subió)
-  if (req.file) {
-    product.images = [{
-      url:      req.file.path,
-      publicId: req.file.filename,
-      isMain:   true,
-    }];
+  const files = req.files || (req.file ? [req.file] : []);
+  if (files.length > 0) {
+    product.images = files.map((f, i) => ({
+      url:      f.path,
+      publicId: f.filename,
+      isMain:   i === 0,
+    }));
   }
 
   await product.save();
@@ -138,17 +138,16 @@ exports.updateProduct = async (req, res) => {
     }
   });
 
-  // Nueva imagen
-  if (req.file) {
-    // Borrar imagen anterior de Cloudinary
-    if (product.images[0]?.publicId) {
-      await cloudinary.uploader.destroy(product.images[0].publicId);
+  const files = req.files || (req.file ? [req.file] : []);
+  if (files.length > 0) {
+    for (const img of product.images) {
+      if (img.publicId) await cloudinary.uploader.destroy(img.publicId).catch(() => {});
     }
-    product.images = [{
-      url:      req.file.path,
-      publicId: req.file.filename,
-      isMain:   true,
-    }];
+    product.images = files.map((f, i) => ({
+      url:      f.path,
+      publicId: f.filename,
+      isMain:   i === 0,
+    }));
   }
 
   await product.save();

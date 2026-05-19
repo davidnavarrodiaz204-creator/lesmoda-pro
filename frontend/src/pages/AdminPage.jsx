@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { productService, configService, authService, orderService } from '../services/api';
+import api, { productService, configService, authService, orderService } from '../services/api';
+import { validatePeruNumber, normalizeWaNumber } from '../utils/waNumber';
 import {
   ChartIcon, PackageIcon, ClipboardIcon, UsersIcon, GearIcon,
   StoreIcon, DoorIcon, UserIcon, MobileIcon, SaveIcon,
@@ -758,23 +759,58 @@ function ConfigSection() {
     promoBannerEnabled: false, featuredProductsEnabled: false, stockVisible: false,
   });
   const [saving, setSaving] = useState(false);
+  const [waError, setWaError] = useState('');
+  const logoRef = useRef();
+  const bannerRef = useRef();
+  const [logoPreview, setLogoPreview] = useState('');
+  const [bannerPreview, setBannerPreview] = useState('');
 
   useEffect(() => {
     configService.get().then(({data}) => {
-      if (data?.data) setForm(f => ({...f, ...data.data}));
+      if (data?.data) {
+        setForm(f => ({...f, ...data.data}));
+        if (data.data.logo) setLogoPreview(data.data.logo);
+        if (data.data.banner) setBannerPreview(data.data.banner);
+      }
     }).catch(() => {});
   }, []);
 
   const handleSave = async () => {
+    const waErr = validatePeruNumber(form.waNumber || '');
+    if (waErr) return setWaError(waErr);
+    setWaError('');
     setSaving(true);
     try {
-      await configService.save(form);
-      toast.success('Configuración guardada correctamente');
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => {
+        if (v !== '' && v != null) {
+          if (k === 'waNumber') fd.append(k, normalizeWaNumber(v));
+          else if (v instanceof File) fd.append(k, v);
+          else if (typeof v === 'boolean') fd.append(k, v ? 'true' : 'false');
+          else fd.append(k, v);
+        }
+      });
+      await api.put('/config', fd);
+      toast.success('Configuracion guardada correctamente');
     } catch {
-      toast.error('Error al guardar configuración');
+      toast.error('Error al guardar configuracion');
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleLogoFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setLogoPreview(URL.createObjectURL(file));
+    setForm(f => ({...f, logo: file}));
+  };
+
+  const handleBannerFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setBannerPreview(URL.createObjectURL(file));
+    setForm(f => ({...f, banner: file}));
   };
 
   const set = (k, v) => setForm(f => ({...f, [k]: v}));
@@ -790,7 +826,7 @@ function ConfigSection() {
           <Field label="Eslogan">
             <input style={s.input} value={form.storeSlogan || ''} onChange={e => set('storeSlogan', e.target.value)} />
           </Field>
-          <Field label="Descripción">
+          <Field label="Descripcion">
             <textarea style={{...s.input, minHeight:70, resize:'vertical'}} value={form.storeDescription || ''} onChange={e => set('storeDescription', e.target.value)} />
           </Field>
         </div>
@@ -799,8 +835,11 @@ function ConfigSection() {
       <div style={s.configCard}>
         <h3 style={s.cardTitle}>Contacto y Redes</h3>
         <div style={s.configRow}>
-          <Field label="WhatsApp">
-            <input style={s.input} placeholder="51999999999" value={form.waNumber || ''} onChange={e => set('waNumber', e.target.value)} />
+          <Field label="WhatsApp (9 digitos)">
+            <input style={{...s.input, borderColor: waError ? '#C25E5E' : undefined}} placeholder="987654321" maxLength={9}
+              value={(form.waNumber || '').replace(/\D/g, '')}
+              onChange={e => { set('waNumber', e.target.value.replace(/\D/g, '').slice(0,9)); setWaError(''); }} />
+            {waError && <span style={{fontSize:'0.72rem',color:'#C25E5E',marginTop:'0.2rem'}}>{waError}</span>}
           </Field>
           <Field label="Facebook">
             <input style={s.input} placeholder="URL de Facebook" value={form.facebook || ''} onChange={e => set('facebook', e.target.value)} />
@@ -811,7 +850,7 @@ function ConfigSection() {
           <Field label="TikTok">
             <input style={s.input} placeholder="URL de TikTok" value={form.tiktok || ''} onChange={e => set('tiktok', e.target.value)} />
           </Field>
-          <Field label="Dirección">
+          <Field label="Direccion">
             <input style={s.input} placeholder="Direccion de la tienda" value={form.address || ''} onChange={e => set('address', e.target.value)} />
           </Field>
           <Field label="Horario">
@@ -823,11 +862,17 @@ function ConfigSection() {
       <div style={s.configCard}>
         <h3 style={s.cardTitle}>Apariencia</h3>
         <div style={s.configRow}>
-          <Field label="Logo URL">
-            <input style={s.input} placeholder="URL del logo" value={form.logo || ''} onChange={e => set('logo', e.target.value)} />
+          <Field label="Logo">
+            <input type="file" ref={logoRef} accept="image/*" onChange={handleLogoFile} style={{fontSize:'0.85rem'}} />
+            <input style={{...s.input, marginTop:'0.3rem'}} placeholder="o pegar URL" value={form.logo && typeof form.logo === 'string' ? form.logo : ''}
+              onChange={e => { set('logo', e.target.value); setLogoPreview(e.target.value); }} />
+            {logoPreview && <img src={logoPreview} style={{maxHeight:60,marginTop:'0.35rem',borderRadius:6}} alt="logo preview" />}
           </Field>
-          <Field label="Banner URL">
-            <input style={s.input} placeholder="URL del banner" value={form.banner || ''} onChange={e => set('banner', e.target.value)} />
+          <Field label="Banner">
+            <input type="file" ref={bannerRef} accept="image/*" onChange={handleBannerFile} style={{fontSize:'0.85rem'}} />
+            <input style={{...s.input, marginTop:'0.3rem'}} placeholder="o pegar URL" value={form.banner && typeof form.banner === 'string' ? form.banner : ''}
+              onChange={e => { set('banner', e.target.value); setBannerPreview(e.target.value); }} />
+            {bannerPreview && <img src={bannerPreview} style={{maxHeight:80,marginTop:'0.35rem',borderRadius:6}} alt="banner preview" />}
           </Field>
           <Field label="Color primario">
             <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.primaryColor} onChange={e => set('primaryColor', e.target.value)} />
@@ -851,10 +896,10 @@ function ConfigSection() {
       <div style={s.configCard}>
         <h3 style={s.cardTitle}>Marketing y Ventas</h3>
         <div style={s.configRow}>
-          <Field label="Texto envío gratis">
+          <Field label="Texto envio gratis">
             <input style={s.input} value={form.freeShippingText || ''} onChange={e => set('freeShippingText', e.target.value)} />
           </Field>
-          <Field label="Monto mínimo envío gratis">
+          <Field label="Monto minimo envio gratis">
             <input style={s.input} type="number" value={form.freeShippingMin || ''} onChange={e => set('freeShippingMin', e.target.value)} />
           </Field>
           <Field label="Mensaje WhatsApp">
@@ -869,7 +914,7 @@ function ConfigSection() {
       </div>
 
       <button style={s.btnSave} onClick={handleSave} disabled={saving}>
-        {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar configuración</>}
+        {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar configuracion</>}
       </button>
     </div>
   );

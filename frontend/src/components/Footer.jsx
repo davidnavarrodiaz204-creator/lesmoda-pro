@@ -9,6 +9,7 @@ export default function Footer({
   instagram = '',
   tiktok = '',
   hours = '',
+  logo = '',
 }) {
   const num = waNumber?.replace(/\D/g, '');
   const waUrl = num ? `https://wa.me/${num}` : '#';
@@ -17,7 +18,11 @@ export default function Footer({
     <footer style={s.footer}>
       <div style={s.top}>
         <div style={s.brand}>
-          <div style={s.logo}>{storeName}</div>
+          {logo ? (
+            <img src={logo} alt={storeName} style={{maxHeight:36,marginBottom:'0.4rem'}} />
+          ) : (
+            <div style={s.logo}>{storeName}</div>
+          )}
           <p style={s.slogan}>{storeSlogan}</p>
           {num && (
             <a href={waUrl} target="_blank" rel="noopener noreferrer" style={s.waLink}>

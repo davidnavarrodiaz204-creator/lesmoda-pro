@@ -21,7 +21,20 @@ const productStorage = new CloudinaryStorage({
 
 const upload = multer({
   storage: productStorage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-module.exports = { cloudinary, upload };
+const configStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder:         'lesmoda/config',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'svg'],
+  },
+});
+
+const configUpload = multer({
+  storage: configStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+module.exports = { cloudinary, upload, configUpload };

@@ -1,4 +1,4 @@
-import { WhatsAppIcon, FacebookIcon, TikTokIcon, InstagramIcon } from './Icons';
+import { WhatsAppIcon, FacebookIcon, InstagramIcon, TikTokIcon } from './Icons';
 
 export default function HeroSection({
   waNumber,
@@ -7,6 +7,7 @@ export default function HeroSection({
   facebook = '',
   instagram = '',
   tiktok = '',
+  logo = '',
 }) {
   const num = waNumber?.replace(/\D/g, '');
   const waUrl = num ? `https://wa.me/${num}` : '#';
@@ -15,14 +16,19 @@ export default function HeroSection({
     document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const titleWords = (storeName || 'LeisModa').split(' ');
+  const firstPart = titleWords.length > 1 ? titleWords.slice(0, -1).join(' ') : '';
+  const lastWord = titleWords[titleWords.length - 1] || '';
+
   return (
     <section className="hero-section">
       <div className="hero-bg" />
       <div className="hero-overlay" />
       <div className="hero-content">
+        {logo && <img src={logo} alt={storeName} style={{maxHeight:60,marginBottom:'0.75rem'}} />}
         <span className="hero-eyebrow">Nueva Coleccion 2026</span>
         <h1 className="hero-title">
-          {storeName.split(' ')[0] || storeName} <span className="hero-gold">que te define</span>
+          {firstPart ? <>{firstPart} <span className="hero-gold">{lastWord}</span></> : <>{storeName} <span className="hero-gold">que te define</span></>}
         </h1>
         <p className="hero-subtitle">{storeSlogan}</p>
         <div className="hero-actions">

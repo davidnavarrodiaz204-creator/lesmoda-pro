@@ -11,8 +11,8 @@ router.get('/:slug',      ctrl.getProduct);
 router.post('/:id/click', ctrl.trackWhatsappClick);
 
 // Protegidas (requieren login)
-router.post('/',    protect, upload.single('image'), ctrl.createProduct);
-router.put('/:id',  protect, upload.single('image'), ctrl.updateProduct);
+router.post('/',    protect, upload.array('images', 10), ctrl.createProduct);
+router.put('/:id',  protect, upload.array('images', 10), ctrl.updateProduct);
 router.delete('/:id', protect, ctrl.deleteProduct);
 
 module.exports = router;

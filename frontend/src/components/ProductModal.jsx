@@ -26,17 +26,20 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
 
   const currentImg = images[imgIndex]?.url || product.mainImage;
   const num = waNumber?.replace(/\D/g, '');
-  const waMsg = `¡Hola! Me interesa: *${product.name}*${selectedSize ? ` (Talla: ${selectedSize})` : ''}${selectedColor ? ` (Color: ${selectedColor})` : ''} x${quantity} — S/ ${(product.price * quantity).toFixed(2)}. ¿Está disponible?`;
-  const waUrl = num ? `https://wa.me/${num}?text=${encodeURIComponent(waMsg)}` : '#';
 
   const handleAddToCart = () => {
     addItem(product, { size: selectedSize, color: selectedColor, quantity });
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
+    onClose();
   };
 
-  const handleWAClick = () => {
+  const handleBuyNow = () => {
+    addItem(product, { size: selectedSize, color: selectedColor, quantity });
     productService.trackClick(product._id).catch(() => {});
+    const imgLink = currentImg ? `\nFoto: ${currentImg}` : '';
+    const msg = `*Nuevo Pedido - ${product.name}*\n\nPrecio: S/ ${product.price.toFixed(2)}${selectedSize ? `\nTalla: ${selectedSize}` : ''}${selectedColor ? `\nColor: ${selectedColor}` : ''}\nCantidad: ${quantity}\nSubtotal: S/ ${(product.price * quantity).toFixed(2)}${imgLink}`;
+    const waUrl = num ? `https://wa.me/${num}?text=${encodeURIComponent(msg)}` : '#';
+    window.open(waUrl, '_blank');
+    onClose();
   };
 
   const discount = product.oldPrice && product.oldPrice > product.price
@@ -146,18 +149,18 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
 
           {product.description && (
             <div className="modal-description">
-              <label className="modal-variant-label">Descripción</label>
+              <label className="modal-variant-label">Descripcion</label>
               <p>{product.description}</p>
             </div>
           )}
 
           <div className="modal-actions">
-            <button className={`modal-cart-btn ${added ? 'modal-cart-btn-added' : ''}`} onClick={handleAddToCart}>
-              {added ? <><CheckIcon size={16} /> Agregado</> : 'Agregar al carrito'}
+            <button className="modal-cart-btn" onClick={handleAddToCart}>
+              <CheckIcon size={16} /> Agregar al carrito
             </button>
-            <a href={waUrl} target="_blank" rel="noopener noreferrer" className="modal-wa-btn" onClick={handleWAClick}>
+            <button className="modal-wa-btn" onClick={handleBuyNow}>
               <WhatsAppIcon size={16} /> Comprar ahora
-            </a>
+            </button>
           </div>
         </div>
       </div>
