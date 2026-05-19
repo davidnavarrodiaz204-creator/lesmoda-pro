@@ -16,14 +16,24 @@ exports.getProducts = async (req, res) => {
   const {
     category, badge, featured,
     search, page = 1, limit = 20,
-    sort = '-createdAt',
+    sort = '-createdAt', admin,
+    lowStock, isActive: activeFilter,
   } = req.query;
 
-  const filter = { isActive: true };
+  const filter = {};
+
+  // Admin puede ver productos inactivos; público solo activos
+  if (admin === 'true') {
+    if (activeFilter !== undefined) filter.isActive = activeFilter === 'true';
+  } else {
+    filter.isActive = true;
+  }
+
   if (category) filter.category = category;
   if (badge)    filter.badge    = badge;
   if (featured === 'true') filter.featured = true;
   if (search)   filter.$text = { $search: search };
+  if (lowStock === 'true') filter.stock = { $gt: 0, $lte: 5 };
 
   const skip  = (Number(page) - 1) * Number(limit);
   const total = await Product.countDocuments(filter);
@@ -40,6 +50,41 @@ exports.getProducts = async (req, res) => {
     page:  Number(page),
     pages: Math.ceil(total / Number(limit)),
     data:  products,
+  });
+};
+
+// ── GET /api/products/stats ────────────────────────────────────────────────
+exports.getStats = async (req, res) => {
+  const [
+    totalProducts,
+    activeProducts,
+    featuredProducts,
+    totalClicks,
+    topProducts,
+    lowStockProducts,
+    recentProducts,
+  ] = await Promise.all([
+    Product.countDocuments(),
+    Product.countDocuments({ isActive: true }),
+    Product.countDocuments({ featured: true }),
+    Product.aggregate([{ $group: { _id: null, total: { $sum: '$whatsappClicks' } } }]),
+    Product.find().sort({ whatsappClicks: -1 }).limit(5).lean({ virtuals: true }),
+    Product.find({ stock: { $gt: 0, $lte: 5 } }).sort({ stock: 1 }).limit(10).lean({ virtuals: true }),
+    Product.find().sort({ createdAt: -1 }).limit(5).lean({ virtuals: true }),
+  ]);
+
+  res.json({
+    success: true,
+    data: {
+      totalProducts,
+      activeProducts,
+      inactiveProducts: totalProducts - activeProducts,
+      featuredProducts,
+      totalWhatsappClicks: totalClicks[0]?.total || 0,
+      topProducts,
+      lowStockProducts,
+      recentProducts,
+    },
   });
 };
 

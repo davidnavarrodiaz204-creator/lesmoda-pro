@@ -1,9 +1,13 @@
-// frontend/src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { CartProvider } from './components/CartContext';
 import StorePage from './pages/StorePage';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
+import AboutPage from './pages/AboutPage';
+import HowToBuyPage from './pages/HowToBuyPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -13,14 +17,31 @@ function PrivateRoute({ children }) {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/"            element={<StorePage />} />
-          <Route path="/admin/login" element={<LoginPage />} />
-          <Route path="/admin"       element={<PrivateRoute><AdminPage /></PrivateRoute>} />
-          <Route path="*"            element={<Navigate to="/" />} />
-        </Routes>
-      </BrowserRouter>
+      <CartProvider>
+        <BrowserRouter>
+          <Toaster
+            position="top-center"
+            toastOptions={{
+              style: {
+                background: '#1A1612',
+                color: '#FAF7F2',
+                borderRadius: 10,
+                fontFamily: 'DM Sans, sans-serif',
+                fontSize: '0.9rem',
+              },
+              success: { iconTheme: { primary: '#C9A96E', secondary: '#FAF7F2' } },
+            }}
+          />
+          <Routes>
+            <Route path="/"            element={<StorePage />} />
+            <Route path="/about"       element={<AboutPage />} />
+            <Route path="/how-to-buy"  element={<HowToBuyPage />} />
+            <Route path="/admin/login" element={<LoginPage />} />
+            <Route path="/admin"       element={<PrivateRoute><AdminPage /></PrivateRoute>} />
+            <Route path="*"            element={<NotFoundPage />} />
+          </Routes>
+        </BrowserRouter>
+      </CartProvider>
     </AuthProvider>
   );
 }

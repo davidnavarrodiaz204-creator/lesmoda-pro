@@ -14,6 +14,7 @@ const errorHandler   = require('./middleware/errorHandler');
 const productRoutes  = require('./routes/products');
 const authRoutes     = require('./routes/auth');
 const configRoutes   = require('./routes/config');
+const orderRoutes    = require('./routes/orders');
 
 // ── Conectar BD ────────────────────────────────────────────────────────────
 connectDB();
@@ -24,7 +25,7 @@ const app = express();
 app.use(helmet());
 app.use(cors({
   origin: process.env.CLIENT_URL || '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
 }));
 
 // Rate limiting — máx 100 req / 15min por IP
@@ -45,6 +46,7 @@ if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
 app.use('/api/products', productRoutes);
 app.use('/api/auth',     authRoutes);
 app.use('/api/config',   configRoutes);
+app.use('/api/orders',   orderRoutes);
 
 // Health check (para Railway/Render)
 app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date() }));

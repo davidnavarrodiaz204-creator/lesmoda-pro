@@ -28,11 +28,13 @@ api.interceptors.response.use(
 
 // ── Productos ──────────────────────────────────────────────────────────────
 export const productService = {
-  getAll:   (params) => api.get('/products', { params }),
-  getOne:   (slug)   => api.get(`/products/${slug}`),
-  create:   (data)   => api.post('/products', data),          // data = FormData
-  update:   (id, data) => api.put(`/products/${id}`, data),   // data = FormData
-  remove:   (id)     => api.delete(`/products/${id}`),
+  getAll:    (params) => api.get('/products', { params }),
+  getAllAdmin: (params) => api.get('/products', { params: { ...params, admin: 'true' } }),
+  getStats:  ()       => api.get('/products/stats'),
+  getOne:    (slug)   => api.get(`/products/${slug}`),
+  create:    (data)   => api.post('/products', data),          // data = FormData
+  update:    (id, data) => api.put(`/products/${id}`, data),   // data = FormData
+  remove:    (id)     => api.delete(`/products/${id}`),
   trackClick: (id)   => api.post(`/products/${id}/click`),
 };
 
@@ -41,6 +43,16 @@ export const authService = {
   login:      (creds) => api.post('/auth/login', creds),
   me:         ()      => api.get('/auth/me'),
   createUser: (data)  => api.post('/auth/register', data),
+};
+
+// ── Pedidos ────────────────────────────────────────────────────────────────
+export const orderService = {
+  create:     (data) => api.post('/orders', data),
+  getAll:     (params) => api.get('/orders', { params }),
+  getStats:   ()      => api.get('/orders/stats'),
+  getOne:     (id)    => api.get(`/orders/${id}`),
+  updateStatus: (id, status) => api.patch(`/orders/${id}/status`, { status }),
+  updateNotes:  (id, notes)  => api.patch(`/orders/${id}/notes`, { notes }),
 };
 
 // ── Config ─────────────────────────────────────────────────────────────────
