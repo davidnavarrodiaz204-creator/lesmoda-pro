@@ -10,7 +10,7 @@ function StockBadge({ stock }) {
   return <span className="stock-badge stock-consult">Consultar stock</span>;
 }
 
-export default function ProductModal({ product: rawProduct, waNumber, onClose }) {
+export default function ProductModal({ product: rawProduct, waNumber, onClose, stockVisible = true }) {
   const { addItem } = useCart();
   const product = rawProduct || {};
   const images = product.images || [];
@@ -140,7 +140,7 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose })
           </div>
 
           <div className="modal-trust">
-            <StockBadge stock={product.stock} />
+            {stockVisible && <StockBadge stock={product.stock} />}
             <span className="modal-trust-wa"><LockIcon size={12} /> Sin pago online — todo por WhatsApp</span>
           </div>
 

@@ -4,7 +4,7 @@ import { useCart } from './CartContext';
 import { orderService } from '../services/api';
 import { CloseIcon, MinusIcon, PlusIcon, TrashIcon, WhatsAppIcon, CheckIcon, CartIcon, ImageIcon } from './Icons';
 
-export default function CartDrawer({ open, onClose, waNumber }) {
+export default function CartDrawer({ open, onClose, waNumber, waMessage, storeName }) {
   const { items, removeItem, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
   const num = waNumber?.replace(/\D/g, '');
   const [checkout, setCheckout] = useState(false);
@@ -19,9 +19,11 @@ export default function CartDrawer({ open, onClose, waNumber }) {
       (item.color ? ` | Color: ${item.color}` : '') +
       `\n   Cant: ${item.quantity}`
     );
-    const header = '*Nuevo Pedido - LeisModa*\n\n';
+    const store = storeName || 'LeisModa';
+    const header = `*Nuevo Pedido - ${store}*\n\n`;
+    const extra = waMessage ? `\n${waMessage}\n` : '';
     const footer = `\n────────────────\n*Total: S/ ${totalPrice.toFixed(2)}*`;
-    return header + lines.join('\n\n') + footer;
+    return header + lines.join('\n\n') + extra + footer;
   };
 
   const handleCheckout = async () => {

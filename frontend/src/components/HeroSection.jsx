@@ -1,6 +1,13 @@
-import { WhatsAppIcon, FacebookIcon, TikTokIcon } from './Icons';
+import { WhatsAppIcon, FacebookIcon, TikTokIcon, InstagramIcon } from './Icons';
 
-export default function HeroSection({ waNumber }) {
+export default function HeroSection({
+  waNumber,
+  storeName = 'LeisModa',
+  storeSlogan = 'Tu look favorito, directo desde Paita',
+  facebook = '',
+  instagram = '',
+  tiktok = '',
+}) {
   const num = waNumber?.replace(/\D/g, '');
   const waUrl = num ? `https://wa.me/${num}` : '#';
 
@@ -13,26 +20,35 @@ export default function HeroSection({ waNumber }) {
       <div className="hero-bg" />
       <div className="hero-overlay" />
       <div className="hero-content">
-        <span className="hero-eyebrow">Nueva Colección 2026</span>
+        <span className="hero-eyebrow">Nueva Coleccion 2026</span>
         <h1 className="hero-title">
-          Moda que te <span className="hero-gold">define</span>
+          {storeName.split(' ')[0] || storeName} <span className="hero-gold">que te define</span>
         </h1>
-        <p className="hero-subtitle">Tu look favorito, directo desde Paita</p>
+        <p className="hero-subtitle">{storeSlogan}</p>
         <div className="hero-actions">
           <button className="hero-btn hero-btn-primary" onClick={scrollToProducts}>
-            Ver Colección
+            Ver Coleccion
           </button>
           <a href={waUrl} target="_blank" rel="noopener noreferrer" className="hero-btn hero-btn-secondary">
             <WhatsAppIcon size={16} /> Escríbenos
           </a>
         </div>
         <div className="hero-social">
-          <a href="https://www.facebook.com/share/1ApPvvscHt/" target="_blank" rel="noopener noreferrer" className="hero-social-link">
-            <FacebookIcon size={14} /> Facebook
-          </a>
-          <a href="https://www.tiktok.com/@steffan578" target="_blank" rel="noopener noreferrer" className="hero-social-link">
-            <TikTokIcon size={14} /> TikTok
-          </a>
+          {facebook && (
+            <a href={facebook} target="_blank" rel="noopener noreferrer" className="hero-social-link">
+              <FacebookIcon size={14} /> Facebook
+            </a>
+          )}
+          {instagram && (
+            <a href={instagram} target="_blank" rel="noopener noreferrer" className="hero-social-link">
+              <InstagramIcon size={14} /> Instagram
+            </a>
+          )}
+          {tiktok && (
+            <a href={tiktok} target="_blank" rel="noopener noreferrer" className="hero-social-link">
+              <TikTokIcon size={14} /> TikTok
+            </a>
+          )}
         </div>
       </div>
     </section>

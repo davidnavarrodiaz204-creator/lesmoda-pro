@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const telegram = require('../services/telegram');
 
 // ── POST /api/orders (público) ─────────────────────────────────────────────
 exports.createOrder = async (req, res) => {
@@ -27,6 +28,25 @@ exports.createOrder = async (req, res) => {
     whatsappMessage: whatsappMessage || '',
     source: 'whatsapp',
   });
+
+  // Telegram notification (no bloqueante — no debe afectar la respuesta)
+  const cleanPhone = customerPhone.replace(/\D/g, '');
+  let tgMessage = '<b>Nuevo Pedido</b>\n\n';
+  tgMessage += `<b>Cliente:</b> ${customerName.trim()}\n`;
+  tgMessage += `<b>Celular:</b> ${customerPhone.trim()}\n`;
+  if (customerAddress) tgMessage += `<b>Direccion:</b> ${customerAddress.trim()}\n`;
+  tgMessage += `<b>Total:</b> S/ ${Number(total).toFixed(2)}\n\n`;
+  tgMessage += `<b>Productos:</b>\n`;
+  items.forEach((item, i) => {
+    tgMessage += `${i + 1}. ${item.name}`;
+    if (item.size) tgMessage += ` — T: ${item.size}`;
+    if (item.color) tgMessage += ` — C: ${item.color}`;
+    tgMessage += ` x${item.quantity} — S/ ${(item.price * item.quantity).toFixed(2)}\n`;
+  });
+  if (cleanPhone) {
+    tgMessage += `\n<a href="https://wa.me/${cleanPhone}">Contactar por WhatsApp</a>`;
+  }
+  telegram.sendNotification(tgMessage).catch(() => {});
 
   res.status(201).json({ success: true, data: order });
 };

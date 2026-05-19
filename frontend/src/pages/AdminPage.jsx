@@ -8,6 +8,7 @@ import {
   NewBadgeIcon, FireIcon, WarningIcon, ImageIcon, PencilIcon,
   TrashIcon, EyeIcon, PlusCircleIcon, CloseIcon, TagIcon, CheckIcon,
 } from '../components/Icons';
+import toast from 'react-hot-toast';
 
 export default function AdminPage() {
   const { user, logout } = useAuth();
@@ -59,7 +60,7 @@ export default function AdminPage() {
         </div>
       </aside>
 
-      <main style={s.main}>
+      <main style={{...s.main, paddingBottom: window.innerWidth <= 768 ? '72px' : '1.5rem'}}>
         <div style={s.mobileHeader}>
           <div style={s.mobileLogo}>Leis<em style={{color:'#C9A96E',fontStyle:'normal'}}>Mo</em>da</div>
           <button style={s.hamburger} onClick={() => setMenuOpen(!menuOpen)}>
@@ -80,7 +81,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {activeSection === 'dashboard' && <DashboardSection />}
+        {activeSection === 'dashboard' && <DashboardSection onNavigate={setActiveSection} />}
         {activeSection === 'products' && (
           <ProductSection
             onEdit={(p) => setModal(p)}
@@ -89,28 +90,36 @@ export default function AdminPage() {
         )}
         {activeSection === 'orders' && <OrdersSection waNumber={config.waNumber} />}
         {activeSection === 'users' && <UserSection />}
-        {activeSection === 'config' && (
-          <div style={s.configCard}>
-            <h3 style={s.cardTitle}>Configuración de la tienda</h3>
-            <div style={s.configRow}>
-              <div style={s.formGroup}>
-                <label style={s.label}>Nombre de la tienda</label>
-                <input style={s.input} value={config.storeName || ''}
-                  onChange={e => setConfig(c => ({...c, storeName: e.target.value}))} />
-              </div>
-              <div style={s.formGroup}>
-                <label style={s.label}>Número WhatsApp</label>
-                <input style={s.input} placeholder="51999999999"
-                  value={config.waNumber || ''}
-                  onChange={e => setConfig(c => ({...c, waNumber: e.target.value}))} />
-              </div>
-              <button style={s.btnSave} onClick={handleSaveConfig} disabled={saving}>
-                {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar</>}
-              </button>
-            </div>
-          </div>
-        )}
+        {activeSection === 'config' && <ConfigSection />}
       </main>
+
+      {/* Mobile bottom tabs */}
+      <nav style={{
+        display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0,
+        height: 56, background: '#1A1612', zIndex: 300,
+        alignItems: 'center', justifyContent: 'space-around',
+        borderTop: '1px solid rgba(201,169,110,.12)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        ...(window.innerWidth <= 768 ? { display: 'flex' } : {}),
+      }}>
+        {[
+          ['dashboard', 'Dashboard', 'chart'],
+          ['products', 'Productos', 'package'],
+          ['orders', 'Pedidos', 'clipboard'],
+          ['config', 'Config', 'gear'],
+        ].map(([k, label, icon]) => (
+          <button key={k} onClick={() => { setActiveSection(k); setMenuOpen(false); }}
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+              background: 'none', border: 'none', color: activeSection === k ? '#C9A96E' : '#8A7968',
+              fontSize: '0.6rem', fontWeight: 500, cursor: 'pointer', padding: '0.3rem 0.6rem',
+              fontFamily: 'inherit',
+            }}>
+            <ActionIcon type={icon} size={18} />
+            <span>{label}</span>
+          </button>
+        ))}
+      </nav>
 
       {modal && (
         <ProductModal
@@ -124,10 +133,11 @@ export default function AdminPage() {
 }
 
 // ── DASHBOARD ──────────────────────────────────────────────────────────────
-function DashboardSection() {
+function DashboardSection({ onNavigate }) {
   const [stats, setStats] = useState(null);
   const [orderStats, setOrderStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [apiConnected, setApiConnected] = useState(true);
 
   const fetchStats = async () => {
     setLoading(true);
@@ -142,6 +152,12 @@ function DashboardSection() {
   };
 
   useEffect(() => { fetchStats(); }, []);
+
+  useEffect(() => {
+    fetch('/health', { signal: AbortSignal.timeout(5000) })
+      .then(r => setApiConnected(r.ok))
+      .catch(() => setApiConnected(false));
+  }, []);
 
   if (loading) return <div style={{padding:'2rem',color:'#8A7968'}}>Cargando dashboard…</div>;
 
@@ -168,6 +184,40 @@ function DashboardSection() {
             <div style={{fontSize:'0.72rem',color:'#8A7968',fontWeight:500,letterSpacing:'0.05em',marginTop:'0.3rem'}}>{m.label}</div>
           </div>
         ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div style={s.quickActions}>
+        {[
+          { label: 'Agregar producto', icon: 'plus', section: 'products', action: 'add' },
+          { label: 'Ver pedidos', icon: 'clipboard', section: 'orders' },
+          { label: 'Configurar tienda', icon: 'gear', section: 'config' },
+          { label: 'Ver tienda', icon: 'store', section: null, href: '/' },
+        ].map((item, i) => (
+          <button key={i} style={s.quickBtn}
+            onClick={() => {
+              if (item.href) window.location.href = item.href;
+              else onNavigate?.(item.section);
+            }}>
+            <ActionIcon type={item.icon} />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* API Status */}
+      <div style={s.card}>
+        <div style={s.cardHeader}><h3 style={s.cardTitle}>Estado de conexion</h3></div>
+        <div style={{padding:'0.75rem 1.5rem 1rem', display:'flex', alignItems:'center', gap:'0.75rem'}}>
+          <span style={{
+            width:10, height:10, borderRadius:'50%',
+            background: apiConnected ? '#2E7D52' : '#C25E5E',
+            flexShrink:0,
+          }}/>
+          <span style={{fontSize:'0.85rem', color:'#1A1612'}}>
+            {apiConnected ? 'Backend conectado' : 'Backend no disponible'}
+          </span>
+        </div>
       </div>
 
       {orderStats?.recentOrders?.length > 0 && (
@@ -224,6 +274,17 @@ function DashboardSection() {
       )}
     </div>
   );
+}
+
+function ActionIcon({ type, size = 20 }) {
+  const props = { width: size, height: size, viewBox:'0 0 24 24', fill:'none', stroke:'currentColor', strokeWidth:2, strokeLinecap:'round', strokeLinejoin:'round' };
+  const paths = {
+    plus:    <><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></>,
+    clipboard: <><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></>,
+    gear:    <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></>,
+    store:   <><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>,
+  };
+  return <svg {...props}>{paths[type] || paths.plus}</svg>;
 }
 
 function StatusBadge({ status }) {
@@ -687,6 +748,133 @@ function UserSection() {
   );
 }
 
+// ── CONFIGURACION (CENTRO DE OPERACION) ──────────────────────────────────
+function ConfigSection() {
+  const [form, setForm] = useState({
+    storeName: '', storeSlogan: '', storeDescription: '',
+    waNumber: '', facebook: '', instagram: '', tiktok: '', address: '', hours: '',
+    logo: '', banner: '', primaryColor: '#C9A96E', secondaryColor: '#1A1612', bgColor: '#FAF7F2', visualMode: 'claro-premium',
+    freeShippingText: '', freeShippingMin: '', waMessage: '',
+    promoBannerEnabled: false, featuredProductsEnabled: false, stockVisible: false,
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    configService.get().then(({data}) => {
+      if (data?.data) setForm(f => ({...f, ...data.data}));
+    }).catch(() => {});
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await configService.save(form);
+      toast.success('Configuración guardada correctamente');
+    } catch {
+      toast.error('Error al guardar configuración');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const set = (k, v) => setForm(f => ({...f, [k]: v}));
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'1.5rem'}}>
+      <div style={s.configCard}>
+        <h3 style={s.cardTitle}>Identidad de la tienda</h3>
+        <div style={s.configRow}>
+          <Field label="Nombre de la tienda">
+            <input style={s.input} value={form.storeName || ''} onChange={e => set('storeName', e.target.value)} />
+          </Field>
+          <Field label="Eslogan">
+            <input style={s.input} value={form.storeSlogan || ''} onChange={e => set('storeSlogan', e.target.value)} />
+          </Field>
+          <Field label="Descripción">
+            <textarea style={{...s.input, minHeight:70, resize:'vertical'}} value={form.storeDescription || ''} onChange={e => set('storeDescription', e.target.value)} />
+          </Field>
+        </div>
+      </div>
+
+      <div style={s.configCard}>
+        <h3 style={s.cardTitle}>Contacto y Redes</h3>
+        <div style={s.configRow}>
+          <Field label="WhatsApp">
+            <input style={s.input} placeholder="51999999999" value={form.waNumber || ''} onChange={e => set('waNumber', e.target.value)} />
+          </Field>
+          <Field label="Facebook">
+            <input style={s.input} placeholder="URL de Facebook" value={form.facebook || ''} onChange={e => set('facebook', e.target.value)} />
+          </Field>
+          <Field label="Instagram">
+            <input style={s.input} placeholder="URL de Instagram" value={form.instagram || ''} onChange={e => set('instagram', e.target.value)} />
+          </Field>
+          <Field label="TikTok">
+            <input style={s.input} placeholder="URL de TikTok" value={form.tiktok || ''} onChange={e => set('tiktok', e.target.value)} />
+          </Field>
+          <Field label="Dirección">
+            <input style={s.input} placeholder="Direccion de la tienda" value={form.address || ''} onChange={e => set('address', e.target.value)} />
+          </Field>
+          <Field label="Horario">
+            <input style={s.input} placeholder="Ej: Lunes a Sabado 9:00 am – 7:00 pm" value={form.hours || ''} onChange={e => set('hours', e.target.value)} />
+          </Field>
+        </div>
+      </div>
+
+      <div style={s.configCard}>
+        <h3 style={s.cardTitle}>Apariencia</h3>
+        <div style={s.configRow}>
+          <Field label="Logo URL">
+            <input style={s.input} placeholder="URL del logo" value={form.logo || ''} onChange={e => set('logo', e.target.value)} />
+          </Field>
+          <Field label="Banner URL">
+            <input style={s.input} placeholder="URL del banner" value={form.banner || ''} onChange={e => set('banner', e.target.value)} />
+          </Field>
+          <Field label="Color primario">
+            <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.primaryColor} onChange={e => set('primaryColor', e.target.value)} />
+          </Field>
+          <Field label="Color secundario">
+            <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.secondaryColor} onChange={e => set('secondaryColor', e.target.value)} />
+          </Field>
+          <Field label="Color de fondo">
+            <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.bgColor} onChange={e => set('bgColor', e.target.value)} />
+          </Field>
+          <Field label="Modo visual">
+            <select style={s.input} value={form.visualMode} onChange={e => set('visualMode', e.target.value)}>
+              <option value="claro-premium">Claro Premium</option>
+              <option value="oscuro-premium">Oscuro Premium</option>
+              <option value="blanco-azul-premium">Blanco Azul Premium</option>
+            </select>
+          </Field>
+        </div>
+      </div>
+
+      <div style={s.configCard}>
+        <h3 style={s.cardTitle}>Marketing y Ventas</h3>
+        <div style={s.configRow}>
+          <Field label="Texto envío gratis">
+            <input style={s.input} value={form.freeShippingText || ''} onChange={e => set('freeShippingText', e.target.value)} />
+          </Field>
+          <Field label="Monto mínimo envío gratis">
+            <input style={s.input} type="number" value={form.freeShippingMin || ''} onChange={e => set('freeShippingMin', e.target.value)} />
+          </Field>
+          <Field label="Mensaje WhatsApp">
+            <textarea style={{...s.input, minHeight:70, resize:'vertical'}} placeholder="Mensaje automatico para WhatsApp" value={form.waMessage || ''} onChange={e => set('waMessage', e.target.value)} />
+          </Field>
+        </div>
+        <div style={{display:'flex', gap:'0.65rem', flexWrap:'wrap', marginTop:'1rem'}}>
+          <Toggle label="Banner promocional" checked={form.promoBannerEnabled} onChange={v => set('promoBannerEnabled', v)} />
+          <Toggle label="Productos destacados" checked={form.featuredProductsEnabled} onChange={v => set('featuredProductsEnabled', v)} />
+          <Toggle label="Stock visible" checked={form.stockVisible} onChange={v => set('stockVisible', v)} />
+        </div>
+      </div>
+
+      <button style={s.btnSave} onClick={handleSave} disabled={saving}>
+        {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar configuración</>}
+      </button>
+    </div>
+  );
+}
+
 // ── MODAL PRODUCTO ─────────────────────────────────────────────────────────
 const TALLAS_PRESET = ['XS','S','M','L','XL','XXL','6','7','8','9','10','11','12','Único'];
 const COLOR_PRESET = ['Negro','Blanco','Gris','Rojo','Azul','Verde','Amarillo','Rosa','Beige','Marrón','Dorado','Plateado'];
@@ -696,6 +884,10 @@ function ProductModal({ product, onClose, onSaved }) {
   const fileRef = useRef();
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState(product?.images?.[0]?.url || '');
+  const [formTab, setFormTab] = useState('info');
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
+  const [existingImages] = useState(product?.images || []);
   const [form, setForm] = useState({
     name:        product?.name        || '',
     description: product?.description || '',
@@ -713,9 +905,12 @@ function ProductModal({ product, onClose, onSaved }) {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handleFile = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setPreview(URL.createObjectURL(file));
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    setSelectedFiles(files);
+    const urls = files.map(f => URL.createObjectURL(f));
+    setPreviews(urls);
+    setPreview(urls[0]);
   };
 
   const handleSave = async () => {
@@ -726,7 +921,9 @@ function ProductModal({ product, onClose, onSaved }) {
       if (Array.isArray(v)) fd.append(k, JSON.stringify(v));
       else fd.append(k, v);
     });
-    if (fileRef.current?.files[0]) fd.append('image', fileRef.current.files[0]);
+    if (selectedFiles.length > 0) {
+      selectedFiles.forEach((f, i) => fd.append('images', f));
+    }
     try {
       if (isEdit) await productService.update(product._id, fd);
       else        await productService.create(fd);
@@ -744,68 +941,127 @@ function ProductModal({ product, onClose, onSaved }) {
           <h2 style={ms.title}>{isEdit ? 'Editar Producto' : 'Agregar Producto'}</h2>
           <button onClick={onClose} style={ms.close}><CloseIcon size={16} /></button>
         </div>
-        <div style={ms.body}>
-          <Field label="Nombre *">
-            <input style={ms.input} value={form.name} onChange={e => set('name', e.target.value)} />
-          </Field>
-
-          <div style={ms.row3}>
-            <Field label="Precio (S/) *">
-              <input style={ms.input} type="number" step="0.01" value={form.price} onChange={e => set('price', e.target.value)} />
-            </Field>
-            <Field label="Precio anterior">
-              <input style={ms.input} type="number" step="0.01" value={form.oldPrice} onChange={e => set('oldPrice', e.target.value)} />
-            </Field>
-            <Field label="Stock">
-              <input style={ms.input} type="number" value={form.stock} onChange={e => set('stock', e.target.value)} />
-            </Field>
-          </div>
-
-          <div style={ms.row}>
-            <Field label="Categoría">
-              <select style={ms.input} value={form.category} onChange={e => set('category', e.target.value)}>
-                <option>Mujer</option><option>Hombre</option><option>Accesorios</option>
-              </select>
-            </Field>
-            <Field label="Etiqueta">
-              <select style={ms.input} value={form.badge} onChange={e => set('badge', e.target.value)}>
-                <option value="">Sin etiqueta</option>
-                <option value="new">Nuevo</option>
-                <option value="sale">Oferta</option>
-                <option value="hot">Trending</option>
-              </select>
-            </Field>
-          </div>
-
-          <div style={ms.toggleRow}>
-            <Toggle label="Destacado" checked={form.featured} onChange={v => set('featured', v)} />
-            <Toggle label="Activo" checked={form.isActive} onChange={v => set('isActive', v)} />
-          </div>
-
-          <Field label="Descripción">
-            <textarea style={{...ms.input, minHeight:70, resize:'vertical'}}
-              value={form.description} onChange={e => set('description', e.target.value)} />
-          </Field>
-
-          <div style={ms.row}>
-            <Field label="Tallas">
-              <SizeSelector selected={form.sizes} onChange={v => set('sizes', v)} />
-            </Field>
-            <Field label="Colores">
-              <ColorSelector selected={form.colors} onChange={v => set('colors', v)} />
-            </Field>
-          </div>
-
-          <Field label="Imagen">
-            <input type="file" ref={fileRef} accept="image/*" onChange={handleFile} style={{fontSize:'0.88rem'}} />
-            {preview && (
-              <div style={{position:'relative',marginTop:'0.5rem',display:'inline-block'}}>
-                <img src={preview} style={{maxHeight:160,borderRadius:8,objectFit:'cover'}} alt="preview" />
-              </div>
-            )}
-          </Field>
+        <div style={{
+          display: 'flex', gap: '0.25rem', padding: '0.75rem 1.5rem 0',
+          borderBottom: '1px solid #F0EAE0', overflowX: 'auto',
+        }}>
+          {[
+            ['info', 'Informacion'],
+            ['pricing', 'Precio/Stock'],
+            ['variants', 'Variantes'],
+            ['images', 'Imagenes'],
+            ['status', 'Estado'],
+          ].map(([k, label]) => (
+            <button key={k} onClick={() => setFormTab(k)}
+              style={{
+                padding: '0.4rem 0.85rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 600,
+                border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit',
+                background: formTab === k ? '#1A1612' : 'transparent',
+                color: formTab === k ? '#C9A96E' : '#8A7968',
+                transition: 'all .2s',
+              }}>{label}</button>
+          ))}
         </div>
-        <div style={ms.footer}>
+        <div style={ms.body}>
+          {formTab === 'info' && (
+            <>
+              <Field label="Nombre *">
+                <input style={ms.input} value={form.name} onChange={e => set('name', e.target.value)} />
+              </Field>
+              <Field label="Descripción">
+                <textarea style={{...ms.input, minHeight:70, resize:'vertical'}}
+                  value={form.description} onChange={e => set('description', e.target.value)} />
+              </Field>
+              <div style={ms.row}>
+                <Field label="Categoría">
+                  <select style={ms.input} value={form.category} onChange={e => set('category', e.target.value)}>
+                    <option>Mujer</option><option>Hombre</option><option>Accesorios</option>
+                  </select>
+                </Field>
+                <Field label="Etiqueta">
+                  <select style={ms.input} value={form.badge} onChange={e => set('badge', e.target.value)}>
+                    <option value="">Sin etiqueta</option>
+                    <option value="new">Nuevo</option>
+                    <option value="sale">Oferta</option>
+                    <option value="hot">Trending</option>
+                  </select>
+                </Field>
+              </div>
+            </>
+          )}
+          {formTab === 'pricing' && (
+            <div style={ms.row3}>
+              <Field label="Precio (S/) *">
+                <input style={ms.input} type="number" step="0.01" value={form.price} onChange={e => set('price', e.target.value)} />
+              </Field>
+              <Field label="Precio anterior">
+                <input style={ms.input} type="number" step="0.01" value={form.oldPrice} onChange={e => set('oldPrice', e.target.value)} />
+              </Field>
+              <Field label="Stock">
+                <input style={ms.input} type="number" value={form.stock} onChange={e => set('stock', e.target.value)} />
+              </Field>
+            </div>
+          )}
+          {formTab === 'variants' && (
+            <div style={ms.row}>
+              <Field label="Tallas">
+                <SizeSelector selected={form.sizes} onChange={v => set('sizes', v)} />
+              </Field>
+              <Field label="Colores">
+                <ColorSelector selected={form.colors} onChange={v => set('colors', v)} />
+              </Field>
+            </div>
+          )}
+          {formTab === 'images' && (
+            <div>
+              {existingImages.length > 0 && (
+                <div style={{marginBottom:'0.75rem'}}>
+                  <label style={{fontSize:'0.7rem',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8A7968',display:'block',marginBottom:'0.35rem'}}>Imágenes existentes</label>
+                  <div style={{display:'flex',gap:'0.5rem',overflowX:'auto'}}>
+                    {existingImages.map((img, i) => (
+                      <button key={i} onClick={() => setPreview(img.url)}
+                        style={{
+                          flexShrink:0,width:64,height:64,borderRadius:8,overflow:'hidden',padding:0,cursor:'pointer',background:'none',
+                          border: preview === img.url ? '2px solid #C9A96E' : '2px solid transparent',
+                        }}>
+                        <img src={img.url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <Field label="Imagen principal">
+                <input type="file" ref={fileRef} accept="image/*" multiple onChange={handleFile} style={{fontSize:'0.88rem'}} />
+              </Field>
+              {previews.length > 1 && (
+                <div style={{display:'flex',gap:'0.5rem',marginTop:'0.5rem',overflowX:'auto'}}>
+                  {previews.map((url, i) => (
+                    <button key={i} onClick={() => setPreview(url)}
+                      style={{
+                        flexShrink:0,width:56,height:56,borderRadius:8,overflow:'hidden',
+                        border: preview === url ? '2px solid #C9A96E' : '2px solid transparent',
+                        padding:0,cursor:'pointer',background:'none',
+                      }}>
+                      <img src={url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {(preview || previews.length > 0) && (
+                <div style={{position:'relative',marginTop:'0.75rem',display:'inline-block'}}>
+                  <img src={preview} style={{maxHeight:160,borderRadius:8,objectFit:'cover'}} alt="preview" />
+                </div>
+              )}
+            </div>
+          )}
+          {formTab === 'status' && (
+            <div style={ms.toggleRow}>
+              <Toggle label="Destacado" checked={form.featured} onChange={v => set('featured', v)} />
+              <Toggle label="Activo" checked={form.isActive} onChange={v => set('isActive', v)} />
+            </div>
+          )}
+        </div>
+        <div style={{...ms.footer, position:'sticky', bottom:0, background:'white', zIndex:10}}>
           <button style={ms.btnCancel} onClick={onClose}>Cancelar</button>
           <button style={ms.btnSave} onClick={handleSave} disabled={saving}>
             {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar</>}
@@ -976,6 +1232,9 @@ const s = {
   formGroup:     { display:'flex', flexDirection:'column', gap:'0.35rem' },
   label:         { fontSize:'0.7rem', fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase', color:'#8A7968' },
   input:         { border:'1.5px solid #E0D8CE', borderRadius:8, padding:'0.55rem 0.8rem', fontFamily:'sans-serif', fontSize:'0.88rem', outline:'none', background:'#FAF7F2', minWidth:140, color:'#1A1612' },
+
+  quickActions: { display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(140px, 1fr))', gap:'0.75rem' },
+  quickBtn: { display:'flex', flexDirection:'column', alignItems:'center', gap:'0.4rem', padding:'1rem 0.75rem', border:'1.5px solid #E8D5B0', borderRadius:10, background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.75rem', fontWeight:600, color:'#1A1612', transition:'all .2s' },
 };
 
 const ms = {

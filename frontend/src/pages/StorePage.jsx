@@ -1,44 +1,39 @@
-import { useState, useEffect } from 'react';
-import { useProducts }   from '../hooks/useProducts';
-import { configService } from '../services/api';
-import ProductCard       from '../components/ProductCard';
-import HeroSection       from '../components/HeroSection';
-import CategorySection   from '../components/CategorySection';
-import ProductModal      from '../components/ProductModal';
-import CartDrawer        from '../components/CartDrawer';
-import BottomNav         from '../components/BottomNav';
-import FloatingWhatsApp  from '../components/FloatingWhatsApp';
-import PromoBanner       from '../components/PromoBanner';
-import { SkeletonGrid }  from '../components/SkeletonCard';
-import { useCart }       from '../components/CartContext';
+import { useState } from 'react';
+import { useProducts } from '../hooks/useProducts';
+import { useConfig } from '../hooks/useConfig';
+import ProductCard from '../components/ProductCard';
+import HeroSection from '../components/HeroSection';
+import CategorySection from '../components/CategorySection';
+import ProductModal from '../components/ProductModal';
+import CartDrawer from '../components/CartDrawer';
+import BottomNav from '../components/BottomNav';
+import FloatingWhatsApp from '../components/FloatingWhatsApp';
+import PromoBanner from '../components/PromoBanner';
+import { SkeletonGrid } from '../components/SkeletonCard';
+import { useCart } from '../components/CartContext';
 import { CartIcon, WarningIcon, DressIcon } from '../components/Icons';
-import Footer            from '../components/Footer';
+import Footer from '../components/Footer';
 
 const BADGES = [{ label: 'Nuevo', value: 'new' }, { label: 'Oferta', value: 'sale' }];
 
 export default function StorePage() {
-  const [filter,    setFilter]    = useState({});
-  const [waNumber,  setWaNumber]  = useState('');
-  const [selected,  setSelected]  = useState(null);
+  const [filter, setFilter] = useState({});
+  const [selected, setSelected] = useState(null);
   const [activeTab, setActiveTab] = useState('Todos');
-  const [cartOpen,  setCartOpen]  = useState(false);
-  const [menuOpen,  setMenuOpen]  = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const { totalItems } = useCart();
+  const { config } = useConfig();
 
   const { products, loading, error } = useProducts(filter);
 
-  useEffect(() => {
-    configService.get().then(({ data }) => {
-      setWaNumber(data.data?.waNumber || '');
-      if (data.data?.storeName) document.title = `${data.data.storeName} — Moda que te define`;
-    }).catch(() => {});
-  }, []);
+  const waNumber = config.waNumber || '';
 
   const handleFilter = (type, value) => {
     setActiveTab(value === 'Todos' ? 'Todos' : value);
     setMenuOpen(false);
     if (value === 'Todos') return setFilter({});
-    if (type === 'badge')    return setFilter({ badge: value });
+    if (type === 'badge') return setFilter({ badge: value });
     if (type === 'category') return setFilter({ category: value });
   };
 
@@ -46,7 +41,9 @@ export default function StorePage() {
     <div className="store-page">
       <header style={s.header}>
         <div style={s.headerInner}>
-          <div style={s.logo}>Leis<em style={{color:'#C9A96E',fontStyle:'normal'}}>Mo</em>da</div>
+          <div style={s.logo}>
+            {config.storeName?.split(' ')[0] || 'Leis'}<em style={{color:'#C9A96E',fontStyle:'normal'}}>Mo</em>da
+          </div>
           <div style={s.headerActions}>
             <button className="lm-hamburger" style={s.hamburger} onClick={() => setMenuOpen(!menuOpen)}>
               <span style={{...s.bar, ...(menuOpen?{transform:'rotate(45deg) translate(5px,5px)'}:{})}}/>
@@ -67,14 +64,26 @@ export default function StorePage() {
         )}
       </header>
 
-      <HeroSection waNumber={waNumber} />
+      <HeroSection
+        waNumber={waNumber}
+        storeName={config.storeName}
+        storeSlogan={config.storeSlogan}
+        facebook={config.facebook}
+        instagram={config.instagram}
+        tiktok={config.tiktok}
+      />
 
       <CategorySection
         activeTab={activeTab}
         onSelect={(v) => handleFilter('category', v === activeTab ? 'Todos' : v)}
       />
 
-      <PromoBanner />
+      {config.promoBannerEnabled !== false && (
+        <PromoBanner
+          text={config.freeShippingText}
+          minAmount={config.freeShippingMin}
+        />
+      )}
 
       <section className="lm-filters" style={s.filters}>
         <span className="lm-filter-label" style={s.filterLabel}>Filtrar:</span>
@@ -92,29 +101,37 @@ export default function StorePage() {
         </h2>
 
         {loading && <SkeletonGrid count={6} />}
-        {error   && <div style={s.center}><WarningIcon size={16} /> {error}</div>}
+        {error && <div style={s.center}><WarningIcon size={16} /> {error}</div>}
 
         {!loading && !error && (
           products.length === 0
             ? <EmptyState />
             : <div className="lm-product-grid" style={s.productGrid}>
                 {products.map(p => (
-                  <ProductCard key={p._id} product={p} waNumber={waNumber} onClick={setSelected}/>
+                  <ProductCard key={p._id} product={p} waNumber={waNumber} onClick={setSelected} stockVisible={config.stockVisible} />
                 ))}
               </div>
         )}
       </section>
 
       {selected && (
-        <ProductModal product={selected} waNumber={waNumber} onClose={() => setSelected(null)} />
+        <ProductModal product={selected} waNumber={waNumber} onClose={() => setSelected(null)} stockVisible={config.stockVisible} />
       )}
 
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} waNumber={waNumber} />
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} waNumber={waNumber} waMessage={config.waMessage} storeName={config.storeName} />
 
       <BottomNav cartItems={totalItems} onCartClick={() => setCartOpen(true)} waNumber={waNumber} />
       <FloatingWhatsApp waNumber={waNumber} />
 
-      <Footer waNumber={waNumber} />
+      <Footer
+        waNumber={waNumber}
+        storeName={config.storeName}
+        storeSlogan={config.storeSlogan}
+        facebook={config.facebook}
+        instagram={config.instagram}
+        tiktok={config.tiktok}
+        hours={config.hours}
+      />
     </div>
   );
 }
@@ -123,7 +140,7 @@ function EmptyState() {
   return (
     <div style={{textAlign:'center',padding:'4rem 1.5rem',color:'#8A7968'}}>
       <div style={{marginBottom:'1rem',opacity:0.4}}><DressIcon size={48} /></div>
-      <h3 style={{fontFamily:'serif',fontSize:'1.4rem',marginBottom:'0.5rem',color:'#1A1612'}}>No hay productos todavía</h3>
+      <h3 style={{fontFamily:'serif',fontSize:'1.4rem',marginBottom:'0.5rem',color:'#1A1612'}}>No hay productos todavia</h3>
       <p>Ve al <a href="/admin" style={{color:'#C9A96E'}}>panel admin</a> para agregar productos.</p>
     </div>
   );

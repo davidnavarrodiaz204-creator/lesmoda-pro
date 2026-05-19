@@ -1,7 +1,15 @@
 import { Link } from 'react-router-dom';
-import { FacebookIcon, TikTokIcon, WhatsAppIcon } from './Icons';
+import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from './Icons';
 
-export default function Footer({ waNumber, storeName = 'LeisModa' }) {
+export default function Footer({
+  waNumber,
+  storeName = 'LeisModa',
+  storeSlogan = 'Tu look favorito, directo desde Paita',
+  facebook = '',
+  instagram = '',
+  tiktok = '',
+  hours = '',
+}) {
   const num = waNumber?.replace(/\D/g, '');
   const waUrl = num ? `https://wa.me/${num}` : '#';
 
@@ -10,7 +18,7 @@ export default function Footer({ waNumber, storeName = 'LeisModa' }) {
       <div style={s.top}>
         <div style={s.brand}>
           <div style={s.logo}>{storeName}</div>
-          <p style={s.slogan}>Tu look favorito, directo desde Paita</p>
+          <p style={s.slogan}>{storeSlogan}</p>
           {num && (
             <a href={waUrl} target="_blank" rel="noopener noreferrer" style={s.waLink}>
               <WhatsAppIcon size={14} /> {num}
@@ -19,32 +27,47 @@ export default function Footer({ waNumber, storeName = 'LeisModa' }) {
         </div>
 
         <div style={s.col}>
-          <p style={s.colTitle}>Navegación</p>
+          <p style={s.colTitle}>Navegacion</p>
           <Link to="/" style={s.link}>Inicio</Link>
-          <Link to="/" style={s.link}>Catálogo</Link>
-          <Link to="/how-to-buy" style={s.link}>Cómo comprar</Link>
+          <Link to="/" style={s.link}>Catalogo</Link>
+          <Link to="/how-to-buy" style={s.link}>Como comprar</Link>
           <Link to="/about" style={s.link}>Sobre nosotros</Link>
         </div>
 
         <div style={s.col}>
-          <p style={s.colTitle}>Síguenos</p>
-          <a href="https://www.facebook.com/share/1ApPvvscHt/" target="_blank" rel="noopener noreferrer" style={s.link}>
-            <FacebookIcon size={13} /> Facebook
-          </a>
-          <a href="https://www.tiktok.com/@steffan578" target="_blank" rel="noopener noreferrer" style={s.link}>
-            <TikTokIcon size={13} /> TikTok
-          </a>
+          <p style={s.colTitle}>Siguenos</p>
+          {facebook && (
+            <a href={facebook} target="_blank" rel="noopener noreferrer" style={s.link}>
+              <FacebookIcon size={13} /> Facebook
+            </a>
+          )}
+          {instagram && (
+            <a href={instagram} target="_blank" rel="noopener noreferrer" style={s.link}>
+              <InstagramIcon size={13} /> Instagram
+            </a>
+          )}
+          {tiktok && (
+            <a href={tiktok} target="_blank" rel="noopener noreferrer" style={s.link}>
+              <TikTokIcon size={13} /> TikTok
+            </a>
+          )}
         </div>
 
         <div style={s.col}>
-          <p style={s.colTitle}>Atención</p>
-          <p style={s.text}>Lunes a Sábado</p>
-          <p style={s.text}>9:00 am – 7:00 pm</p>
+          <p style={s.colTitle}>Atencion</p>
+          {hours ? (
+            <p style={s.text}>{hours}</p>
+          ) : (
+            <>
+              <p style={s.text}>Lunes a Sabado</p>
+              <p style={s.text}>9:00 am – 7:00 pm</p>
+            </>
+          )}
           <p style={s.text}>Ventas por WhatsApp</p>
         </div>
       </div>
       <div style={s.bottom}>
-        {storeName} © {new Date().getFullYear()} · Todos los derechos reservados
+        {storeName} &copy; {new Date().getFullYear()} · Todos los derechos reservados
       </div>
     </footer>
   );

@@ -5,7 +5,7 @@ import { WhatsAppIcon, CheckIcon, ImageIcon } from './Icons';
 
 const badgeLabel = { new: 'NUEVO', sale: 'OFERTA', hot: 'TREND' };
 
-export default function ProductCard({ product: rawProduct, waNumber, onClick }) {
+export default function ProductCard({ product: rawProduct, waNumber, onClick, stockVisible = true }) {
   if (!rawProduct) return null;
   const product = rawProduct;
   const { addItem } = useCart();
@@ -85,7 +85,7 @@ export default function ProductCard({ product: rawProduct, waNumber, onClick }) 
             <WhatsAppIcon size={14} />
           </button>
         </div>
-        <StockBadge stock={product.stock} />
+        {stockVisible && <StockBadge stock={product.stock} />}
       </div>
     </div>
   );
