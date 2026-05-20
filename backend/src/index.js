@@ -37,8 +37,14 @@ app.use(compression({ level: 6 }));
 
 // ── Seguridad ──────────────────────────────────────────────────────────────
 app.use(helmet());
+const allowedOrigins = (process.env.CLIENT_URL || '*').split(',').map(s => s.trim()).filter(Boolean);
 app.use(cors({
-  origin: process.env.CLIENT_URL || '*',
+  origin: function (origin, cb) {
+    if (allowedOrigins.includes('*')) return cb(null, true);
+    if (!origin) return cb(null, true);
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    return cb(null, false);
+  },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
 }));
 

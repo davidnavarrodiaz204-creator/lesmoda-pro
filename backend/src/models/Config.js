@@ -17,12 +17,8 @@ configSchema.statics.get = async function (key) {
   return doc ? doc.value : null;
 };
 
-configSchema.statics.set = async function (key, value, description = '') {
-  return this.findOneAndUpdate(
-    { key },
-    { key, value, description },
-    { upsert: true, new: true }
-  );
+configSchema.statics.set = async function (key, value) {
+  await this.updateOne({ key }, { $set: { value } }, { upsert: true });
 };
 
 module.exports = mongoose.model('Config', configSchema);

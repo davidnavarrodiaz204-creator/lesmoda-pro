@@ -288,7 +288,9 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
               </button>
             )}
           </div>
+        </div>
 
+        <div className="modal-related-wrap">
           <RelatedProducts productId={product._id} onSelect={setRelatedProduct} />
         </div>
       </div>

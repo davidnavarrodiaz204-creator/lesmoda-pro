@@ -134,7 +134,8 @@ style.textContent = `
     animation:fadeIn .2s ease-out; }
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
   .product-modal { background:white; border-radius:16px; width:100%; max-width:800px;
-    max-height:92vh; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr;
+    max-height:92vh; overflow-y:auto; display:grid;
+    grid-template-columns:1fr 1fr; grid-template-rows:auto auto; align-items:start;
     position:relative; animation:modalFadeIn .35s ease-out; }
   @keyframes modalFadeIn { 0% { opacity:0; transform:translateY(24px) scale(.97); } 100% { opacity:1; transform:translateY(0) scale(1); } }
   .modal-close { position:absolute; top:12px; right:12px; z-index:10; width:36px;height:36px;
@@ -143,11 +144,12 @@ style.textContent = `
     box-shadow:0 2px 12px rgba(0,0,0,.12); transition:all .2s; color:#1A1612; }
   .modal-close:hover { background:white; transform:scale(1.05); }
 
-  .modal-gallery { display:flex;flex-direction:column; background:#F5F1EB; }
-  .modal-gallery-main { position:relative; aspect-ratio:4/3; overflow:hidden; background:#EBE5DB;
-    touch-action:pan-y; }
-  .modal-gallery-main img { width:100%;height:100%;object-fit:cover; transition:opacity .25s ease; }
-  .modal-no-img { display:flex;align-items:center;justify-content:center;height:100%;
+  .modal-gallery { display:flex;flex-direction:column; grid-row:1; grid-column:1; background:#F5F1EB; }
+  .modal-gallery-main { position:relative; display:flex; align-items:center; justify-content:center;
+    overflow:hidden; background:#F0EBE3; touch-action:pan-y; }
+  .modal-gallery-main img { width:100%;height:auto;max-height:min(70vh,650px);
+    object-fit:contain; display:block; transition:opacity .25s ease; }
+  .modal-no-img { display:flex;align-items:center;justify-content:center;min-height:280px;
     color:#8A7968; opacity:.4; }
   .modal-gallery-nav { position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;
     border-radius:50%;background:rgba(255,255,255,.9);border:none;
@@ -165,8 +167,8 @@ style.textContent = `
   .modal-thumb img { width:100%;height:100%;object-fit:cover; }
   .modal-thumb-active { border-color:#C9A96E; box-shadow:0 0 0 1px #C9A96E; }
 
-  .modal-info { padding:1.5rem 1.75rem; display:flex;flex-direction:column;gap:.9rem;
-    overflow-y:auto; position:relative; }
+  .modal-info { grid-row:1; grid-column:2; padding:1.5rem 1.75rem;
+    display:flex;flex-direction:column;gap:.9rem; position:relative; }
   .modal-info-content { flex:1; display:flex; flex-direction:column; gap:.9rem; }
   .modal-category { font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;
     color:#C9A96E;font-weight:600; }
@@ -232,7 +234,8 @@ style.textContent = `
 
   .modal-share-tooltip { font-size:.65rem;color:#2E7D52;position:absolute;top:0;right:0; }
 
-  .modal-related { border-top:1px solid #F0EAE0;padding-top:1rem;margin-top:.5rem; }
+  .modal-related-wrap { grid-row:2; grid-column:1/-1; padding:0 1.75rem 1.25rem; overflow:hidden; }
+  .modal-related { border-top:1px solid #F0EAE0;padding-top:1rem; }
   .modal-related-title { font-family:'Playfair Display',serif;font-size:.85rem;color:#1A1612;margin-bottom:.75rem; }
   .modal-related-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem; }
   .modal-related-card { display:flex;gap:.5rem;padding:.5rem;border-radius:8px;border:1px solid #F0EAE0;
@@ -476,14 +479,18 @@ style.textContent = `
     .cat-card { padding:1rem .5rem; }
     .cat-icon { font-size:1.4rem; }
 
-    .product-modal { grid-template-columns:1fr !important; max-height:95vh; border-radius:12px 12px 0 0; }
-    .modal-gallery-main { aspect-ratio:1/1; max-height:380px; }
+    .product-modal { grid-template-columns:1fr !important; grid-template-rows:auto auto auto !important;
+      max-height:95vh; border-radius:12px 12px 0 0; }
+    .modal-gallery { grid-row:1 !important; grid-column:1 !important; }
+    .modal-gallery-main { min-height:0; }
+    .modal-gallery-main img { max-height:380px; }
     .modal-thumb { width:52px;height:52px; }
-    .modal-info { padding:1.25rem; overflow-y:auto; }
+    .modal-info { grid-row:2 !important; grid-column:1 !important; padding:1.25rem; }
     .modal-info-content { gap:.8rem; }
     .modal-actions { position:sticky; bottom:0; background:white; z-index:2;
       padding-top:.75rem; margin-top:.5rem;
       box-shadow:0 -2px 16px rgba(26,22,18,.06); }
+    .modal-related-wrap { grid-row:3 !important; grid-column:1 !important; padding:0 1.25rem 1rem; }
     .modal-name { font-size:1.3rem; }
     .modal-price { font-size:1.4rem; }
 
