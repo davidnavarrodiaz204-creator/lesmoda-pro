@@ -470,65 +470,118 @@ style.textContent = `
     .product-card:hover .card-image-overlay { opacity:1;transform:translateY(0); }
 
     .lm-hamburger { display:flex !important; }
-    .lm-filters { padding:.75rem 1rem !important; gap:.35rem !important; }
+    .lm-filters { padding:.5rem .75rem !important; gap:.3rem !important; overflow-x:auto !important;
+      flex-wrap:nowrap !important; -webkit-overflow-scrolling:touch; }
+    .lm-filters::-webkit-scrollbar { display:none; }
     .lm-filter-label { display:none; }
-    .lm-product-grid { grid-template-columns:repeat(2,1fr) !important; gap:.65rem !important; }
-    .lm-grid-section { padding:1rem 1rem 6rem !important; }
+    .lm-product-grid { grid-template-columns:repeat(2,1fr) !important; gap:.6rem !important; }
+    .lm-grid-section { padding:1rem .75rem 6rem !important; }
 
-    .cat-grid { gap:.5rem; }
-    .cat-card { padding:1rem .5rem; }
-    .cat-icon { font-size:1.4rem; }
+    .cat-grid { gap:.4rem; flex-wrap:nowrap; overflow-x:auto; padding-bottom:.25rem;
+      -webkit-overflow-scrolling:touch; grid-template-columns:none; display:flex; }
+    .cat-grid::-webkit-scrollbar { display:none; }
+    .cat-card { padding:.65rem .7rem; flex-shrink:0; white-space:nowrap; }
+    .cat-icon { font-size:1.2rem; }
 
     .product-modal { grid-template-columns:1fr !important; grid-template-rows:auto auto auto !important;
-      max-height:95vh; border-radius:12px 12px 0 0; }
+      max-height:100vh; border-radius:0; width:100vw !important; max-width:100vw !important; }
     .modal-gallery { grid-row:1 !important; grid-column:1 !important; }
-    .modal-gallery-main { min-height:0; }
-    .modal-gallery-main img { max-height:380px; }
-    .modal-thumb { width:52px;height:52px; }
-    .modal-info { grid-row:2 !important; grid-column:1 !important; padding:1.25rem; }
-    .modal-info-content { gap:.8rem; }
+    .modal-gallery-main { min-height:0; border-radius:0; }
+    .modal-gallery-main img { max-height:50vh; }
+    .modal-thumb { width:48px;height:48px; }
+    .modal-info { grid-row:2 !important; grid-column:1 !important; padding:1rem 1rem 0.75rem; overflow-y:visible; }
+    .modal-info-content { gap:.7rem; }
     .modal-actions { position:sticky; bottom:0; background:white; z-index:2;
-      padding-top:.75rem; margin-top:.5rem;
-      box-shadow:0 -2px 16px rgba(26,22,18,.06); }
-    .modal-related-wrap { grid-row:3 !important; grid-column:1 !important; padding:0 1.25rem 1rem; }
-    .modal-name { font-size:1.3rem; }
-    .modal-price { font-size:1.4rem; }
+      padding:.75rem 1rem 1rem; margin-top:0;
+      box-shadow:0 -4px 20px rgba(26,22,18,.08); }
+    .modal-related-wrap { grid-row:3 !important; grid-column:1 !important; padding:0 1rem 1rem; }
+    .modal-name { font-size:1.15rem; }
+    .modal-price { font-size:1.3rem; }
+    .modal-overlay { padding:0; align-items:flex-end; }
+    .modal-cart-btn, .modal-wa-btn { padding:.7rem; font-size:.85rem; min-height:44px; }
+    .modal-share { top:8px; right:8px !important; }
+    .modal-close { display:none; }
 
-    .lm-footer-top { flex-direction:column !important; gap:1.5rem !important; padding:1.75rem 1.25rem !important; }
+    .lm-footer-top { flex-direction:column !important; gap:1rem !important; padding:1.5rem 1.25rem !important; }
 
     .bottom-nav { display:flex !important; }
-    .floating-wa { display:flex !important; bottom:80px; }
-    .store-page { padding-bottom:60px; }
+    .floating-wa { display:flex !important; bottom:76px; width:48px;height:48px; }
+    .floating-wa svg { width:22px;height:22px; }
+    .store-page { padding-bottom:64px; }
 
-    .hero-section { min-height:70vh; }
-    .hero-content { padding:2rem 1.25rem; }
-    .hero-title { font-size:clamp(1.8rem,8vw,2.8rem); padding-bottom:.75rem; }
-    .hero-logo { max-height:60px; }
-    .hero-logo-wrap { margin-bottom:1rem; }
-    .hero-subtitle { padding-bottom:1.5rem; }
-    .hero-actions { padding-bottom:1.25rem; }
-    .hero-btn { padding:.7rem 1.4rem; font-size:.82rem; }
+    .hero-section { min-height:auto; padding-bottom:1rem; }
+    .hero-content { padding:1.25rem 1.25rem 0.5rem; }
+    .hero-title { font-size:clamp(1.4rem,6vw,2rem); padding-bottom:.5rem;
+      text-align:center; }
+    .hero-logo { max-height:48px; }
+    .hero-logo-wrap { margin-bottom:.5rem; }
+    .hero-subtitle { padding-bottom:1rem; font-size:.85rem; text-align:center; }
+    .hero-actions { flex-direction:column; align-items:stretch; padding-bottom:.75rem; gap:.5rem; }
+    .hero-btn { padding:.65rem 1.2rem; font-size:.8rem; justify-content:center; }
+    .hero-btn-secondary { justify-content:center; }
+    .hero-share-wrap { text-align:center; padding-bottom:0; }
+    .hero-share-wrap button { font-size:.75rem; }
+
+    .promo-banner { font-size:.75rem; padding:.45rem .75rem; }
+    .banner-slider { margin:.5rem .75rem 0; }
+
+    .lm-grid-section .section-title { font-size:1rem; }
+
+    .product-card { min-height:0; }
+    .card-image { height:auto; aspect-ratio:3/4; }
+    .card-badge { font-size:.6rem; padding:.15rem .45rem; top:6px; left:6px; }
+    .card-discount { font-size:.6rem; padding:.1rem .35rem; top:6px; right:6px; }
+    .card-body { padding:.45rem .5rem .5rem; gap:.15rem; }
+    .card-category { font-size:.6rem; }
+    .card-name { font-size:.78rem; }
+    .card-price-current { font-size:.95rem; }
+    .card-price-old { font-size:.7rem; }
+    .btn-whatsapp { width:32px;height:32px; }
+    .wishlist-btn { width:28px;height:28px; top:6px; right:6px; }
+    .wishlist-btn svg { width:14px;height:14px; }
+    .card-discount-badge { font-size:.6rem; padding:.1rem .35rem; top:6px; right:6px; }
+
+    .share-store-wrap { padding:.5rem 1rem 0; }
+    .social-follow { padding:.5rem 1rem; }
+    .recent-views { padding:.5rem .75rem; }
+    .recent-view-card { min-width:80px; }
   }
 
   @media (max-width: 400px) {
-    .lm-product-grid { grid-template-columns:repeat(2,1fr) !important; gap:.5rem !important; }
-    .lm-grid-section { padding:.75rem .75rem 6rem !important; }
-    .cat-grid { grid-template-columns:repeat(3,1fr); gap:.4rem; }
-    .cat-card { padding:.75rem .4rem; }
+    .lm-product-grid { grid-template-columns:repeat(2,1fr) !important; gap:.4rem !important; }
+    .lm-grid-section { padding:.6rem .5rem 6rem !important; }
+    .cat-grid { gap:.35rem; }
+    .cat-card { padding:.5rem .6rem; font-size:.75rem; }
+
+    .card-body { padding:.35rem .4rem .45rem; }
+    .card-name { font-size:.72rem; }
+    .card-price-current { font-size:.85rem; }
+    .btn-whatsapp { width:28px;height:28px; }
   }
 
   /* ── ADMIN RESPONSIVE ─────────────────────────────────── */
   @media (max-width: 768px) {
     aside { display:none !important; }
-    .lm-admin-main { padding:0.75rem !important; }
-    [style*="width:220"] { display:none !important; }
+    .lm-admin-main { padding:0.5rem !important; }
     .lm-mobile-header { display:flex !important; }
     .lm-mobile-cards  { display:flex !important; }
     .lm-table-wrap table { display:none; }
+    .lm-admin-mobile-product-list { display:flex !important; }
     .lm-config-row { flex-direction:column !important; }
     .lm-config-row input, .lm-config-row select { min-width:100% !important; width:100% !important; }
-    .lm-prod-modal { max-width:100% !important; margin:0; border-radius:12px 12px 0 0 !important; }
-    .lm-prod-modal-row { grid-template-columns:1fr !important; }
+    .admin-content h2 { font-size:1rem; }
+    .admin-content select, .admin-content input, .admin-content textarea { font-size:16px !important; min-height:44px; }
+    .admin-content button { min-height:44px; }
+
+    .lm-admin-modal-ov { padding:.5rem !important; align-items:flex-end !important; }
+    .lm-admin-modal-cont { max-width:100vw !important; width:100vw !important; border-radius:16px 16px 0 0 !important;
+      max-height:92vh !important; }
+    .lm-admin-modal-tabs { gap:.15rem !important; padding:.6rem .75rem 0 !important; }
+    .lm-admin-modal-tabs button { padding:.35rem .65rem !important; font-size:.7rem !important; min-height:36px; }
+    .lm-admin-modal-body { padding:.85rem 1rem !important; }
+    .lm-admin-modal-body .lm-prod-modal-row { grid-template-columns:1fr !important; }
+    .lm-admin-modal-footer { padding:.6rem 1rem 1rem !important; gap:.5rem !important; }
+    .lm-admin-modal-footer button { flex:1; justify-content:center; min-height:44px; font-size:.85rem; }
   }
 `;
 document.head.appendChild(style);

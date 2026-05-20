@@ -59,7 +59,7 @@ export default function AdminPage() {
   const handleSaveConfig = async () => {
     setSaving(true);
     await configService.save(config).finally(() => setSaving(false));
-    alert('Configuración guardada');
+    toast.success('Configuracion guardada');
   };
 
   return (
@@ -767,14 +767,14 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
       if (detail?._id === id) {
         setDetail(prev => prev ? { ...prev, status: newStatus } : prev);
       }
-    } catch { alert('Error al actualizar estado'); }
+    } catch { toast.error('Error al actualizar estado'); }
   };
 
   const handleNotesSave = async (id, notes) => {
     try {
       await orderService.updateNotes(id, notes);
       setDetail(prev => prev ? { ...prev, notes } : prev);
-    } catch { alert('Error al guardar notas'); }
+    } catch { toast.error('Error al guardar notas'); }
   };
 
   const contactWa = (phone) => {
@@ -1785,7 +1785,7 @@ function ProductModal({ product, onClose, onSaved }) {
         return updated;
       });
     } catch (err) {
-      alert('Error al eliminar imagen');
+      toast.error('Error al eliminar imagen');
     }
   };
 
@@ -1797,15 +1797,16 @@ function ProductModal({ product, onClose, onSaved }) {
         isMain: img._id === imageId,
       })));
     } catch (err) {
-      alert('Error al marcar como principal');
+      toast.error('Error al marcar como principal');
     }
   };
 
   const handleSave = async () => {
-    if (!form.name || !form.price) return alert('Nombre y precio son requeridos');
+    if (!form.name || !form.price) return toast.error('Nombre y precio son requeridos');
     setSaving(true);
     const fd = new FormData();
     Object.entries(form).forEach(([k, v]) => {
+      if (v === '' || v === null || v === undefined) return;
       if (Array.isArray(v)) fd.append(k, JSON.stringify(v));
       else fd.append(k, v);
     });
@@ -1818,18 +1819,18 @@ function ProductModal({ product, onClose, onSaved }) {
       onSaved();
       setTimeout(() => window.location.reload(), 300);
     } catch (err) {
-      alert(err.response?.data?.message || 'Error guardando');
+      toast.error(err.response?.data?.message || 'Error guardando');
     } finally { setSaving(false); }
   };
 
   return (
-    <div style={ms.overlay} onClick={onClose}>
-      <div style={{...ms.modal, maxWidth:600}} onClick={e => e.stopPropagation()}>
+    <div className="lm-admin-modal-ov" style={ms.overlay} onClick={onClose}>
+      <div className="lm-admin-modal-cont" style={{...ms.modal, maxWidth:600}} onClick={e => e.stopPropagation()}>
         <div style={ms.header}>
           <h2 style={ms.title}>{isEdit ? 'Editar Producto' : 'Agregar Producto'}</h2>
           <button onClick={onClose} style={ms.close}><CloseIcon size={16} /></button>
         </div>
-        <div style={{
+        <div className="lm-admin-modal-tabs" style={{
           display: 'flex', gap: '0.25rem', padding: '0.75rem 1.5rem 0',
           borderBottom: '1px solid #F0EAE0', overflowX: 'auto',
         }}>
@@ -1850,7 +1851,7 @@ function ProductModal({ product, onClose, onSaved }) {
               }}>{label}</button>
           ))}
         </div>
-        <div style={ms.body}>
+        <div className="lm-admin-modal-body" style={ms.body}>
           {formTab === 'info' && (
             <>
               <Field label="Nombre *">
@@ -1977,7 +1978,7 @@ function ProductModal({ product, onClose, onSaved }) {
             </div>
           )}
         </div>
-        <div style={{...ms.footer, position:'sticky', bottom:0, background:'white', zIndex:10}}>
+        <div className="lm-admin-modal-footer" style={{...ms.footer, position:'sticky', bottom:0, background:'white', zIndex:10}}>
           <button style={ms.btnCancel} onClick={onClose}>Cancelar</button>
           <button style={ms.btnSave} onClick={handleSave} disabled={saving}>
             {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar</>}

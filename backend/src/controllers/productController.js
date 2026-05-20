@@ -104,8 +104,10 @@ exports.getProduct = async (req, res) => {
 exports.createProduct = async (req, res) => {
   const { name, description, price, oldPrice, category, badge, sizes, colors, stock, featured } = req.body;
 
+  const normalizedBadge = badge && typeof badge === 'string' ? badge.trim() : null;
   const product = new Product({
-    name, description, price, oldPrice, category, badge,
+    name, description, price, oldPrice, category,
+    badge: ['new','sale','hot','last','featured'].includes(normalizedBadge) ? normalizedBadge : null,
     sizes:    parseList(sizes),
     colors:   parseList(colors),
     stock:    stock    || 0,
@@ -133,9 +135,12 @@ exports.updateProduct = async (req, res) => {
   const allowed = ['name','description','price','oldPrice','category','badge','sizes','colors','stock','featured','isActive'];
   allowed.forEach(field => {
     if (req.body[field] !== undefined) {
-      product[field] = ['sizes','colors'].includes(field)
-        ? parseList(req.body[field])
-        : req.body[field];
+      let val = ['sizes','colors'].includes(field) ? parseList(req.body[field]) : req.body[field];
+      if (field === 'badge') {
+        const trimmed = val && typeof val === 'string' ? val.trim() : null;
+        val = ['new','sale','hot','last','featured'].includes(trimmed) ? trimmed : null;
+      }
+      product[field] = val;
     }
   });
 
