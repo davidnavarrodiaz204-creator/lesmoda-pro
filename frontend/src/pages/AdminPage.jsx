@@ -1766,12 +1766,15 @@ function ProductModal({ product, onClose, onSaved }) {
   useEffect(() => {
     if (!window.visualViewport) return;
     const handler = () => {
-      const vh = window.visualViewport.height;
-      const dh = window.innerHeight;
-      setKbOffset(Math.max(0, dh - vh));
+      const offset = Math.max(0, window.innerHeight - window.visualViewport.height);
+      setKbOffset(offset);
+      document.body.classList.toggle('keyboard-open', offset > 100);
     };
     window.visualViewport.addEventListener('resize', handler);
-    return () => window.visualViewport.removeEventListener('resize', handler);
+    return () => {
+      window.visualViewport.removeEventListener('resize', handler);
+      document.body.classList.remove('keyboard-open');
+    };
   }, []);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
@@ -2011,23 +2014,32 @@ function ProductModal({ product, onClose, onSaved }) {
             </div>
           )}
         </div>
-        <div className="lm-admin-modal-footer" style={{...ms.footer, position:'sticky', bottom:0, background:'white', zIndex:10}}>
-          {isMobile && currentStepIndex > 0 && (
-            <button style={{...ms.btnCancel, minHeight:44, fontSize:'0.85rem'}}
-              onClick={() => setFormTab(STEPS[currentStepIndex - 1].key)}>
-              Anterior
-            </button>
+        <div className="lm-admin-modal-footer" style={{
+          ...ms.footer, position:'sticky', bottom:0, background:'white', zIndex:10,
+          flexDirection: isMobile ? 'column' : 'row',
+        }}>
+          {isMobile && (
+            <div style={{display:'flex', gap:'0.5rem', width:'100%'}}>
+              {currentStepIndex > 0 && (
+                <button style={{...ms.btnCancel, minHeight:44, fontSize:'0.85rem', flex:1}}
+                  onClick={() => setFormTab(STEPS[currentStepIndex - 1].key)}>
+                  Anterior
+                </button>
+              )}
+              {currentStepIndex < STEPS.length - 1 && (
+                <button style={{...ms.btnSave, minHeight:44, fontSize:'0.85rem', flex:1}}
+                  onClick={() => setFormTab(STEPS[currentStepIndex + 1].key)}>
+                  Siguiente
+                </button>
+              )}
+            </div>
           )}
-          {isMobile && currentStepIndex < STEPS.length - 1 && (
-            <button style={{...ms.btnSave, minHeight:44, fontSize:'0.85rem', flex:1}}
-              onClick={() => setFormTab(STEPS[currentStepIndex + 1].key)}>
-              Siguiente
+          <div style={{display:'flex', gap:'0.5rem', width: isMobile ? '100%' : 'auto', justifyContent:'flex-end'}}>
+            <button style={{...ms.btnCancel, minHeight:44}} onClick={onClose}>Cancelar</button>
+            <button style={{...ms.btnSave, minHeight:44}} onClick={handleSave} disabled={saving}>
+              {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar</>}
             </button>
-          )}
-          <button style={{...ms.btnCancel, minHeight:44}} onClick={onClose}>Cancelar</button>
-          <button style={{...ms.btnSave, minHeight:44}} onClick={handleSave} disabled={saving}>
-            {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar</>}
-          </button>
+          </div>
         </div>
       </div>
     </div>
@@ -2201,7 +2213,7 @@ const s = {
 
 const ms = {
   overlay:   { position:'fixed', inset:0, background:'rgba(26,22,18,0.72)', backdropFilter:'blur(5px)', zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:'1rem' },
-  modal:     { background:'white', borderRadius:16, width:'100%', maxWidth:600, maxHeight:'92vh', overflowY:'auto', boxShadow:'0 24px 80px rgba(0,0,0,0.3)' },
+  modal:     { background:'white', borderRadius:16, width:'100%', maxWidth:600, maxHeight:'92dvh', overflowY:'auto', boxShadow:'0 8px 32px rgba(0,0,0,0.2)' },
   header:    { padding:'1.25rem 1.5rem 0.75rem', borderBottom:'1px solid #F0EAE0', display:'flex', alignItems:'center', justifyContent:'space-between' },
   title:     { fontFamily:'serif', fontSize:'1.15rem', color:'#1A1612' },
   close:     { background:'none', border:'none', cursor:'pointer', color:'#8A7968', display:'flex', alignItems:'center', justifyContent:'center', padding:'0.25rem' },

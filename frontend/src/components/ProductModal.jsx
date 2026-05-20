@@ -162,6 +162,16 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
     if (product._id) onView?.(product);
   }, [product._id]);
 
+  useEffect(() => {
+    if (!window.visualViewport) return;
+    const handler = () => {
+      const offset = Math.max(0, window.innerHeight - window.visualViewport.height);
+      document.body.classList.toggle('keyboard-open', offset > 100);
+    };
+    window.visualViewport.addEventListener('resize', handler);
+    return () => window.visualViewport.removeEventListener('resize', handler);
+  }, []);
+
   const discount = product.oldPrice && product.oldPrice > product.price
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
     : 0;
