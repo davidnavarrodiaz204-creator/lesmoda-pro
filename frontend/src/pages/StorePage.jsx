@@ -19,16 +19,16 @@ import { useCart } from '../components/CartContext';
 import { useWishlist } from '../hooks/useWishlist';
 import { useRecentViews } from '../hooks/useRecentViews';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { CartIcon, WarningIcon, DressIcon, HeartIcon, StarIcon, TrendingIcon, ClockIcon } from '../components/Icons';
+import { CartIcon, WarningIcon, DressIcon, HeartIcon, StarIcon, TrendingIcon, ClockIcon, SearchIcon } from '../components/Icons';
 import Footer from '../components/Footer';
 import { setMeta, getDomain } from '../utils/seo';
 
 const BADGES = [
-  { label: 'Nuevo', value: 'new' },
-  { label: 'Oferta', value: 'sale' },
-  { label: 'Trending', value: 'hot' },
-  { label: 'Ult. unidades', value: 'last' },
-  { label: 'Destacado', value: 'featured' },
+  { label: 'Destacados', value: 'featured' },
+  { label: 'Nuevos ingresos', value: 'new' },
+  { label: 'Ofertas', value: 'sale' },
+  { label: 'Ultimas unidades', value: 'last' },
+  { label: 'Mas consultados', value: 'hot' },
 ];
 
 export default function StorePage() {
@@ -38,6 +38,8 @@ export default function StorePage() {
   const [cartOpen, setCartOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const { totalItems } = useCart();
   const { config } = useConfig();
   const { wishlist, toggleWishlist, isFavorite } = useWishlist();
@@ -61,6 +63,21 @@ export default function StorePage() {
       url: domain,
     });
   }, [config.storeName, config.siteDescription, config.logo]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
+  const searchedProducts = useMemo(() => {
+    if (!debouncedSearch.trim()) return visibleProducts;
+    const q = debouncedSearch.toLowerCase();
+    return visibleProducts.filter(p =>
+      (p.name || '').toLowerCase().includes(q) ||
+      (p.description || '').toLowerCase().includes(q) ||
+      (p.category || '').toLowerCase().includes(q)
+    );
+  }, [visibleProducts, debouncedSearch]);
 
   const featuredProducts = useMemo(() => visibleProducts.filter(p => p.featured).slice(0, 4), [visibleProducts]);
   const newProducts = useMemo(() => visibleProducts.filter(p => p.badge === 'new').slice(0, 4), [visibleProducts]);
@@ -154,12 +171,30 @@ export default function StorePage() {
         trustText={config.trustText}
       />
 
-      <BannerSlider />
+      {/* Search bar */}
+      <div className="lm-search-bar" style={s.searchBar}>
+        <div className="lm-search-inner" style={s.searchInner}>
+          <SearchIcon size={18} />
+          <input type="text" className="lm-search-input" style={s.searchInput}
+            placeholder="Buscar prendas, colores o categorias"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)} />
+          {searchQuery && (
+            <button className="lm-search-clear" style={s.searchClear} onClick={() => setSearchQuery('')}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
 
       <CategorySection
         activeTab={activeTab}
         onSelect={(v) => handleFilter('category', v === activeTab ? 'Todos' : v)}
       />
+
+      <BannerSlider />
 
       {config.promoBannerEnabled !== false && (
         <PromoBanner
@@ -181,43 +216,18 @@ export default function StorePage() {
         </section>
       )}
 
-      {/* Home premium: Clientes favoritos */}
-      {!showFavorites && topWishlist.length > 0 && (
+      {/* Premium home sections */}
+      {!showFavorites && featuredProducts.length > 0 && (
         <section className="lm-grid-section" style={{...s.grid, paddingBottom:'1rem'}}>
-          <h2 style={s.sectionTitle}><StarIcon size={14} /> Favoritos de clientes</h2>
+          <h2 style={s.sectionTitle}>Destacados</h2>
           <div className="lm-product-grid" style={s.productGrid}>
-            {topWishlist.map(p => (
+            {featuredProducts.map(p => (
               <ProductCard key={p._id} product={p} waNumber={waNumber} onClick={handleSelectProduct} stockVisible={config.stockVisible} isFavorite={isFavorite} onToggleFavorite={handleToggleFav} />
             ))}
           </div>
         </section>
       )}
 
-      {/* Home premium: Ultimas unidades */}
-      {!showFavorites && lastProducts.length > 0 && (
-        <section className="lm-grid-section" style={{...s.grid, paddingBottom:'1rem'}}>
-          <h2 style={s.sectionTitle}><TrendingIcon size={14} /> Ultimas unidades</h2>
-          <div className="lm-product-grid" style={s.productGrid}>
-            {lastProducts.map(p => (
-              <ProductCard key={p._id} product={p} waNumber={waNumber} onClick={handleSelectProduct} stockVisible={config.stockVisible} isFavorite={isFavorite} onToggleFavorite={handleToggleFav} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Home premium: Mas consultados */}
-      {!showFavorites && mostViewed.length > 0 && (
-        <section className="lm-grid-section" style={{...s.grid, paddingBottom:'1rem'}}>
-          <h2 style={s.sectionTitle}><TrendingIcon size={14} /> Mas consultados</h2>
-          <div className="lm-product-grid" style={s.productGrid}>
-            {mostViewed.map(p => (
-              <ProductCard key={p._id} product={p} waNumber={waNumber} onClick={handleSelectProduct} stockVisible={config.stockVisible} isFavorite={isFavorite} onToggleFavorite={handleToggleFav} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Home premium: Nuevos ingresos */}
       {!showFavorites && newProducts.length > 0 && (
         <section className="lm-grid-section" style={{...s.grid, paddingBottom:'1rem'}}>
           <h2 style={s.sectionTitle}>Nuevos ingresos</h2>
@@ -229,12 +239,33 @@ export default function StorePage() {
         </section>
       )}
 
-      {/* Featured + Sale sections (Phase 11 compat) */}
-      {!showFavorites && featuredProducts.length > 0 && (
+      {!showFavorites && topWishlist.length > 0 && (
         <section className="lm-grid-section" style={{...s.grid, paddingBottom:'1rem'}}>
-          <h2 style={s.sectionTitle}>Destacados</h2>
+          <h2 style={s.sectionTitle}><StarIcon size={14} /> Favoritos de clientes</h2>
           <div className="lm-product-grid" style={s.productGrid}>
-            {featuredProducts.map(p => (
+            {topWishlist.map(p => (
+              <ProductCard key={p._id} product={p} waNumber={waNumber} onClick={handleSelectProduct} stockVisible={config.stockVisible} isFavorite={isFavorite} onToggleFavorite={handleToggleFav} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!showFavorites && lastProducts.length > 0 && (
+        <section className="lm-grid-section" style={{...s.grid, paddingBottom:'1rem'}}>
+          <h2 style={s.sectionTitle}><TrendingIcon size={14} /> Ultimas unidades</h2>
+          <div className="lm-product-grid" style={s.productGrid}>
+            {lastProducts.map(p => (
+              <ProductCard key={p._id} product={p} waNumber={waNumber} onClick={handleSelectProduct} stockVisible={config.stockVisible} isFavorite={isFavorite} onToggleFavorite={handleToggleFav} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!showFavorites && mostViewed.length > 0 && (
+        <section className="lm-grid-section" style={{...s.grid, paddingBottom:'1rem'}}>
+          <h2 style={s.sectionTitle}><TrendingIcon size={14} /> Mas consultados</h2>
+          <div className="lm-product-grid" style={s.productGrid}>
+            {mostViewed.map(p => (
               <ProductCard key={p._id} product={p} waNumber={waNumber} onClick={handleSelectProduct} stockVisible={config.stockVisible} isFavorite={isFavorite} onToggleFavorite={handleToggleFav} />
             ))}
           </div>
@@ -289,17 +320,19 @@ export default function StorePage() {
         <h2 style={s.sectionTitle}>
           {activeTab === 'Todos'
             ? hasHomeSections ? 'Catalogo completo' : 'Todos los productos'
-            : activeTab}
+            : BADGES.find(b => b.value === activeTab)?.label || activeTab}
         </h2>
 
         {loading && <SkeletonGrid count={6} />}
         {error && <div style={s.center}><WarningIcon size={16} /> {error}</div>}
 
         {!loading && !error && (
-          visibleProducts.length === 0
-            ? <EmptyState />
+          searchedProducts.length === 0
+            ? debouncedSearch.trim()
+              ? <SearchEmpty />
+              : <EmptyState />
             : <div className="lm-product-grid" style={s.productGrid}>
-                {visibleProducts.map(p => (
+                {searchedProducts.map(p => (
                   <ProductCard key={p._id} product={p} waNumber={waNumber} onClick={handleSelectProduct} stockVisible={config.stockVisible} isFavorite={isFavorite} onToggleFavorite={handleToggleFav} />
                 ))}
               </div>
@@ -342,7 +375,17 @@ function EmptyState() {
     <div style={{textAlign:'center',padding:'4rem 1.5rem',color:'#8A7968'}}>
       <div style={{marginBottom:'1rem',opacity:0.4}}><DressIcon size={48} /></div>
       <h3 style={{fontFamily:'serif',fontSize:'1.4rem',marginBottom:'0.5rem',color:'#1A1612'}}>No hay productos todavia</h3>
-      <p>Ve al <a href="/admin" style={{color:'#C9A96E'}}>panel admin</a> para agregar productos.</p>
+      <p style={{fontSize:'0.88rem'}}>Ve al <a href="/admin" style={{color:'#C9A96E'}}>panel admin</a> para agregar productos.</p>
+    </div>
+  );
+}
+
+function SearchEmpty() {
+  return (
+    <div style={{textAlign:'center',padding:'4rem 1.5rem',color:'#8A7968'}}>
+      <div style={{marginBottom:'1rem',opacity:0.3}}><DressIcon size={40} /></div>
+      <h3 style={{fontFamily:'serif',fontSize:'1.25rem',marginBottom:'0.4rem',color:'#1A1612'}}>No encontramos productos con esa busqueda</h3>
+      <p style={{fontSize:'0.88rem',color:'#8A7968'}}>Intenta con otros terminos</p>
     </div>
   );
 }
@@ -360,6 +403,11 @@ function EmptyState() {
     adminLink:       { background:'rgba(201,169,110,0.12)', color:'#C9A96E', padding:'0.3rem 0.6rem', borderRadius:5, fontSize:'0.68rem', fontWeight:600, letterSpacing:'0.04em' },
     mobileMenu:      { position:'absolute', top:'100%', left:0, right:0, background:'#1A1612', borderTop:'1px solid rgba(201,169,110,0.12)', padding:'0.25rem .75rem', zIndex:99 },
     mobileMenuItem:  { display:'block', color:'#C9A96E', padding:'0.6rem .5rem', fontSize:'0.85rem', fontWeight:600 },
+
+    searchBar:       { padding:'1rem 1.25rem 0', maxWidth:1200, margin:'0 auto' },
+    searchInner:     { display:'flex', alignItems:'center', gap:'0.5rem', background:'white', border:'1.5px solid #E8D5B0', borderRadius:12, padding:'0.4rem 0.9rem', transition:'border-color .2s' },
+    searchInput:     { flex:1, border:'none', outline:'none', background:'transparent', fontSize:'0.92rem', color:'#1A1612', fontFamily:'inherit', padding:'0.3rem 0' },
+    searchClear:     { background:'none', border:'none', cursor:'pointer', color:'#8A7968', padding:'0.2rem', display:'flex', transition:'color .2s' },
 
     filters:         { padding:'1rem 1.25rem 0', display:'flex', flexWrap:'wrap', gap:'0.5rem', alignItems:'center', maxWidth:1200, margin:'0 auto' },
     filterLabel:     { fontSize:'0.7rem', letterSpacing:'0.14em', textTransform:'uppercase', color:'#8A7968', fontWeight:500 },

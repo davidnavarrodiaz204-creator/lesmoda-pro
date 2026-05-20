@@ -52,6 +52,32 @@ function RelatedProducts({ productId, onSelect }) {
   );
 }
 
+function useSwipeClose(onClose, threshold = 80) {
+  const touchStart = useRef({ y: 0, x: 0 });
+  const swiping = useRef(false);
+
+  const handleTouchStart = (e) => {
+    touchStart.current = { y: e.touches[0].clientY, x: e.touches[0].clientX };
+    swiping.current = false;
+  };
+
+  const handleTouchMove = (e) => {
+    const dy = e.touches[0].clientY - touchStart.current.y;
+    if (dy > 20 && Math.abs(e.touches[0].clientX - touchStart.current.x) < 20) {
+      swiping.current = true;
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    const dy = e.changedTouches[0].clientY - touchStart.current.y;
+    if (dy > threshold && swiping.current) {
+      onClose?.();
+    }
+  };
+
+  return { handleTouchStart, handleTouchMove, handleTouchEnd };
+}
+
 export default function ProductModal({ product: rawProduct, waNumber, onClose, stockVisible = true, standalone, onView, trustText = '' }) {
   const { addItem } = useCart();
   const product = rawProduct || {};
@@ -64,7 +90,9 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
   const [relatedProduct, setRelatedProduct] = useState(null);
   const [shared, setShared] = useState(false);
   const [zoomed, setZoomed] = useState(false);
+  const [imgLoading, setImgLoading] = useState(true);
   const touchStartX = useRef(0);
+  const swipeClose = useSwipeClose(standalone ? () => {} : onClose);
 
   const hasMultipleImages = images.length > 1;
   const hasSizes = product.sizes?.length > 0;
@@ -73,11 +101,11 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
 
   const currentImg = images[imgIndex]?.url || product.mainImage;
 
-  const handleTouchStart = (e) => {
+  const handleTouchStartImg = (e) => {
     touchStartX.current = e.touches[0].clientX;
   };
 
-  const handleTouchEnd = (e) => {
+  const handleTouchEndImg = (e) => {
     if (!hasMultipleImages) return;
     const delta = touchStartX.current - e.changedTouches[0].clientX;
     if (delta > 50) {
@@ -156,27 +184,33 @@ export default function ProductModal({ product: rawProduct, waNumber, onClose, s
   }
 
   return (
-    <div className="modal-overlay" onClick={standalone ? undefined : onClose}>
+    <div className="modal-overlay"
+      onClick={standalone ? undefined : onClose}
+      onTouchStart={swipeClose.handleTouchStart}
+      onTouchMove={swipeClose.handleTouchMove}
+      onTouchEnd={swipeClose.handleTouchEnd}>
       <div className="product-modal" onClick={e => e.stopPropagation()}>
-        {!standalone && <button className="modal-close" onClick={onClose}><CloseIcon size={18} /></button>}
-        <button className="modal-share" onClick={handleShare} title="Compartir producto" style={{
-          position:'absolute',top:12,right: standalone ? 12 : 54,zIndex:10,width:36,height:36,
-          borderRadius:'50%',background:'rgba(255,255,255,.9)',border:'none',
-          display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',
-          boxShadow:'0 2px 12px rgba(0,0,0,.12)',color: shared ? '#2E7D52' : '#1A1612',transition:'all .2s'
-        }}>
+        {!standalone && (
+          <button className="modal-close" onClick={onClose}><CloseIcon size={20} /></button>
+        )}
+        <button className="modal-share" onClick={handleShare} title="Compartir producto">
           <ShareIcon size={16} />
         </button>
+        <div className="modal-drag-handle" />
 
         <div className="modal-gallery">
           <div className="modal-gallery-main"
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}>
+            onTouchStart={handleTouchStartImg}
+            onTouchEnd={handleTouchEndImg}>
             {currentImg ? (
-              <img src={currentImg} alt={product.name}
-                className={zoomed ? 'img-zoomed' : ''}
-                onClick={handleImageClick}
-                onError={(e) => { e.target.style.display='none'; e.target.parentElement.classList.add('img-error-fallback'); }} />
+              <>
+                {imgLoading && <div className="modal-img-skeleton" />}
+                <img src={currentImg} alt={product.name}
+                  className={`modal-img${zoomed ? ' img-zoomed' : ''}${imgLoading ? ' img-loading' : ''}`}
+                  onClick={handleImageClick}
+                  onLoad={() => setImgLoading(false)}
+                  onError={(e) => { e.target.style.display='none'; e.target.parentElement.classList.add('img-error-fallback'); }} />
+              </>
             ) : (
               <div className="modal-no-img"><ImageIcon size={40} /></div>
             )}

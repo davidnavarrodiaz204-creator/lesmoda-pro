@@ -1738,12 +1738,41 @@ function ConfigSection() {
 const TALLAS_PRESET = ['XS','S','M','L','XL','XXL','6','7','8','9','10','11','12','Único'];
 const COLOR_PRESET = ['Negro','Blanco','Gris','Rojo','Azul','Verde','Amarillo','Rosa','Beige','Marrón','Dorado','Plateado'];
 
+const STEPS = [
+  { key: 'info',     label: 'Informacion' },
+  { key: 'pricing',  label: 'Precio/Stock' },
+  { key: 'variants', label: 'Variantes' },
+  { key: 'images',   label: 'Imagenes' },
+  { key: 'status',   label: 'Estado' },
+];
+
 function ProductModal({ product, onClose, onSaved }) {
   const isEdit = !!product;
   const fileRef = useRef();
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState(product?.images?.[0]?.url || '');
   const [formTab, setFormTab] = useState('info');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [kbOffset, setKbOffset] = useState(0);
+  const currentStepIndex = STEPS.findIndex(s => s.key === formTab);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    if (!window.visualViewport) return;
+    const handler = () => {
+      const vh = window.visualViewport.height;
+      const dh = window.innerHeight;
+      setKbOffset(Math.max(0, dh - vh));
+    };
+    window.visualViewport.addEventListener('resize', handler);
+    return () => window.visualViewport.removeEventListener('resize', handler);
+  }, []);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [images, setImages] = useState(product?.images || []);
@@ -1825,30 +1854,34 @@ function ProductModal({ product, onClose, onSaved }) {
 
   return (
     <div className="lm-admin-modal-ov" style={ms.overlay} onClick={onClose}>
-      <div className="lm-admin-modal-cont" style={{...ms.modal, maxWidth:600}} onClick={e => e.stopPropagation()}>
+      <div className="lm-admin-modal-cont" style={{...ms.modal, maxWidth:600, paddingBottom: kbOffset > 0 ? `${kbOffset}px` : 0}} onClick={e => e.stopPropagation()}>
         <div style={ms.header}>
           <h2 style={ms.title}>{isEdit ? 'Editar Producto' : 'Agregar Producto'}</h2>
           <button onClick={onClose} style={ms.close}><CloseIcon size={16} /></button>
         </div>
-        <div className="lm-admin-modal-tabs" style={{
-          display: 'flex', gap: '0.25rem', padding: '0.75rem 1.5rem 0',
-          borderBottom: '1px solid #F0EAE0', overflowX: 'auto',
+        {/* Step indicator */}
+        <div className="lm-prod-step-indicator" style={{
+          display: 'flex', alignItems: 'center', gap: '0.4rem',
+          padding: '0.65rem 1.5rem 0.5rem', borderBottom: '1px solid #F0EAE0',
+          flexWrap: 'wrap',
         }}>
-          {[
-            ['info', 'Informacion'],
-            ['pricing', 'Precio/Stock'],
-            ['variants', 'Variantes'],
-            ['images', 'Imagenes'],
-            ['status', 'Estado'],
-          ].map(([k, label]) => (
-            <button key={k} onClick={() => setFormTab(k)}
+          {isMobile && (
+            <span style={{fontSize:'0.7rem',color:'#8A7968',fontWeight:600,marginRight:'0.3rem',whiteSpace:'nowrap'}}>
+              Paso {currentStepIndex + 1} de {STEPS.length}
+            </span>
+          )}
+          {STEPS.map((s, i) => (
+            <button key={s.key} onClick={() => setFormTab(s.key)}
               style={{
-                padding: '0.4rem 0.85rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 600,
-                border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit',
-                background: formTab === k ? '#1A1612' : 'transparent',
-                color: formTab === k ? '#C9A96E' : '#8A7968',
-                transition: 'all .2s',
-              }}>{label}</button>
+                padding: '0.3rem 0.7rem', borderRadius: 999, fontSize: '0.7rem', fontWeight: 600,
+                border: formTab === s.key ? '1.5px solid #1A1612' : '1.5px solid #E0D8CE',
+                cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit',
+                background: formTab === s.key ? '#1A1612' : 'transparent',
+                color: formTab === s.key ? '#C9A96E' : '#8A7968',
+                transition: 'all .2s', minHeight: 36,
+              }}>
+              {isMobile ? `${i + 1}` : s.label}
+            </button>
           ))}
         </div>
         <div className="lm-admin-modal-body" style={ms.body}>
@@ -1861,7 +1894,7 @@ function ProductModal({ product, onClose, onSaved }) {
                 <textarea style={{...ms.input, minHeight:70, resize:'vertical'}}
                   value={form.description} onChange={e => set('description', e.target.value)} />
               </Field>
-              <div style={ms.row}>
+              <div className="lm-admin-modal-row-inner" style={ms.row}>
                 <Field label="Categoría">
                   <select style={ms.input} value={form.category} onChange={e => set('category', e.target.value)}>
                     <option>Mujer</option><option>Hombre</option><option>Accesorios</option>
@@ -1870,18 +1903,18 @@ function ProductModal({ product, onClose, onSaved }) {
                 <Field label="Etiqueta">
                   <select style={ms.input} value={form.badge} onChange={e => set('badge', e.target.value)}>
                     <option value="">Sin etiqueta</option>
-                    <option value="new">Nuevo</option>
-                    <option value="sale">Oferta</option>
-                    <option value="hot">Trending</option>
+                    <option value="new">Nuevos ingresos</option>
+                    <option value="sale">Ofertas</option>
+                    <option value="hot">Mas consultados</option>
                     <option value="last">Ultimas unidades</option>
-                    <option value="featured">Destacado</option>
+                    <option value="featured">Destacados</option>
                   </select>
                 </Field>
               </div>
             </>
           )}
           {formTab === 'pricing' && (
-            <div style={ms.row3}>
+            <div className="lm-admin-modal-row-inner" style={ms.row3}>
               <Field label="Precio (S/) *">
                 <input style={ms.input} type="number" step="0.01" value={form.price} onChange={e => set('price', e.target.value)} />
               </Field>
@@ -1894,7 +1927,7 @@ function ProductModal({ product, onClose, onSaved }) {
             </div>
           )}
           {formTab === 'variants' && (
-            <div style={ms.row}>
+            <div className="lm-admin-modal-row-inner" style={ms.row}>
               <Field label="Tallas">
                 <SizeSelector selected={form.sizes} onChange={v => set('sizes', v)} />
               </Field>
@@ -1979,8 +2012,20 @@ function ProductModal({ product, onClose, onSaved }) {
           )}
         </div>
         <div className="lm-admin-modal-footer" style={{...ms.footer, position:'sticky', bottom:0, background:'white', zIndex:10}}>
-          <button style={ms.btnCancel} onClick={onClose}>Cancelar</button>
-          <button style={ms.btnSave} onClick={handleSave} disabled={saving}>
+          {isMobile && currentStepIndex > 0 && (
+            <button style={{...ms.btnCancel, minHeight:44, fontSize:'0.85rem'}}
+              onClick={() => setFormTab(STEPS[currentStepIndex - 1].key)}>
+              Anterior
+            </button>
+          )}
+          {isMobile && currentStepIndex < STEPS.length - 1 && (
+            <button style={{...ms.btnSave, minHeight:44, fontSize:'0.85rem', flex:1}}
+              onClick={() => setFormTab(STEPS[currentStepIndex + 1].key)}>
+              Siguiente
+            </button>
+          )}
+          <button style={{...ms.btnCancel, minHeight:44}} onClick={onClose}>Cancelar</button>
+          <button style={{...ms.btnSave, minHeight:44}} onClick={handleSave} disabled={saving}>
             {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar</>}
           </button>
         </div>
