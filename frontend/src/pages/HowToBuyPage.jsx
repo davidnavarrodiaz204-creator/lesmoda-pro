@@ -33,7 +33,7 @@ export default function HowToBuyPage() {
         <div className="hero-overlay" />
         <div className="hero-content" style={{padding:'4rem 2rem'}}>
           <h1 className="hero-title" style={{fontSize:'clamp(2rem,5vw,3.5rem)'}}>
-            Cómo <span className="hero-gold">comprar</span>
+            Cómo comprar
           </h1>
           <p className="hero-subtitle">Comprar en {config.storeName} es muy fácil</p>
         </div>

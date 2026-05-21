@@ -38,8 +38,8 @@ export default function HeroSection({
               </div>
             )}
             <h1 className="hero-title">
-              {firstPart ? <>{firstPart} <span className="hero-gold">{lastWord}</span></>
-                : <>{storeName} <span className="hero-gold">que te define</span></>}
+              {firstPart ? <>{firstPart} <span className="hero-highlight">{lastWord}</span></>
+                : <>{storeName} <span className="hero-highlight">que te define</span></>}
             </h1>
             <p className="hero-subtitle">{storeSlogan}</p>
             <div className="hero-actions">

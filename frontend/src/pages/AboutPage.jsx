@@ -29,7 +29,7 @@ export default function AboutPage() {
         <div className="hero-overlay" />
         <div className="hero-content" style={{padding:'4rem 2rem'}}>
           <h1 className="hero-title" style={{fontSize:'clamp(2rem,5vw,3.5rem)'}}>
-            Sobre <span className="hero-gold">nosotros</span>
+            Sobre nosotros
           </h1>
           <p className="hero-subtitle">Conoce más sobre {config.storeName}</p>
         </div>

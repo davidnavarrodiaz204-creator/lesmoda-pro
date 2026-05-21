@@ -1262,21 +1262,21 @@ function ConfigSection() {
 
   const THEME_PRESETS = [
     {
-      label: 'Nordic Fashion',
+      label: 'Blanco premium',
       values: {
-        primaryColor: '#5B7CFA', secondaryColor: '#111827', bgColor: '#F6F7FB', surfaceColor: '#FFFFFF', textColor: '#111827', mutedColor: '#6B7280', borderColor: '#E5E7EB',
+        primaryColor: '#1A1A1A', secondaryColor: '#111827', bgColor: '#F8F9FA', surfaceColor: '#FFFFFF', textColor: '#111827', mutedColor: '#6B7280', borderColor: '#E8EAED',
       },
     },
     {
-      label: 'Nocturno moderno',
+      label: 'Oscuro premium',
       values: {
-        primaryColor: '#F2C94C', secondaryColor: '#0F1720', bgColor: '#0B1220', surfaceColor: '#111827', textColor: '#F8FAFC', mutedColor: '#94A3B8', borderColor: '#334155',
+        primaryColor: '#FFFFFF', secondaryColor: '#0F1720', bgColor: '#0B1220', surfaceColor: '#111827', textColor: '#F8FAFC', mutedColor: '#94A3B8', borderColor: '#334155',
       },
     },
     {
-      label: 'Beige minimal',
+      label: 'Minimal azul',
       values: {
-        primaryColor: '#9B7E60', secondaryColor: '#26201B', bgColor: '#F7F1E8', surfaceColor: '#FFFFFF', textColor: '#1F1A16', mutedColor: '#7D6D62', borderColor: '#DDD3C7',
+        primaryColor: '#4F6EF7', secondaryColor: '#111827', bgColor: '#F8F9FA', surfaceColor: '#FFFFFF', textColor: '#111827', mutedColor: '#6B7280', borderColor: '#E8EAED',
       },
     },
   ];
@@ -1448,11 +1448,11 @@ function ConfigSection() {
   ];
 
   const tabStyle = (isActive) => ({
-    padding:'0.5rem 1rem', borderRadius:8, fontSize:'0.78rem', fontWeight:600,
+    padding:'0.45rem 0.9rem', borderRadius:6, fontSize:'0.75rem', fontWeight:500,
     border:'none', cursor:'pointer', whiteSpace:'nowrap', fontFamily:'inherit',
-    background: isActive ? 'var(--lm-secondary)' : 'transparent',
-    color: isActive ? 'var(--lm-primary)' : 'var(--lm-muted)',
-    transition:'all .2s',
+    background: isActive ? 'var(--lm-bg-alt)' : 'transparent',
+    color: isActive ? 'var(--lm-text)' : 'var(--lm-muted)',
+    transition:'all .15s',
   });
 
   const ThemePreview = () => (
@@ -1489,9 +1489,9 @@ function ConfigSection() {
     <div style={{display:'flex',flexDirection:'column',gap:'1.5rem'}}>
       {/* Tab buttons */}
       <div style={{
-        display:'flex', gap:'0.25rem', flexWrap:'wrap',
-        background:'var(--lm-surface)', borderRadius:12, padding:'0.5rem',
-        boxShadow:'0 1px 3px rgba(0,0,0,0.04)',
+        display:'flex', gap:'0.2rem', flexWrap:'wrap',
+        background:'var(--lm-surface)', borderRadius:10, padding:'0.4rem',
+        boxShadow:'0 1px 2px rgba(0,0,0,0.03)',
       }}>
         {tabs.map(t => (
           <button key={t.key} onClick={() => setActiveTab(t.key)} style={tabStyle(activeTab === t.key)}>
@@ -1503,10 +1503,10 @@ function ConfigSection() {
       <ThemePreview />
 
       {/* Tab content */}
-      <div style={{background:'var(--lm-surface)',borderRadius:12,padding:'1.5rem',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
+      <div style={{background:'var(--lm-surface)',borderRadius:10,padding:'1.25rem',boxShadow:'0 1px 2px rgba(0,0,0,0.03)'}}>
         {activeTab === 'general' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-            <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Informacion general</h3>
+            <h3 style={{fontSize:'0.85rem',fontWeight:600,color:'var(--lm-text)',marginBottom:'0.35rem'}}>Informacion general</h3>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
               <Field label="Nombre de la tienda">
                 <input style={s.input} value={form.storeName || ''} onChange={e => set('storeName', e.target.value)} />
@@ -1745,42 +1745,42 @@ function ConfigSection() {
         {activeTab === 'appearance' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
             <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Apariencia</h3>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(120px,1fr))',gap:'1rem'}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(100px,1fr))',gap:'0.75rem'}}>
               <Field label="Color primario">
-                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.primaryColor} onChange={e => set('primaryColor', e.target.value)} />
+                <input type="color" style={{...s.input, padding:'0.15rem', minWidth:50, width:50, height:34, cursor:'pointer'}} value={form.primaryColor} onChange={e => set('primaryColor', e.target.value)} />
               </Field>
               <Field label="Color secundario">
-                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.secondaryColor} onChange={e => set('secondaryColor', e.target.value)} />
+                <input type="color" style={{...s.input, padding:'0.15rem', minWidth:50, width:50, height:34, cursor:'pointer'}} value={form.secondaryColor} onChange={e => set('secondaryColor', e.target.value)} />
               </Field>
-              <Field label="Color de fondo">
-                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.bgColor} onChange={e => set('bgColor', e.target.value)} />
+              <Field label="Color fondo">
+                <input type="color" style={{...s.input, padding:'0.15rem', minWidth:50, width:50, height:34, cursor:'pointer'}} value={form.bgColor} onChange={e => set('bgColor', e.target.value)} />
               </Field>
-              <Field label="Color de superficie">
-                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.surfaceColor} onChange={e => set('surfaceColor', e.target.value)} />
+              <Field label="Superficie">
+                <input type="color" style={{...s.input, padding:'0.15rem', minWidth:50, width:50, height:34, cursor:'pointer'}} value={form.surfaceColor} onChange={e => set('surfaceColor', e.target.value)} />
               </Field>
             </div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(120px,1fr))',gap:'1rem'}}>
-              <Field label="Color de texto">
-                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.textColor} onChange={e => set('textColor', e.target.value)} />
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(100px,1fr))',gap:'0.75rem'}}>
+              <Field label="Color texto">
+                <input type="color" style={{...s.input, padding:'0.15rem', minWidth:50, width:50, height:34, cursor:'pointer'}} value={form.textColor} onChange={e => set('textColor', e.target.value)} />
               </Field>
               <Field label="Color tenue">
-                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.mutedColor} onChange={e => set('mutedColor', e.target.value)} />
+                <input type="color" style={{...s.input, padding:'0.15rem', minWidth:50, width:50, height:34, cursor:'pointer'}} value={form.mutedColor} onChange={e => set('mutedColor', e.target.value)} />
               </Field>
-              <Field label="Color de borde">
-                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.borderColor} onChange={e => set('borderColor', e.target.value)} />
+              <Field label="Color borde">
+                <input type="color" style={{...s.input, padding:'0.15rem', minWidth:50, width:50, height:34, cursor:'pointer'}} value={form.borderColor} onChange={e => set('borderColor', e.target.value)} />
               </Field>
               <Field label="Modo visual">
-                <select style={{...s.input, maxWidth:300}} value={form.visualMode} onChange={e => set('visualMode', e.target.value)}>
-                  <option value="claro-premium">Claro Premium</option>
-                  <option value="oscuro-premium">Oscuro Premium</option>
-                  <option value="blanco-azul-premium">Blanco Azul Premium</option>
+                <select style={{...s.input, maxWidth:300, minWidth:0}} value={form.visualMode} onChange={e => set('visualMode', e.target.value)}>
+                  <option value="claro-premium">Claro</option>
+                  <option value="oscuro-premium">Oscuro</option>
+                  <option value="blanco-azul-premium">Azul</option>
                 </select>
               </Field>
             </div>
-            <div style={{display:'flex',flexWrap:'wrap',gap:'0.75rem',marginTop:'0.5rem'}}>
+            <div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem',marginTop:'0.35rem'}}>
               {THEME_PRESETS.map((preset) => (
                 <button key={preset.label} type="button" onClick={() => applyThemePreset(preset.values)}
-                  style={{padding:'0.7rem 1rem', borderRadius:10, border:'1px solid var(--lm-border)', background:'var(--lm-surface)', color:'var(--lm-text)', cursor:'pointer', fontWeight:600}}>
+                  style={{padding:'0.45rem 0.8rem', borderRadius:6, border:'1px solid var(--lm-border)', background:'var(--lm-surface)', color:'var(--lm-text)', cursor:'pointer', fontWeight:500, fontSize:'0.78rem'}}>
                   {preset.label}
                 </button>
               ))}
@@ -2234,8 +2234,8 @@ function ChipBtn({ label, selected, onClick }) {
 
 function Field({ label, children }) {
   return (
-    <div style={{display:'flex',flexDirection:'column',gap:'0.35rem'}}>
-      <label style={{fontSize:'0.7rem',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase',color:'var(--lm-muted)'}}>{label}</label>
+    <div style={{display:'flex',flexDirection:'column',gap:'0.2rem'}}>
+      <label style={{fontSize:'0.62rem',fontWeight:500,letterSpacing:'0.06em',textTransform:'uppercase',color:'var(--lm-muted)'}}>{label}</label>
       {children}
     </div>
   );
@@ -2262,11 +2262,11 @@ const s = {
   mobileMenuItem:{ color:'rgba(255,255,255,.55)', padding:'0.65rem 1rem', fontSize:'0.88rem', cursor:'pointer', borderRadius:6, display:'flex', alignItems:'center', gap:'0.5rem' },
   mobileMenuActive:{ background:'rgba(91,124,250,.15)', color:'#93B0FF' },
 
-  card:          { background:'var(--lm-surface)', borderRadius:8, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)' },
-  configCard:    { background:'var(--lm-surface)', borderRadius:8, padding:'1.5rem', boxShadow:'0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)' },
+  card:          { background:'var(--lm-surface)', borderRadius:8, overflow:'hidden', border:'1px solid var(--lm-border)' },
+  configCard:    { background:'var(--lm-surface)', borderRadius:8, padding:'1.25rem', border:'1px solid var(--lm-border)' },
   configRow:     { display:'flex', alignItems:'flex-end', gap:'1rem', flexWrap:'wrap', marginTop:'1rem' },
   cardHeader:    { display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0.85rem 1.25rem', borderBottom:'1px solid var(--lm-border)' },
-  cardTitle:     { fontFamily:'var(--font-display)', fontSize:'1rem', color:'var(--lm-text)', fontWeight:600 },
+  cardTitle:     { fontSize:'0.9rem', color:'var(--lm-text)', fontWeight:600 },
   btnAdd:        { background:'var(--lm-secondary)', color:'white', border:'none', fontFamily:'var(--font-sans)', fontSize:'0.8rem', fontWeight:600, padding:'0.45rem 1rem', borderRadius:6, cursor:'pointer' },
   btnSave:       { background:'var(--lm-primary)', color:'white', border:'none', fontFamily:'var(--font-sans)', fontSize:'0.8rem', fontWeight:600, padding:'0.45rem 1rem', borderRadius:6, cursor:'pointer', whiteSpace:'nowrap' },
 
@@ -2291,7 +2291,7 @@ const s = {
   input:         { border:'1.5px solid var(--lm-border)', borderRadius:6, padding:'0.5rem 0.75rem', fontFamily:'var(--font-sans)', fontSize:'0.85rem', outline:'none', background:'var(--lm-surface)', minWidth:140, color:'var(--lm-text)' },
 
   quickActions: { display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(140px, 1fr))', gap:'0.75rem' },
-  quickBtn: { display:'flex', flexDirection:'column', alignItems:'center', gap:'0.4rem', padding:'1rem 0.75rem', border:'1.5px solid var(--lm-border)', borderRadius:8, background:'var(--lm-surface)', cursor:'pointer', fontFamily:'inherit', fontSize:'0.75rem', fontWeight:600, color:'var(--lm-text)', transition:'all .2s' },
+  quickBtn: { display:'flex', flexDirection:'column', alignItems:'center', gap:'0.3rem', padding:'0.85rem 0.65rem', border:'1px solid var(--lm-border)', borderRadius:8, background:'var(--lm-surface)', cursor:'pointer', fontFamily:'inherit', fontSize:'0.72rem', fontWeight:500, color:'var(--lm-text)', transition:'all .15s' },
 };
 
 const ms = {
