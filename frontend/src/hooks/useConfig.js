@@ -13,15 +13,15 @@ const defaults = {
   hours: '',
   logo: '',
   banner: '',
-  primaryColor: '#5B7CFA',
-  secondaryColor: '#111827',
+  primaryColor: '#111827',
+  secondaryColor: '#0F172A',
   bgColor: '#F6F7FB',
   surfaceColor: '#FFFFFF',
   textColor: '#111827',
   mutedColor: '#6B7280',
   borderColor: '#E5E7EB',
   visualMode: 'claro-premium',
-  freeShippingText: 'Envio gratis en compras desde S/ 99',
+  freeShippingText: 'Envío gratis en compras desde S/ 99',
   freeShippingMin: 99,
   waMessage: '',
   promoBannerEnabled: true,
@@ -48,10 +48,26 @@ export function useConfig() {
         Object.entries(data.data).forEach(([k, v]) => {
           norm[k] = boolKeys.includes(k) ? (v === true || v === 'true' || v === 1) : v;
         });
-        setConfig((prev) => ({ ...prev, ...norm }));
+        setConfig((prev) => ({ ...prev, ...normalizeLegacyTheme(norm) }));
       }
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   return { config, loading };
+}
+
+function normalizeLegacyTheme(cfg) {
+  const legacy = new Set(['#b8941e', '#d4af37', '#c9a86a', '#c8a165', '#d2b48c', '#f5f5dc', '#beige']);
+  const isLegacy = (v) => typeof v === 'string' && legacy.has(v.trim().toLowerCase());
+  if (!isLegacy(cfg.primaryColor) && !isLegacy(cfg.secondaryColor) && !isLegacy(cfg.bgColor)) return cfg;
+  return {
+    ...cfg,
+    primaryColor: '#111827',
+    secondaryColor: '#0F172A',
+    bgColor: '#F6F7FB',
+    surfaceColor: cfg.surfaceColor || '#FFFFFF',
+    textColor: '#111827',
+    mutedColor: '#6B7280',
+    borderColor: '#E5E7EB',
+  };
 }

@@ -226,6 +226,16 @@ exports.cleanupTestOrders = async (req, res) => {
   res.json({ success: true, deletedCount: result.deletedCount, message: `Se eliminaron ${result.deletedCount} pedidos de prueba` });
 };
 
+// ── DELETE /api/orders/all (admin) ───────────────────────────────────────
+exports.deleteAllOrders = async (req, res) => {
+  const result = await Order.deleteMany({});
+  res.json({
+    success: true,
+    deletedCount: result.deletedCount,
+    message: `Se eliminaron ${result.deletedCount} pedidos`,
+  });
+};
+
 // ── GET /api/orders/export/csv ────────────────────────────────────────────
 exports.exportOrdersCSV = async (req, res) => {
   console.log('[backup] exporting orders');
