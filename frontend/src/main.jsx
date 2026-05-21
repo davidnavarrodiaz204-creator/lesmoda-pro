@@ -99,15 +99,6 @@ style.textContent = `
                radial-gradient(ellipse at 70% 80%, rgba(201,169,110,.1) 0%, transparent 50%),
                linear-gradient(135deg, #231F1A 0%, #1A1612 100%); }
   .hero-bg { position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C9A96E' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
-  .hero-card-fallback { width:100%; height:100%; display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(135deg, #EBF5FF 0%, #FFFFFF 50%, #F0F7FF 100%);
-    border-radius:16px; margin:1.5rem; }
-  .hero-card-fallback-inner { display:flex; flex-direction:column; align-items:center; gap:.75rem;
-    text-align:center; padding:2rem 1.5rem; }
-  .hero-card-fallback-inner svg { color:#3B82F6; opacity:.6; }
-  .hero-card-fallback-title { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700;
-    color:#1E3A5F; line-height:1.2; }
-  .hero-card-fallback-sub { font-size:.85rem; color:#64748B; font-weight:400; max-width:220px; }
   .hero-logo-wrap { margin-bottom:1.25rem; display:flex; justify-content:center; }
   .hero-logo { max-height:72px; width:auto; object-fit:contain; }
   .hero-title { font-family:'Playfair Display',serif; font-size:clamp(1.8rem,4.5vw,3.6rem);
@@ -586,7 +577,6 @@ style.textContent = `
     .hero-layout { grid-template-columns:1fr !important; }
     .hero-col-text { padding:.75rem 1rem .5rem; order:2; }
     .hero-col-image { order:1; min-height:180px; max-height:35vh; }
-    .hero-col-image-empty { display:none; }
     .hero-content-inner { text-align:center; max-width:none; }
     .hero-title { font-size:clamp(1.2rem,5.5vw,1.6rem); padding-bottom:.35rem; text-align:center; }
     .hero-logo { max-height:40px; }

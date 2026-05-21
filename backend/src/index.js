@@ -36,7 +36,10 @@ app.set('trust proxy', 1);
 app.use(compression({ level: 6 }));
 
 // ── Seguridad ──────────────────────────────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // confiamos en front-end
+  crossOriginEmbedderPolicy: false,
+}));
 const allowedOrigins = (process.env.CLIENT_URL || '*').split(',').map(s => s.trim()).filter(Boolean);
 app.use(cors({
   origin: function (origin, cb) {
