@@ -69,6 +69,7 @@ export const orderService = {
   exportCSV: () => api.get('/orders/export/csv', { responseType: 'blob' }),
   remove:     (id) => api.delete(`/orders/${id}`),
   cleanupTest: () => api.delete('/orders/cleanup/test'),
+  removeAll:   () => api.delete('/orders/all'),
 };
 
 // ── System ─────────────────────────────────────────────────────────────────

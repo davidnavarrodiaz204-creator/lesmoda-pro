@@ -4,14 +4,15 @@ import { useConfig } from '../hooks/useConfig';
 export function applyConfigStyles(cfg = {}) {
   try {
     const root = document.documentElement;
-    const primary = cfg.primaryColor || '#5B7CFA';
-    const secondary = cfg.secondaryColor || '#111827';
-    const bg = cfg.bgColor || '#F6F7FB';
-    const surface = cfg.surfaceColor || '#FFFFFF';
+    const normalized = normalizeLegacyTheme(cfg || {});
+    const primary = normalized.primaryColor || '#111827';
+    const secondary = normalized.secondaryColor || '#0F172A';
+    const bg = normalized.bgColor || '#F6F7FB';
+    const surface = normalized.surfaceColor || '#FFFFFF';
     const visual = cfg.visualMode || 'claro-premium';
-    const text = cfg.textColor || (visual && visual.includes('oscuro') ? '#F8FAFC' : '#111827');
-    const muted = cfg.mutedColor || '#6B7280';
-    const border = cfg.borderColor || '#E5E7EB';
+    const text = normalized.textColor || (visual && visual.includes('oscuro') ? '#F8FAFC' : '#111827');
+    const muted = normalized.mutedColor || '#6B7280';
+    const border = normalized.borderColor || '#E5E7EB';
 
     root.style.setProperty('--lm-primary', primary);
     root.style.setProperty('--lm-primary-rgb', toRgb(primary));
@@ -38,6 +39,26 @@ export function applyConfigStyles(cfg = {}) {
   }
 }
 
+function normalizeLegacyTheme(cfg) {
+  const legacy = new Set(['#b8941e', '#d4af37', '#c9a86a', '#c8a165', '#d2b48c', '#f5f5dc', '#beige']);
+  const isLegacy = (v) => {
+    if (!v || typeof v !== 'string') return false;
+    const c = v.trim().toLowerCase();
+    return legacy.has(c);
+  };
+  if (!isLegacy(cfg.primaryColor) && !isLegacy(cfg.secondaryColor) && !isLegacy(cfg.bgColor)) return cfg;
+  return {
+    ...cfg,
+    primaryColor: '#111827',
+    secondaryColor: '#0F172A',
+    bgColor: '#F6F7FB',
+    surfaceColor: cfg.surfaceColor || '#FFFFFF',
+    textColor: '#111827',
+    mutedColor: '#6B7280',
+    borderColor: '#E5E7EB',
+  };
+}
+
 function getContrastColor(hex) {
   if (!hex) return '#111827';
   const c = hex.replace('#','');
@@ -49,7 +70,7 @@ function getContrastColor(hex) {
 }
 
 function toRgb(hex) {
-  if (!hex) return '91,124,250';
+  if (!hex) return '17,24,39';
   const c = hex.replace('#','');
   const r = parseInt(c.substring(0,2),16);
   const g = parseInt(c.substring(2,4),16);

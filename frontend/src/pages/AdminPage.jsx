@@ -541,6 +541,7 @@ function ProductSection({ onEdit, onAdd }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+
   const [catFilter, setCatFilter] = useState('Todas');
   const [featuredOnly, setFeaturedOnly] = useState(false);
   const [lowStockOnly, setLowStockOnly] = useState(false);
@@ -735,6 +736,20 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [search, setSearch] = useState('');
+  const handleDeleteAllOrders = async () => {
+    if (!confirm('¿Eliminar TODOS los pedidos? Esta acción no se puede deshacer.')) return;
+    if (!confirm('Confirmación final: se eliminarán todos los pedidos.')) return;
+    try {
+      const { data } = await orderService.removeAll();
+      toast.success(data?.message || 'Pedidos eliminados');
+      setOrders([]);
+      if (onUnviewedChange) onUnviewedChange(0);
+      fetchOrders();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'No se pudieron eliminar todos los pedidos');
+    }
+  };
+
   const [detail, setDetail] = useState(null);
   const [quickFilter, setQuickFilter] = useState('');
   const num = waNumber?.replace(/\D/g, '');
@@ -783,6 +798,9 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
     <div style={s.card}>
       <div style={s.cardHeader}>
         <h3 style={s.cardTitle}>Pedidos ({orders.length})</h3>
+        <button style={{...s.btnDel, padding:'0.45rem 0.8rem'}} onClick={handleDeleteAllOrders}>
+          Eliminar todos los pedidos
+        </button>
       </div>
 
       <div style={{
@@ -999,6 +1017,9 @@ function UserSection() {
   const handleCreate = async () => {
     if (!form.name || !form.email || !form.password)
       return setMsg({ ok:false, text:'Nombre, email y contraseña son requeridos' });
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+    if (!emailOk) return setMsg({ ok:false, text:'Email inválido' });
+    if (!['admin', 'editor'].includes(form.role)) return setMsg({ ok:false, text:'Rol inválido' });
     setSaving(true);
     setMsg(null);
     try {
@@ -1024,7 +1045,7 @@ function UserSection() {
           color: msg.ok ? 'var(--lm-success)' : 'var(--lm-danger)',
         }}>{msg.text}</div>
       )}
-      <div style={s.configRow}>
+      <div style={{...s.configRow, alignItems:'stretch'}}>
         <div style={s.formGroup}>
           <label style={s.label}>Nombre</label>
           <input style={s.input} placeholder="Nombre completo"
@@ -1047,7 +1068,7 @@ function UserSection() {
             <option value="editor">Editor</option>
           </select>
         </div>
-        <button style={s.btnSave} onClick={handleCreate} disabled={saving}>
+        <button style={{...s.btnSave, width:'100%', maxWidth:240}} onClick={handleCreate} disabled={saving}>
           {saving ? 'Creando…' : <><PlusCircleIcon size={14} /> Crear usuario</>}
         </button>
       </div>
@@ -1240,10 +1261,11 @@ function AnalyticsDashboard() {
 
 // ── CONFIGURACION (CENTRO DE OPERACION) ──────────────────────────────────
 function ConfigSection() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
   const [form, setForm] = useState({
     storeName: '', storeSlogan: '', storeDescription: '',
     waNumber: '', facebook: '', instagram: '', tiktok: '', address: '', hours: '',
-    logo: '', banner: '',     primaryColor: '#5B7CFA', secondaryColor: '#111827', bgColor: '#F6F7FB', surfaceColor: '#FFFFFF', textColor: '#111827', mutedColor: '#6B7280', borderColor: '#E5E7EB', visualMode: 'claro-premium',
+    logo: '', banner: '',     primaryColor: '#111827', secondaryColor: '#0F172A', bgColor: '#F6F7FB', surfaceColor: '#FFFFFF', textColor: '#111827', mutedColor: '#6B7280', borderColor: '#E5E7EB', visualMode: 'claro-premium',
     freeShippingText: '', freeShippingMin: '', waMessage: '',
     promoBannerEnabled: false, featuredProductsEnabled: false, stockVisible: false,
     newOrderSound: true, pollInterval: '30', showOutOfStock: true,
@@ -1257,14 +1279,19 @@ function ConfigSection() {
   const bannerRef = useRef();
   const [logoPreview, setLogoPreview] = useState('');
   const [bannerPreview, setBannerPreview] = useState('');
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const boolKeys = ['promoBannerEnabled','featuredProductsEnabled','stockVisible','newOrderSound','showOutOfStock','relatedProductsEnabled','shareProductEnabled','indexable'];
 
   const THEME_PRESETS = [
     {
-      label: 'Blanco premium',
+      label: 'Moderno limpio',
       values: {
-        primaryColor: '#1A1A1A', secondaryColor: '#111827', bgColor: '#F8F9FA', surfaceColor: '#FFFFFF', textColor: '#111827', mutedColor: '#6B7280', borderColor: '#E8EAED',
+        primaryColor: '#111827', secondaryColor: '#0F172A', bgColor: '#F6F7FB', surfaceColor: '#FFFFFF', textColor: '#111827', mutedColor: '#6B7280', borderColor: '#E5E7EB',
       },
     },
     {
@@ -1282,6 +1309,18 @@ function ConfigSection() {
   ];
 
   const applyThemePreset = (preset) => setForm(f => ({ ...f, ...preset }));
+  const resetModernTheme = () => setForm(f => ({
+    ...f,
+    primaryColor: '#111827',
+    secondaryColor: '#0F172A',
+    bgColor: '#F6F7FB',
+    surfaceColor: '#FFFFFF',
+    textColor: '#111827',
+    mutedColor: '#6B7280',
+    borderColor: '#E5E7EB',
+    visualMode: 'claro-premium',
+  }));
+
 
   useEffect(() => {
     configService.get().then(({data}) => {
@@ -1489,7 +1528,7 @@ function ConfigSection() {
     <div style={{display:'flex',flexDirection:'column',gap:'1.5rem'}}>
       {/* Tab buttons */}
       <div style={{
-        display:'flex', gap:'0.2rem', flexWrap:'wrap',
+        display:'flex', gap:'0.2rem', flexWrap:'nowrap', overflowX:'auto',
         background:'var(--lm-surface)', borderRadius:10, padding:'0.4rem',
         boxShadow:'0 1px 2px rgba(0,0,0,0.03)',
       }}>
@@ -1507,7 +1546,7 @@ function ConfigSection() {
         {activeTab === 'general' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
             <h3 style={{fontSize:'0.85rem',fontWeight:600,color:'var(--lm-text)',marginBottom:'0.35rem'}}>Informacion general</h3>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : '1fr 1fr',gap:'1rem'}}>
               <Field label="Nombre de la tienda">
                 <input style={s.input} value={form.storeName || ''} onChange={e => set('storeName', e.target.value)} />
               </Field>
@@ -1518,7 +1557,7 @@ function ConfigSection() {
             <Field label="Descripcion">
               <textarea style={{...s.input, minHeight:70, resize:'vertical'}} value={form.storeDescription || ''} onChange={e => set('storeDescription', e.target.value)} />
             </Field>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : '1fr 1fr',gap:'1rem'}}>
               <Field label="Direccion">
                 <input style={s.input} placeholder="Direccion de la tienda" value={form.address || ''} onChange={e => set('address', e.target.value)} />
               </Field>
@@ -1550,7 +1589,7 @@ function ConfigSection() {
         {activeTab === 'social' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
             <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Redes sociales y contacto</h3>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : '1fr 1fr',gap:'1rem'}}>
               <Field label="Facebook">
                 <input style={s.input} placeholder="URL de Facebook" value={form.facebook || ''} onChange={e => set('facebook', e.target.value)} />
               </Field>
@@ -1567,7 +1606,7 @@ function ConfigSection() {
         {activeTab === 'whatsapp' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
             <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>WhatsApp</h3>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : '1fr 1fr',gap:'1rem'}}>
               <Field label="WhatsApp (9 digitos)">
                 <input style={{...s.input, borderColor: waError ? 'var(--lm-danger)' : undefined}} placeholder="987654321" maxLength={9}
                   value={(form.waNumber || '').replace(/\D/g, '')}
@@ -1584,7 +1623,7 @@ function ConfigSection() {
         {activeTab === 'marketing' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
             <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Marketing</h3>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : '1fr 1fr',gap:'1rem'}}>
               <Field label="Texto envio gratis">
                 <input style={s.input} value={form.freeShippingText || ''} onChange={e => set('freeShippingText', e.target.value)} />
               </Field>
@@ -1705,7 +1744,7 @@ function ConfigSection() {
         {activeTab === 'seo' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
             <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>SEO y posicionamiento</h3>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : '1fr 1fr',gap:'1rem'}}>
               <Field label="Site Title (para buscadores)">
                 <input style={s.input} value={form.siteTitle || ''} onChange={e => set('siteTitle', e.target.value)} placeholder="LeisModa — Moda que te define" />
               </Field>
@@ -1716,7 +1755,7 @@ function ConfigSection() {
             <Field label="Keywords (separadas por coma)">
               <input style={s.input} value={form.keywords || ''} onChange={e => set('keywords', e.target.value)} placeholder="ropa, moda, Paita, vestidos, mujer, hombre, accesorios" />
             </Field>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : '1fr 1fr',gap:'1rem'}}>
               <Field label="OG Image URL">
                 <input style={s.input} value={form.ogImage || ''} onChange={e => set('ogImage', e.target.value)} placeholder="https://..." />
               </Field>
@@ -1745,7 +1784,7 @@ function ConfigSection() {
         {activeTab === 'appearance' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
             <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Apariencia</h3>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(100px,1fr))',gap:'0.75rem'}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : 'repeat(4,minmax(100px,1fr))',gap:'0.75rem'}}>
               <Field label="Color primario">
                 <input type="color" style={{...s.input, padding:'0.15rem', minWidth:50, width:50, height:34, cursor:'pointer'}} value={form.primaryColor} onChange={e => set('primaryColor', e.target.value)} />
               </Field>
@@ -1759,7 +1798,7 @@ function ConfigSection() {
                 <input type="color" style={{...s.input, padding:'0.15rem', minWidth:50, width:50, height:34, cursor:'pointer'}} value={form.surfaceColor} onChange={e => set('surfaceColor', e.target.value)} />
               </Field>
             </div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(100px,1fr))',gap:'0.75rem'}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile ? '1fr' : 'repeat(4,minmax(100px,1fr))',gap:'0.75rem'}}>
               <Field label="Color texto">
                 <input type="color" style={{...s.input, padding:'0.15rem', minWidth:50, width:50, height:34, cursor:'pointer'}} value={form.textColor} onChange={e => set('textColor', e.target.value)} />
               </Field>
@@ -1778,6 +1817,7 @@ function ConfigSection() {
               </Field>
             </div>
             <div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem',marginTop:'0.35rem'}}>
+              <button type="button" onClick={resetModernTheme} style={{padding:'0.45rem 0.8rem', borderRadius:6, border:'1px solid var(--lm-border)', background:'var(--lm-secondary)', color:'white', cursor:'pointer', fontWeight:600, fontSize:'0.78rem'}}>Restablecer tema moderno</button>
               {THEME_PRESETS.map((preset) => (
                 <button key={preset.label} type="button" onClick={() => applyThemePreset(preset.values)}
                   style={{padding:'0.45rem 0.8rem', borderRadius:6, border:'1px solid var(--lm-border)', background:'var(--lm-surface)', color:'var(--lm-text)', cursor:'pointer', fontWeight:500, fontSize:'0.78rem'}}>
@@ -1808,7 +1848,7 @@ function ConfigSection() {
       </div>
 
       {/* Save button */}
-      <div className="config-save-bar" style={{ display:'flex', justifyContent:'flex-end' }}>
+      <div className="config-save-bar" style={{ display:'flex', justifyContent:'flex-end', position:'sticky', bottom:'64px', background:'var(--lm-bg)', paddingTop:'0.75rem', zIndex:20 }}>
         <button style={{...s.btnSave, padding:'0.65rem 1.5rem', fontSize:'0.88rem'}} onClick={handleSave} disabled={saving}>
           {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar configuracion</>}
         </button>
@@ -2288,7 +2328,7 @@ const s = {
 
   formGroup:     { display:'flex', flexDirection:'column', gap:'0.35rem' },
   label:         { fontSize:'0.65rem', fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase', color:'var(--lm-muted)' },
-  input:         { border:'1.5px solid var(--lm-border)', borderRadius:6, padding:'0.5rem 0.75rem', fontFamily:'var(--font-sans)', fontSize:'0.85rem', outline:'none', background:'var(--lm-surface)', minWidth:140, color:'var(--lm-text)' },
+  input:         { border:'1.5px solid var(--lm-border)', borderRadius:6, padding:'0.5rem 0.75rem', fontFamily:'var(--font-sans)', fontSize:'0.85rem', outline:'none', background:'var(--lm-surface)', minWidth:0, width:'100%', color:'var(--lm-text)' },
 
   quickActions: { display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(140px, 1fr))', gap:'0.75rem' },
   quickBtn: { display:'flex', flexDirection:'column', alignItems:'center', gap:'0.3rem', padding:'0.85rem 0.65rem', border:'1px solid var(--lm-border)', borderRadius:8, background:'var(--lm-surface)', cursor:'pointer', fontFamily:'inherit', fontSize:'0.72rem', fontWeight:500, color:'var(--lm-text)', transition:'all .15s' },
