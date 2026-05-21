@@ -432,7 +432,7 @@ function SearchEmpty() {
 
     filters:         { padding:'0.75rem 1.25rem 0', display:'flex', flexWrap:'wrap', gap:'0.4rem', alignItems:'center', maxWidth:1200, margin:'0 auto', position:'sticky', top:68, background:'var(--lm-bg)', zIndex:50, borderBottom:'1px solid var(--lm-border)' },
     filterLabel:     { fontSize:'0.65rem', letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--lm-muted)', fontWeight:500 },
-    chip:            { background:'none', border:'1.5px solid var(--lm-border)', color:'var(--lm-muted)', fontFamily:'var(--font-sans)', fontSize:'0.78rem', padding:'0.3rem 0.85rem', borderRadius:999, cursor:'pointer', transition:'all 0.2s' },
+    chip:            { background:'transparent', border:'1.5px solid var(--lm-border)', color:'var(--lm-muted)', fontFamily:'var(--font-sans)', fontSize:'0.78rem', padding:'0.35rem 0.9rem', borderRadius:999, cursor:'pointer', transition:'all 0.2s' },
     chipActive:      { background:'var(--lm-primary)', borderColor:'var(--lm-primary)', color:'white', fontWeight:600 },
 
     resultsBar:      { display:'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem', padding:'0.65rem 1.25rem 0', maxWidth:1200, margin:'0 auto', color:'var(--lm-text)' },
@@ -441,7 +441,7 @@ function SearchEmpty() {
 
     grid:            { padding:'1.25rem 1.25rem 5rem', maxWidth:1200, margin:'0 auto' },
     sectionTitle:    { fontFamily:'var(--font-display)', fontSize:'1.1rem', fontWeight:600, color:'var(--lm-text)', marginBottom:'1rem', borderBottom:'1px solid var(--lm-border)', paddingBottom:'0.5rem' },
-    productGrid:     { display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:'1rem' },
+    productGrid:     { display:'grid', gap:'1rem' },
     center:          { textAlign:'center', padding:'3rem', color:'var(--lm-muted)' },
   };
 

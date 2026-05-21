@@ -1457,29 +1457,29 @@ function ConfigSection() {
 
   const ThemePreview = () => (
     <div style={{
-      display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem', marginBottom:'1.5rem',
-      background:'var(--lm-surface)', padding:'1rem', borderRadius:14, border:'1px solid var(--lm-border)',
+      display:'flex', alignItems:'center', gap:'1.25rem', marginBottom:'1.5rem',
+      background:'var(--lm-surface)', padding:'1rem 1.25rem', borderRadius:14, border:'1px solid var(--lm-border)',
     }}>
-      <div style={{ display:'flex', flexDirection:'column', gap:'0.6rem' }}>
-        <div style={{ fontSize:'0.95rem', color:'var(--lm-muted)', fontWeight:700 }}>Previsualizacion de tienda</div>
-        <div style={{ fontFamily:'serif', fontSize:'1.4rem', color:'var(--lm-secondary)', lineHeight:1.1 }}>
-          {form.storeName || 'Mi tienda editable'}
+      <div style={{ flex:1, display:'flex', flexDirection:'column', gap:'0.35rem', minWidth:0 }}>
+        <div style={{ fontSize:'0.7rem', color:'var(--lm-muted)', fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase' }}>Previsualizacion</div>
+        <div style={{ fontFamily:'var(--font-display)', fontSize:'1.15rem', color:'var(--lm-text)', lineHeight:1.15, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+          {form.storeName || 'Mi tienda'}
         </div>
-        <div style={{ fontSize:'0.95rem', color:'var(--lm-text)' }}>{form.storeSlogan || 'Tu eslogan premium aqui'}</div>
-        <div style={{ display:'flex', gap:'0.65rem', flexWrap:'wrap', marginTop:'0.8rem' }}>
-          <button style={{ background:'var(--lm-primary)', color:'var(--lm-primary-contrast)', border:'none', borderRadius:10, padding:'0.65rem 1rem', fontWeight:700, cursor:'pointer' }}>
+        <div style={{ fontSize:'0.82rem', color:'var(--lm-muted)' }}>{form.storeSlogan || 'Eslogan'}</div>
+        <div style={{ display:'flex', gap:'0.5rem', flexWrap:'wrap', marginTop:'0.35rem' }}>
+          <button style={{ background:'var(--lm-primary)', color:'white', border:'none', borderRadius:8, padding:'0.4rem 0.85rem', fontWeight:600, fontSize:'0.75rem', cursor:'pointer' }}>
             {form.ctaText || 'Ver coleccion'}
           </button>
-          <button style={{ background:'transparent', color:'var(--lm-primary)', border:'1px solid var(--lm-primary)', borderRadius:10, padding:'0.65rem 1rem', cursor:'pointer' }}>
+          <button style={{ background:'transparent', color:'var(--lm-primary)', border:'1px solid var(--lm-primary)', borderRadius:8, padding:'0.4rem 0.85rem', fontSize:'0.75rem', cursor:'pointer', fontWeight:500 }}>
             WhatsApp
           </button>
         </div>
       </div>
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:120, background:'var(--lm-bg-alt)', borderRadius:14 }}>
+      <div style={{ width:120, height:72, flexShrink:0, borderRadius:10, overflow:'hidden', background:'var(--lm-bg-alt)' }}>
         {bannerPreview || form.banner ? (
-          <img src={bannerPreview || form.banner} alt="Banner preview" style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:14 }} />
+          <img src={bannerPreview || form.banner} alt="Banner preview" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
         ) : (
-          <div style={{ padding:'1rem', textAlign:'center', color:'var(--lm-muted)' }}>Vista previa del banner</div>
+          <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.6rem', color:'var(--lm-muted)', opacity:.6 }}>Banner</div>
         )}
       </div>
     </div>
@@ -1808,9 +1808,11 @@ function ConfigSection() {
       </div>
 
       {/* Save button */}
-      <button style={{...s.btnSave, alignSelf:'flex-end', padding:'0.65rem 1.5rem', fontSize:'0.88rem'}} onClick={handleSave} disabled={saving}>
-        {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar configuracion</>}
-      </button>
+      <div className="config-save-bar" style={{ display:'flex', justifyContent:'flex-end' }}>
+        <button style={{...s.btnSave, padding:'0.65rem 1.5rem', fontSize:'0.88rem'}} onClick={handleSave} disabled={saving}>
+          {saving ? 'Guardando…' : <><SaveIcon size={14} /> Guardar configuracion</>}
+        </button>
+      </div>
     </div>
   );
 }
@@ -2242,23 +2244,23 @@ function Field({ label, children }) {
 // ── ESTILOS ────────────────────────────────────────────────────────────────
 const s = {
   page:          { display:'flex', minHeight:'100vh', background:'var(--lm-bg)', fontFamily:'var(--font-sans)' },
-  sidebar:       { width:220, background:'var(--lm-secondary)', display:'flex', flexDirection:'column', padding:'1.5rem 1rem', position:'sticky', top:0, height:'100vh', flexShrink:0 },
+  sidebar:       { width:220, background:'#0F172A', display:'flex', flexDirection:'column', padding:'1.5rem 1rem', position:'sticky', top:0, height:'100vh', flexShrink:0 },
   sidebarLogo:   { fontFamily:'var(--font-display)', fontSize:'1.4rem', color:'white', letterSpacing:'0.02em', marginBottom:'2rem' },
   sidebarNav:    { display:'flex', flexDirection:'column', gap:'0.25rem', flex:1 },
-  sideLink:      { color:'rgba(255,255,255,.6)', padding:'0.6rem 0.75rem', borderRadius:6, cursor:'pointer', fontSize:'0.85rem', fontWeight:500, display:'flex', alignItems:'center', gap:'0.5rem' },
-  sideLinkActive:{ background:'rgba(255,255,255,.08)', color:'white' },
-  sideUser:      { color:'rgba(255,255,255,.4)', fontSize:'0.75rem', paddingTop:'1rem', borderTop:'1px solid rgba(255,255,255,.08)' },
+  sideLink:      { color:'rgba(255,255,255,.55)', padding:'0.6rem 0.75rem', borderRadius:6, cursor:'pointer', fontSize:'0.85rem', fontWeight:500, display:'flex', alignItems:'center', gap:'0.5rem', transition:'all .15s' },
+  sideLinkActive:{ background:'rgba(91,124,250,.15)', color:'#93B0FF' },
+  sideUser:      { color:'rgba(255,255,255,.35)', fontSize:'0.75rem', paddingTop:'1rem', borderTop:'1px solid rgba(255,255,255,.07)' },
 
   main:          { flex:1, padding:'1.5rem', display:'flex', flexDirection:'column', gap:'1.5rem', overflowY:'auto', minWidth:0 },
 
-  mobileHeader:  { display:'none', alignItems:'center', justifyContent:'space-between', background:'var(--lm-secondary)', padding:'0.75rem 1rem', borderRadius:8, marginBottom:'0.25rem' },
+  mobileHeader:  { display:'none', alignItems:'center', justifyContent:'space-between', background:'#0F172A', padding:'0.75rem 1rem', borderRadius:8, marginBottom:'0.25rem' },
   mobileLogo:    { fontFamily:'var(--font-display)', fontSize:'1.2rem', color:'white' },
   hamburger:     { display:'flex', flexDirection:'column', gap:3, background:'none', border:'none', cursor:'pointer', padding:'0.3rem' },
   bar:           { width:20, height:2, background:'white', borderRadius:2, display:'block' },
 
-  mobileMenu:    { background:'var(--lm-secondary)', borderRadius:8, padding:'0.5rem', marginBottom:'0.5rem', display:'flex', flexDirection:'column' },
-  mobileMenuItem:{ color:'rgba(255,255,255,.6)', padding:'0.65rem 1rem', fontSize:'0.88rem', cursor:'pointer', borderRadius:6, display:'flex', alignItems:'center', gap:'0.5rem' },
-  mobileMenuActive:{ color:'white', background:'rgba(255,255,255,.08)' },
+  mobileMenu:    { background:'#0F172A', borderRadius:8, padding:'0.5rem', marginBottom:'0.5rem', display:'flex', flexDirection:'column' },
+  mobileMenuItem:{ color:'rgba(255,255,255,.55)', padding:'0.65rem 1rem', fontSize:'0.88rem', cursor:'pointer', borderRadius:6, display:'flex', alignItems:'center', gap:'0.5rem' },
+  mobileMenuActive:{ background:'rgba(91,124,250,.15)', color:'#93B0FF' },
 
   card:          { background:'var(--lm-surface)', borderRadius:8, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)' },
   configCard:    { background:'var(--lm-surface)', borderRadius:8, padding:'1.5rem', boxShadow:'0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)' },
