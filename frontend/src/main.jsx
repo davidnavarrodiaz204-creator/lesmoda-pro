@@ -17,6 +17,7 @@ style.textContent = `
     --lm-bg-alt: #F5F1EB;
     --lm-hero-bg: #1A1612;
     --lm-hero-cta: #C9A96E;
+    --lm-hero-title: #FAF7F2;
     --lm-hero-cta-text: #1A1612;
     --lm-primary-contrast: #1A1612;
   }
@@ -101,7 +102,7 @@ style.textContent = `
   .hero-logo-wrap { margin-bottom:1.25rem; display:flex; justify-content:center; }
   .hero-logo { max-height:72px; width:auto; object-fit:contain; }
   .hero-title { font-family:'Playfair Display',serif; font-size:clamp(1.8rem,4.5vw,3.6rem);
-    font-weight:700; color:#FAF7F2; line-height:1.1; padding-bottom:.65rem; }
+    font-weight:700; color:var(--lm-hero-title); line-height:1.1; padding-bottom:.65rem; }
   .hero-gold { color:var(--lm-primary); }
   .hero-subtitle { font-size:clamp(.85rem,1.3vw,1.05rem); color:var(--lm-muted); line-height:1.5;
     padding-bottom:1.25rem; font-weight:300; }
@@ -114,8 +115,8 @@ style.textContent = `
   .hero-btn-secondary { background:transparent; color:var(--lm-primary); border:1.5px solid rgba(201,169,110,.35); }
   .hero-btn-secondary:hover { border-color:var(--lm-primary); background:rgba(201,169,110,.08); }
   .hero-trust-banner { display:inline-flex;align-items:center; gap:.45rem;
-    background:rgba(255,255,255,.06); color:#B0A899; padding:.45rem .8rem; border-radius:8px;
-    font-size:.72rem; margin-bottom:.75rem; border:1px solid rgba(255,255,255,.08); }
+    background:rgba(255,255,255,.08); color:var(--lm-muted); padding:.45rem .8rem; border-radius:8px;
+    font-size:.72rem; margin-bottom:.75rem; border:1px solid rgba(255,255,255,.12); }
   .hero-trust-badges { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
   .hero-trust-badge { display:inline-flex; align-items:center; gap:.35rem;
     font-size:.68rem; color:#8A7968; background:rgba(255,255,255,.04);
@@ -125,7 +126,7 @@ style.textContent = `
   .hero-social-link { display:inline-flex;align-items:center;justify-content:center;
     width:32px; height:32px; border-radius:50%; color:#8A7968; transition:all .2s;
     background:rgba(255,255,255,.04); }
-  .hero-social-link:hover { color:#C9A96E; background:rgba(201,169,110,.1); }
+  .hero-social-link:hover { color:var(--lm-primary); background:rgba(201,169,110,.1); }
   .hero-share { margin-top:.75rem; }
   .cta-trust { margin-bottom:.75rem; background:rgba(255,255,255,.06); color:#B0A899;
     border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:.45rem .8rem;

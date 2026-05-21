@@ -1247,7 +1247,7 @@ function ConfigSection() {
   const [form, setForm] = useState({
     storeName: '', storeSlogan: '', storeDescription: '',
     waNumber: '', facebook: '', instagram: '', tiktok: '', address: '', hours: '',
-    logo: '', banner: '', primaryColor: '#C9A96E', secondaryColor: '#1A1612', bgColor: '#FAF7F2', visualMode: 'claro-premium',
+    logo: '', banner: '', primaryColor: '#C9A96E', secondaryColor: '#1A1612', bgColor: '#FAF7F2', surfaceColor: '#FFFFFF', textColor: '#1A1612', mutedColor: '#8A7968', borderColor: '#E0D8CE', visualMode: 'claro-premium',
     freeShippingText: '', freeShippingMin: '', waMessage: '',
     promoBannerEnabled: false, featuredProductsEnabled: false, stockVisible: false,
     newOrderSound: true, pollInterval: '30', showOutOfStock: true,
@@ -1263,6 +1263,29 @@ function ConfigSection() {
   const [bannerPreview, setBannerPreview] = useState('');
 
   const boolKeys = ['promoBannerEnabled','featuredProductsEnabled','stockVisible','newOrderSound','showOutOfStock','relatedProductsEnabled','shareProductEnabled','indexable'];
+
+  const THEME_PRESETS = [
+    {
+      label: 'Premium elegante',
+      values: {
+        primaryColor: '#C9A96E', secondaryColor: '#1A1612', bgColor: '#FAF7F2', surfaceColor: '#FFFFFF', textColor: '#1A1612', mutedColor: '#8A7968', borderColor: '#E0D8CE',
+      },
+    },
+    {
+      label: 'Nocturno moderno',
+      values: {
+        primaryColor: '#F2C94C', secondaryColor: '#0F1720', bgColor: '#0B1220', surfaceColor: '#111827', textColor: '#F8FAFC', mutedColor: '#94A3B8', borderColor: '#334155',
+      },
+    },
+    {
+      label: 'Beige minimal',
+      values: {
+        primaryColor: '#9B7E60', secondaryColor: '#26201B', bgColor: '#F7F1E8', surfaceColor: '#FFFFFF', textColor: '#1F1A16', mutedColor: '#7D6D62', borderColor: '#DDD3C7',
+      },
+    },
+  ];
+
+  const applyThemePreset = (preset) => setForm(f => ({ ...f, ...preset }));
 
   useEffect(() => {
     configService.get().then(({data}) => {
@@ -1726,7 +1749,7 @@ function ConfigSection() {
         {activeTab === 'appearance' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
             <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Apariencia</h3>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'1rem'}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(120px,1fr))',gap:'1rem'}}>
               <Field label="Color primario">
                 <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.primaryColor} onChange={e => set('primaryColor', e.target.value)} />
               </Field>
@@ -1736,14 +1759,36 @@ function ConfigSection() {
               <Field label="Color de fondo">
                 <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.bgColor} onChange={e => set('bgColor', e.target.value)} />
               </Field>
+              <Field label="Color de superficie">
+                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.surfaceColor} onChange={e => set('surfaceColor', e.target.value)} />
+              </Field>
             </div>
-            <Field label="Modo visual">
-              <select style={{...s.input, maxWidth:300}} value={form.visualMode} onChange={e => set('visualMode', e.target.value)}>
-                <option value="claro-premium">Claro Premium</option>
-                <option value="oscuro-premium">Oscuro Premium</option>
-                <option value="blanco-azul-premium">Blanco Azul Premium</option>
-              </select>
-            </Field>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(120px,1fr))',gap:'1rem'}}>
+              <Field label="Color de texto">
+                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.textColor} onChange={e => set('textColor', e.target.value)} />
+              </Field>
+              <Field label="Color tenue">
+                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.mutedColor} onChange={e => set('mutedColor', e.target.value)} />
+              </Field>
+              <Field label="Color de borde">
+                <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.borderColor} onChange={e => set('borderColor', e.target.value)} />
+              </Field>
+              <Field label="Modo visual">
+                <select style={{...s.input, maxWidth:300}} value={form.visualMode} onChange={e => set('visualMode', e.target.value)}>
+                  <option value="claro-premium">Claro Premium</option>
+                  <option value="oscuro-premium">Oscuro Premium</option>
+                  <option value="blanco-azul-premium">Blanco Azul Premium</option>
+                </select>
+              </Field>
+            </div>
+            <div style={{display:'flex',flexWrap:'wrap',gap:'0.75rem',marginTop:'0.5rem'}}>
+              {THEME_PRESETS.map((preset) => (
+                <button key={preset.label} type="button" onClick={() => applyThemePreset(preset.values)}
+                  style={{padding:'0.7rem 1rem', borderRadius:10, border:'1px solid var(--lm-border)', background:'var(--lm-surface)', color:'var(--lm-text)', cursor:'pointer', fontWeight:600}}>
+                  {preset.label}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

@@ -79,6 +79,19 @@ export default function StorePage() {
     );
   }, [visibleProducts, debouncedSearch]);
 
+  const activeFilterLabel = activeTab === 'Todos'
+    ? 'Todos'
+    : BADGES.find(b => b.value === activeTab)?.label || activeTab;
+
+  const filteredCount = searchedProducts.length;
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setDebouncedSearch('');
+    setActiveTab('Todos');
+    setFilter({});
+  };
+
   const featuredProducts = useMemo(() => visibleProducts.filter(p => p.featured).slice(0, 4), [visibleProducts]);
   const newProducts = useMemo(() => visibleProducts.filter(p => p.badge === 'new').slice(0, 4), [visibleProducts]);
   const saleProducts = useMemo(() => visibleProducts.filter(p => p.badge === 'sale').slice(0, 4), [visibleProducts]);
@@ -91,18 +104,15 @@ export default function StorePage() {
   const handleFilter = (type, value) => {
     if (value === 'Todos') {
       setActiveTab('Todos');
-      return setFilter({});
+      setFilter({});
+      return;
     }
     setActiveTab(value);
     setMenuOpen(false);
-    setFilter(prev => {
-      const next = { ...prev };
-      if (type === 'badge') {
-        next.badge = value;
-      } else if (type === 'category') {
-        next.category = value;
-      }
-      return next;
+    setFilter(() => {
+      if (type === 'badge') return { badge: value };
+      if (type === 'category') return { category: value };
+      return {};
     });
   };
 
@@ -316,6 +326,17 @@ export default function StorePage() {
         ))}
       </section>
 
+      <div style={s.resultsBar}>
+        <div style={s.resultsInfo}>
+          <strong>{filteredCount}</strong> producto{filteredCount === 1 ? '' : 's'}
+          {activeTab !== 'Todos' && ` • ${activeFilterLabel}`}
+          {debouncedSearch.trim() && ` • "${debouncedSearch.trim()}"`}
+        </div>
+        {(activeTab !== 'Todos' || debouncedSearch.trim()) && (
+          <button type="button" style={s.clearFilters} onClick={handleClearFilters}>Limpiar filtros</button>
+        )}
+      </div>
+
       <section id="products" className="lm-grid-section" style={s.grid}>
         <h2 style={s.sectionTitle}>
           {activeTab === 'Todos'
@@ -409,14 +430,18 @@ function SearchEmpty() {
     searchInput:     { flex:1, border:'none', outline:'none', background:'transparent', fontSize:'0.92rem', color:'#1A1612', fontFamily:'inherit', padding:'0.3rem 0' },
     searchClear:     { background:'none', border:'none', cursor:'pointer', color:'#8A7968', padding:'0.2rem', display:'flex', transition:'color .2s' },
 
-    filters:         { padding:'1rem 1.25rem 0', display:'flex', flexWrap:'wrap', gap:'0.5rem', alignItems:'center', maxWidth:1200, margin:'0 auto' },
-    filterLabel:     { fontSize:'0.7rem', letterSpacing:'0.14em', textTransform:'uppercase', color:'#8A7968', fontWeight:500 },
-    chip:            { background:'none', border:'1.5px solid #E8D5B0', color:'#8A7968', fontFamily:'sans-serif', fontSize:'0.8rem', padding:'0.35rem 0.9rem', borderRadius:999, cursor:'pointer', transition:'all 0.2s' },
-    chipActive:      { background:'#C9A96E', borderColor:'#C9A96E', color:'#1A1612', fontWeight:600 },
+    filters:         { padding:'1rem 1.25rem 0', display:'flex', flexWrap:'wrap', gap:'0.5rem', alignItems:'center', maxWidth:1200, margin:'0 auto', position:'sticky', top:72, background:'var(--lm-bg)', zIndex:50, borderBottom:'1px solid var(--lm-border)' },
+    filterLabel:     { fontSize:'0.7rem', letterSpacing:'0.14em', textTransform:'uppercase', color:'var(--lm-muted)', fontWeight:500 },
+    chip:            { background:'none', border:'1.5px solid var(--lm-border)', color:'var(--lm-muted)', fontFamily:'sans-serif', fontSize:'0.8rem', padding:'0.35rem 0.9rem', borderRadius:999, cursor:'pointer', transition:'all 0.2s' },
+    chipActive:      { background:'var(--lm-primary)', borderColor:'var(--lm-primary)', color:'var(--lm-secondary)', fontWeight:600 },
+
+    resultsBar:      { display:'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem', padding:'0.8rem 1.25rem 0', maxWidth:1200, margin:'0 auto', color:'var(--lm-text)' },
+    resultsInfo:     { fontSize:'0.9rem', color:'var(--lm-muted)' },
+    clearFilters:    { background:'transparent', border:'1px solid var(--lm-border)', color:'var(--lm-text)', borderRadius:999, padding:'0.55rem 0.95rem', cursor:'pointer' },
 
     grid:            { padding:'1.5rem 1.25rem 6rem', maxWidth:1200, margin:'0 auto' },
-    sectionTitle:    { fontFamily:'serif', fontSize:'1.15rem', fontStyle:'italic', color:'#1A1612', marginBottom:'1rem', borderBottom:'1px solid #E8D5B0', paddingBottom:'0.5rem' },
+    sectionTitle:    { fontFamily:'serif', fontSize:'1.15rem', fontStyle:'italic', color:'var(--lm-text)', marginBottom:'1rem', borderBottom:'1px solid var(--lm-border)', paddingBottom:'0.5rem' },
     productGrid:     { display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:'1.1rem' },
-    center:          { textAlign:'center', padding:'3rem', color:'#8A7968' },
+    center:          { textAlign:'center', padding:'3rem', color:'var(--lm-muted)' },
   };
 

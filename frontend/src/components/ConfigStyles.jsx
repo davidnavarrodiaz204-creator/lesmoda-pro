@@ -7,23 +7,29 @@ export function applyConfigStyles(cfg = {}) {
     const primary = cfg.primaryColor || '#C9A96E';
     const secondary = cfg.secondaryColor || '#1A1612';
     const bg = cfg.bgColor || '#FAF7F2';
+    const surface = cfg.surfaceColor || '#FFFFFF';
     const visual = cfg.visualMode || 'claro-premium';
+    const text = cfg.textColor || (visual && visual.includes('oscuro') ? '#FAF7F2' : '#1A1612');
+    const muted = cfg.mutedColor || '#8A7968';
+    const border = cfg.borderColor || '#E0D8CE';
 
     root.style.setProperty('--lm-primary', primary);
     root.style.setProperty('--lm-primary-rgb', toRgb(primary));
     root.style.setProperty('--lm-secondary', secondary);
     root.style.setProperty('--lm-bg', bg);
-    root.style.setProperty('--lm-visual-mode', visual);
-    root.style.setProperty('--lm-surface', '#FFFFFF');
-    root.style.setProperty('--lm-muted', '#8A7968');
-    root.style.setProperty('--lm-border', '#E0D8CE');
-    root.style.setProperty('--lm-bg-alt', '#F5F1EB');
+    root.style.setProperty('--lm-surface', surface);
+    root.style.setProperty('--lm-text', text);
+    root.style.setProperty('--lm-muted', muted);
+    root.style.setProperty('--lm-border', border);
+    root.style.setProperty('--lm-bg-alt', cfg.bgAltColor || '#F5F1EB');
     root.style.setProperty('--lm-hero-bg', secondary);
     root.style.setProperty('--lm-hero-cta', primary);
+    root.style.setProperty('--lm-hero-title', getContrastColor(secondary));
+    root.style.setProperty('--lm-hero-cta-text', getContrastColor(primary));
+    root.style.setProperty('--lm-visual-mode', visual);
 
     // Some ergonomic derived vars
     root.style.setProperty('--lm-primary-contrast', getContrastColor(primary));
-    root.style.setProperty('--lm-text', visual && visual.includes('oscuro') ? '#FAF7F2' : '#1A1612');
     root.style.setProperty('background-color', bg);
   } catch (e) {
     // noop
