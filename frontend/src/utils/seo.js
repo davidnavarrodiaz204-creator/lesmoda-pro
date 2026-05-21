@@ -1,5 +1,5 @@
 export function setMeta(props) {
-  const { title, description, image, url, type = 'website' } = props;
+  const { title, description, image, url, type = 'website', favicon, indexable = true } = props;
   const d = document;
   const siteTitle = title || 'LeisModa';
   const siteDesc = description || 'Tienda de ropa online en Paita. Moda para Mujer, Hombre y Accesorios. Compra por WhatsApp.';
@@ -18,8 +18,10 @@ export function setMeta(props) {
   setMetaTag('twitter:description', siteDesc);
   setMetaTag('twitter:image', siteImage);
   setMetaTag('twitter:card', 'summary_large_image');
+  setMetaTag('robots', indexable ? 'index,follow' : 'noindex,nofollow');
 
   setCanonical(siteUrl);
+  setFavicon(favicon);
 }
 
 function setMetaTag(name, content) {
@@ -45,6 +47,17 @@ function setCanonical(url) {
     document.head.appendChild(el);
   }
   el.setAttribute('href', url);
+}
+
+function setFavicon(href) {
+  if (!href) return;
+  let el = document.querySelector('link[rel="icon"]');
+  if (!el) {
+    el = document.createElement('link');
+    el.setAttribute('rel', 'icon');
+    document.head.appendChild(el);
+  }
+  el.setAttribute('href', href);
 }
 
 export function injectStructuredData(schema) {

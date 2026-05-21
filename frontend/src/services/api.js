@@ -69,6 +69,7 @@ export const orderService = {
   exportCSV: () => api.get('/orders/export/csv', { responseType: 'blob' }),
   remove:     (id) => api.delete(`/orders/${id}`),
   cleanupTest: () => api.delete('/orders/cleanup/test'),
+  removeAll:   () => api.delete('/orders/all'),
 };
 
 // ── System ─────────────────────────────────────────────────────────────────
@@ -81,6 +82,7 @@ export const systemService = {
 export const configService = {
   get:  ()      => api.get('/config'),
   save: (data)  => api.put('/config', data),
+  resetTheme: () => api.post('/config/reset-theme'),
 };
 
 export const bannerService = {

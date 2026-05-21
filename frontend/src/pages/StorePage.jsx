@@ -56,13 +56,18 @@ export default function StorePage() {
   useEffect(() => {
     const domain = getDomain();
     const storeName = config.storeName || 'LeisModa';
+    const seoTitle = config.siteTitle || `${storeName} — Moda online en Paita`;
+    const seoDescription = config.siteDescription || `${storeName} — Tienda de ropa online en Paita. Moda para Mujer, Hombre y Accesorios. Compra facil por WhatsApp.`;
+    const seoImage = config.ogImage || config.logo || `${domain}/icons/icon.svg`;
     setMeta({
-      title: `${storeName} — Moda online en Paita`,
-      description: config.siteDescription || `${storeName} — Tienda de ropa online en Paita. Moda para Mujer, Hombre y Accesorios. Compra facil por WhatsApp.`,
-      image: config.logo || `${domain}/icons/icon.svg`,
+      title: seoTitle,
+      description: seoDescription,
+      image: seoImage,
       url: domain,
+      favicon: config.favicon || '/icons/icon.svg',
+      indexable: config.indexable !== false,
     });
-  }, [config.storeName, config.siteDescription, config.logo]);
+  }, [config.storeName, config.siteTitle, config.siteDescription, config.ogImage, config.logo, config.favicon, config.indexable]);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchQuery), 300);
@@ -444,4 +449,3 @@ function SearchEmpty() {
     productGrid:     { display:'grid', gap:'1rem' },
     center:          { textAlign:'center', padding:'3rem', color:'var(--lm-muted)' },
   };
-

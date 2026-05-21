@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "seed": "node src/config/seed.js"
+    "seed": "node src/config/seed.js",
+    "migrate:modern-theme": "node scripts/migrate-modern-theme.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
