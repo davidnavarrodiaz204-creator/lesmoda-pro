@@ -58,10 +58,10 @@ export default function AboutPage() {
                 { icon: <TruckIcon size={28} />, title: 'Envío a tu ciudad', desc: 'Coordinamos la entrega contigo' },
                 { icon: <LockIcon size={28} />, title: 'Compra segura', desc: 'Sin pago online, todo por WhatsApp' },
               ].map((item, i) => (
-                <div key={i} style={{textAlign:'center',padding:'1.25rem',background:'#FAF7F2',borderRadius:12}}>
-                  <div style={{marginBottom:'0.5rem',color:'#8A7968'}}>{item.icon}</div>
-                <h3 style={{fontSize:'0.95rem',fontWeight:600,color:'#1A1612',marginBottom:'0.3rem'}}>{item.title}</h3>
-                <p style={{fontSize:'0.82rem',color:'#8A7968'}}>{item.desc}</p>
+                <div key={i} style={{textAlign:'center',padding:'1.25rem',background:'var(--lm-bg)',borderRadius:12}}>
+                  <div style={{marginBottom:'0.5rem',color:'var(--lm-muted)'}}>{item.icon}</div>
+                <h3 style={{fontSize:'0.95rem',fontWeight:600,color:'var(--lm-text)',marginBottom:'0.3rem'}}>{item.title}</h3>
+                <p style={{fontSize:'0.82rem',color:'var(--lm-muted)'}}>{item.desc}</p>
               </div>
             ))}
           </div>
@@ -93,17 +93,17 @@ export default function AboutPage() {
 }
 
 const headerS = {
-  background:'#1A1612', height:60, display:'flex', alignItems:'center',
-  padding:'0 1.25rem', fontFamily:'serif', fontSize:'1.5rem', color:'#FAF7F2',
+  background:'var(--lm-secondary)', height:60, display:'flex', alignItems:'center',
+  padding:'0 1.25rem', fontFamily:'var(--lm-font-heading, serif)', fontSize:'1.5rem', color:'var(--lm-surface)',
   textDecoration:'none',
 };
 
 const s = {
-  hero: { position:'relative', minHeight:'40vh', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', background:'#1A1612' },
+  hero: { position:'relative', minHeight:'40vh', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', background:'var(--lm-secondary)' },
   section: { maxWidth:800, margin:'0 auto', padding:'2rem 1.25rem', display:'flex', flexDirection:'column', gap:'1.5rem' },
-  card: { background:'white', borderRadius:12, padding:'1.5rem', boxShadow:'0 2px 16px rgba(0,0,0,.06)' },
-  h2: { fontFamily:'serif', fontSize:'1.2rem', color:'#1A1612' },
-  p: { fontSize:'0.88rem', color:'#8A7968', lineHeight:1.7, marginTop:'0.75rem', fontWeight:300 },
+  card: { background:'var(--lm-surface)', borderRadius:12, padding:'1.5rem', boxShadow:'0 2px 16px rgba(0,0,0,.06)' },
+  h2: { fontFamily:'var(--lm-font-heading, serif)', fontSize:'1.2rem', color:'var(--lm-text)' },
+  p: { fontSize:'0.88rem', color:'var(--lm-muted)', lineHeight:1.7, marginTop:'0.75rem', fontWeight:300 },
   contactBtn: { display:'inline-flex', alignItems:'center', gap:'0.5rem', background:'#25D366', color:'white', padding:'0.7rem 1.25rem', borderRadius:10, fontWeight:600, fontSize:'0.9rem', textDecoration:'none', width:'fit-content' },
-  socialBtn: { display:'inline-flex', alignItems:'center', gap:'0.4rem', border:'1px solid #E0D8CE', padding:'0.5rem 1rem', borderRadius:999, fontSize:'0.82rem', color:'#8A7968', textDecoration:'none' },
+  socialBtn: { display:'inline-flex', alignItems:'center', gap:'0.4rem', border:'1px solid var(--lm-border)', padding:'0.5rem 1rem', borderRadius:999, fontSize:'0.82rem', color:'var(--lm-muted)', textDecoration:'none' },
 };

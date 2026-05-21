@@ -146,7 +146,7 @@ export default function StorePage() {
             {wishlist.length > 0 && (
               <button style={s.wishlistHeaderBtn} onClick={() => setShowFavorites(!showFavorites)} title="Favoritos">
                 <HeartIcon size={18} />
-                <span className="wishlist-count" style={{fontSize:'.65rem',color:'#C9A96E',marginLeft:2}}>{wishlist.length}</span>
+                <span className="wishlist-count" style={{fontSize:'.65rem',color:'var(--lm-primary)',marginLeft:2}}>{wishlist.length}</span>
               </button>
             )}
             <button style={s.cartBtn} onClick={() => setCartOpen(true)}>
@@ -304,7 +304,7 @@ export default function StorePage() {
                 return (
                   <a key={p._id} className="recent-view-card" onClick={(e) => { e.preventDefault(); handleSelectProduct(p); }} href={`/producto/${p.slug || ''}`}>
                     <div className="recent-view-img">
-                      {img ? <img src={img} alt={p.name} loading="lazy" /> : <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',color:'#8A7968',fontSize:'.65rem',opacity:.4}}>Sin img</div>}
+                      {img ? <img src={img} alt={p.name} loading="lazy" /> : <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--lm-muted)',fontSize:'.65rem',opacity:.4}}>Sin img</div>}
                     </div>
                     <div className="recent-view-name">{p.name}</div>
                     <div className="recent-view-price">S/ {p.price?.toFixed(2)}</div>
@@ -393,55 +393,55 @@ export default function StorePage() {
 
 function EmptyState() {
   return (
-    <div style={{textAlign:'center',padding:'4rem 1.5rem',color:'#8A7968'}}>
+    <div style={{textAlign:'center',padding:'4rem 1.5rem',color:'var(--lm-muted)'}}>
       <div style={{marginBottom:'1rem',opacity:0.4}}><DressIcon size={48} /></div>
-      <h3 style={{fontFamily:'serif',fontSize:'1.4rem',marginBottom:'0.5rem',color:'#1A1612'}}>No hay productos todavia</h3>
-      <p style={{fontSize:'0.88rem'}}>Ve al <a href="/admin" style={{color:'#C9A96E'}}>panel admin</a> para agregar productos.</p>
+      <h3 style={{fontFamily:'var(--font-display)',fontSize:'1.3rem',marginBottom:'0.5rem',color:'var(--lm-text)'}}>No hay productos todavia</h3>
+      <p style={{fontSize:'0.85rem'}}>Ve al <a href="/admin" style={{color:'var(--lm-primary)'}}>panel admin</a> para agregar productos.</p>
     </div>
   );
 }
 
 function SearchEmpty() {
   return (
-    <div style={{textAlign:'center',padding:'4rem 1.5rem',color:'#8A7968'}}>
+    <div style={{textAlign:'center',padding:'4rem 1.5rem',color:'var(--lm-muted)'}}>
       <div style={{marginBottom:'1rem',opacity:0.3}}><DressIcon size={40} /></div>
-      <h3 style={{fontFamily:'serif',fontSize:'1.25rem',marginBottom:'0.4rem',color:'#1A1612'}}>No encontramos productos con esa busqueda</h3>
-      <p style={{fontSize:'0.88rem',color:'#8A7968'}}>Intenta con otros terminos</p>
+      <h3 style={{fontFamily:'var(--font-display)',fontSize:'1.15rem',marginBottom:'0.4rem',color:'var(--lm-text)'}}>No encontramos productos con esa busqueda</h3>
+      <p style={{fontSize:'0.85rem',color:'var(--lm-muted)'}}>Intenta con otros terminos</p>
     </div>
   );
 }
 
   const s = {
-    header:          { background:'#1A1612', position:'sticky', top:0, zIndex:100, display:'flex', alignItems:'center' },
-    headerInner:     { display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%', padding:'0 1rem' },
-    logo:            { fontFamily:'serif', fontSize:'1.35rem', color:'#FAF7F2', letterSpacing:'0.05em' },
-    headerActions:   { display:'flex', alignItems:'center', gap:'0.4rem' },
-    hamburger:       { display:'none', flexDirection:'column', gap:3, background:'none', border:'none', padding:'0.25rem', cursor:'pointer' },
-    bar:             { width:18, height:2, background:'#C9A96E', borderRadius:2, transition:'all 0.25s', display:'block' },
-    cartBtn:         { position:'relative', background:'none', border:'none', color:'#FAF7F2', cursor:'pointer', padding:'0.3rem', display:'flex' },
-    wishlistHeaderBtn: { position:'relative', background:'none', border:'none', color:'#FAF7F2', cursor:'pointer', padding:'0.3rem', display:'flex', alignItems:'center', gap:'0.15rem' },
-    cartBadge:       { position:'absolute', top:-3, right:-5, background:'#C9A96E', color:'#1A1612', fontSize:'0.55rem', fontWeight:700, minWidth:15, height:15, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 },
-    adminLink:       { background:'rgba(201,169,110,0.12)', color:'#C9A96E', padding:'0.3rem 0.6rem', borderRadius:5, fontSize:'0.68rem', fontWeight:600, letterSpacing:'0.04em' },
-    mobileMenu:      { position:'absolute', top:'100%', left:0, right:0, background:'#1A1612', borderTop:'1px solid rgba(201,169,110,0.12)', padding:'0.25rem .75rem', zIndex:99 },
-    mobileMenuItem:  { display:'block', color:'#C9A96E', padding:'0.6rem .5rem', fontSize:'0.85rem', fontWeight:600 },
+    header:          { background:'var(--lm-secondary)', position:'sticky', top:0, zIndex:100, display:'flex', alignItems:'center' },
+    headerInner:     { display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%', padding:'0 .85rem' },
+    logo:            { fontFamily:'var(--font-display)', fontSize:'1.25rem', color:'white', letterSpacing:'0.02em' },
+    headerActions:   { display:'flex', alignItems:'center', gap:'0.3rem' },
+    hamburger:       { display:'none', flexDirection:'column', gap:2, background:'none', border:'none', padding:'0.25rem', cursor:'pointer' },
+    bar:             { width:18, height:2, background:'white', borderRadius:2, transition:'all 0.25s', display:'block' },
+    cartBtn:         { position:'relative', background:'none', border:'none', color:'white', cursor:'pointer', padding:'0.3rem', display:'flex' },
+    wishlistHeaderBtn: { position:'relative', background:'none', border:'none', color:'white', cursor:'pointer', padding:'0.3rem', display:'flex', alignItems:'center', gap:'0.15rem' },
+    cartBadge:       { position:'absolute', top:-3, right:-5, background:'var(--lm-primary)', color:'white', fontSize:'0.55rem', fontWeight:700, minWidth:15, height:15, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 },
+    adminLink:       { background:'rgba(255,255,255,0.08)', color:'rgba(255,255,255,.7)', padding:'0.25rem 0.6rem', borderRadius:6, fontSize:'0.65rem', fontWeight:500, letterSpacing:'0.02em' },
+    mobileMenu:      { position:'absolute', top:'100%', left:0, right:0, background:'var(--lm-secondary)', borderTop:'1px solid rgba(255,255,255,.08)', padding:'0.25rem .75rem', zIndex:99 },
+    mobileMenuItem:  { display:'block', color:'rgba(255,255,255,.8)', padding:'0.5rem .5rem', fontSize:'0.82rem', fontWeight:500 },
 
-    searchBar:       { padding:'1rem 1.25rem 0', maxWidth:1200, margin:'0 auto' },
-    searchInner:     { display:'flex', alignItems:'center', gap:'0.5rem', background:'white', border:'1.5px solid #E8D5B0', borderRadius:12, padding:'0.4rem 0.9rem', transition:'border-color .2s' },
-    searchInput:     { flex:1, border:'none', outline:'none', background:'transparent', fontSize:'0.92rem', color:'#1A1612', fontFamily:'inherit', padding:'0.3rem 0' },
-    searchClear:     { background:'none', border:'none', cursor:'pointer', color:'#8A7968', padding:'0.2rem', display:'flex', transition:'color .2s' },
+    searchBar:       { padding:'.75rem 1.25rem 0', maxWidth:1200, margin:'0 auto' },
+    searchInner:     { display:'flex', alignItems:'center', gap:'0.5rem', background:'var(--lm-surface)', border:'1.5px solid var(--lm-border)', borderRadius:8, padding:'0.35rem 0.85rem', transition:'border-color .2s' },
+    searchInput:     { flex:1, border:'none', outline:'none', background:'transparent', fontSize:'0.9rem', color:'var(--lm-text)', fontFamily:'inherit', padding:'0.3rem 0' },
+    searchClear:     { background:'none', border:'none', cursor:'pointer', color:'var(--lm-muted)', padding:'0.2rem', display:'flex', transition:'color .2s' },
 
-    filters:         { padding:'1rem 1.25rem 0', display:'flex', flexWrap:'wrap', gap:'0.5rem', alignItems:'center', maxWidth:1200, margin:'0 auto', position:'sticky', top:72, background:'var(--lm-bg)', zIndex:50, borderBottom:'1px solid var(--lm-border)' },
-    filterLabel:     { fontSize:'0.7rem', letterSpacing:'0.14em', textTransform:'uppercase', color:'var(--lm-muted)', fontWeight:500 },
-    chip:            { background:'none', border:'1.5px solid var(--lm-border)', color:'var(--lm-muted)', fontFamily:'sans-serif', fontSize:'0.8rem', padding:'0.35rem 0.9rem', borderRadius:999, cursor:'pointer', transition:'all 0.2s' },
-    chipActive:      { background:'var(--lm-primary)', borderColor:'var(--lm-primary)', color:'var(--lm-secondary)', fontWeight:600 },
+    filters:         { padding:'0.75rem 1.25rem 0', display:'flex', flexWrap:'wrap', gap:'0.4rem', alignItems:'center', maxWidth:1200, margin:'0 auto', position:'sticky', top:68, background:'var(--lm-bg)', zIndex:50, borderBottom:'1px solid var(--lm-border)' },
+    filterLabel:     { fontSize:'0.65rem', letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--lm-muted)', fontWeight:500 },
+    chip:            { background:'none', border:'1.5px solid var(--lm-border)', color:'var(--lm-muted)', fontFamily:'var(--font-sans)', fontSize:'0.78rem', padding:'0.3rem 0.85rem', borderRadius:999, cursor:'pointer', transition:'all 0.2s' },
+    chipActive:      { background:'var(--lm-primary)', borderColor:'var(--lm-primary)', color:'white', fontWeight:600 },
 
-    resultsBar:      { display:'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem', padding:'0.8rem 1.25rem 0', maxWidth:1200, margin:'0 auto', color:'var(--lm-text)' },
-    resultsInfo:     { fontSize:'0.9rem', color:'var(--lm-muted)' },
-    clearFilters:    { background:'transparent', border:'1px solid var(--lm-border)', color:'var(--lm-text)', borderRadius:999, padding:'0.55rem 0.95rem', cursor:'pointer' },
+    resultsBar:      { display:'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem', padding:'0.65rem 1.25rem 0', maxWidth:1200, margin:'0 auto', color:'var(--lm-text)' },
+    resultsInfo:     { fontSize:'0.85rem', color:'var(--lm-muted)' },
+    clearFilters:    { background:'transparent', border:'1px solid var(--lm-border)', color:'var(--lm-text)', borderRadius:999, padding:'0.5rem 0.9rem', cursor:'pointer', fontFamily:'inherit', fontSize:'0.78rem' },
 
-    grid:            { padding:'1.5rem 1.25rem 6rem', maxWidth:1200, margin:'0 auto' },
-    sectionTitle:    { fontFamily:'serif', fontSize:'1.15rem', fontStyle:'italic', color:'var(--lm-text)', marginBottom:'1rem', borderBottom:'1px solid var(--lm-border)', paddingBottom:'0.5rem' },
-    productGrid:     { display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:'1.1rem' },
+    grid:            { padding:'1.25rem 1.25rem 5rem', maxWidth:1200, margin:'0 auto' },
+    sectionTitle:    { fontFamily:'var(--font-display)', fontSize:'1.1rem', fontWeight:600, color:'var(--lm-text)', marginBottom:'1rem', borderBottom:'1px solid var(--lm-border)', paddingBottom:'0.5rem' },
+    productGrid:     { display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:'1rem' },
     center:          { textAlign:'center', padding:'3rem', color:'var(--lm-muted)' },
   };
 

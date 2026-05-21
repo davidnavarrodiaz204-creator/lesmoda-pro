@@ -22,7 +22,7 @@ export default function LoginPage() {
     <div style={s.page}>
       <div style={s.card}>
         <div style={s.logo}>
-          Leis<em style={{color:'#C9A96E', fontStyle:'normal'}}>Mo</em>da
+          LeisModa
         </div>
         <h2 style={s.title}>Panel Administrador</h2>
 
@@ -59,14 +59,14 @@ export default function LoginPage() {
 const s = {
   page:  {
     minHeight:'100vh',
-    background:'#1A1612',
+    background:'var(--lm-secondary)',
     display:'flex',
     alignItems:'center',
     justifyContent:'center',
     padding:'1rem',
   },
   card:  {
-    background:'white',
+    background:'var(--lm-surface)',
     borderRadius:16,
     padding:'2.5rem 2rem',
     width:'100%',
@@ -75,23 +75,23 @@ const s = {
     textAlign:'center',
   },
   logo:  {
-    fontFamily:'serif',
+    fontFamily:'var(--lm-font-heading, serif)',
     fontSize:'2.2rem',
-    color:'#1A1612',
+    color:'var(--lm-text)',
     letterSpacing:'0.08em',
     marginBottom:'0.4rem',
   },
   title: {
-    fontFamily:'serif',
+    fontFamily:'var(--lm-font-heading, serif)',
     fontSize:'1rem',
-    color:'#8A7968',
+    color:'var(--lm-muted)',
     fontWeight:400,
     marginBottom:'1.75rem',
   },
   error: {
     background:'#FFF5F5',
     border:'1px solid #F5C0C0',
-    color:'#C25E5E',
+    color:'var(--lm-danger)',
     padding:'0.75rem',
     borderRadius:8,
     marginBottom:'1rem',
@@ -105,23 +105,23 @@ const s = {
     fontWeight:600,
     letterSpacing:'0.1em',
     textTransform:'uppercase',
-    color:'#8A7968',
+    color:'var(--lm-muted)',
   },
   input: {
-    border:'1.5px solid #E0D8CE',
+    border:'1.5px solid var(--lm-border)',
     borderRadius:8,
     padding:'0.75rem 1rem',
     fontFamily:'sans-serif',
     fontSize:'1rem',
     outline:'none',
     width:'100%',
-    background:'#FAF7F2',
-    color:'#1A1612',
+    background:'var(--lm-bg)',
+    color:'var(--lm-text)',
     WebkitAppearance:'none',
   },
   btn:   {
-    background:'#1A1612',
-    color:'#C9A96E',
+    background:'var(--lm-secondary)',
+    color:'var(--lm-primary)',
     border:'none',
     fontFamily:'sans-serif',
     fontSize:'1rem',
@@ -137,6 +137,6 @@ const s = {
     display:'inline-block',
     marginTop:'1.5rem',
     fontSize:'0.85rem',
-    color:'#8A7968',
+    color:'var(--lm-muted)',
   },
 };

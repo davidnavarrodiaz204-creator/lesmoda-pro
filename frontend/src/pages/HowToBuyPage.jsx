@@ -46,33 +46,33 @@ export default function HowToBuyPage() {
             {STEPS.map((step, i) => (
               <div key={i} style={{display:'flex',gap:'1rem',alignItems:'flex-start'}}>
                 <div style={{
-                  width:48,height:48,borderRadius:'50%',background:'#1A1612',
+                  width:48,height:48,borderRadius:'50%',background:'var(--lm-secondary)',
                   display:'flex',alignItems:'center',justifyContent:'center',
-                  flexShrink:0, color:'#C9A96E',
+                  flexShrink:0, color:'var(--lm-primary)',
                 }}>{step.icon}</div>
                 <div style={{flex:1}}>
                   <div style={{display:'flex',alignItems:'center',gap:'0.5rem',marginBottom:'0.25rem'}}>
                     <span style={{
-                      width:20,height:20,borderRadius:'50%',background:'#C9A96E',
-                      color:'#1A1612',fontSize:'0.72rem',fontWeight:700,
+                      width:20,height:20,borderRadius:'50%',background:'var(--lm-primary)',
+                      color:'white',fontSize:'0.72rem',fontWeight:700,
                       display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,
                     }}>{i + 1}</span>
-                    <h3 style={{fontSize:'1rem',fontWeight:600,color:'#1A1612'}}>{step.title}</h3>
+                    <h3 style={{fontSize:'1rem',fontWeight:600,color:'var(--lm-text)'}}>{step.title}</h3>
                   </div>
-                  <p style={{fontSize:'0.85rem',color:'#8A7968',lineHeight:1.6,marginLeft:'1.75rem'}}>{step.desc}</p>
+                  <p style={{fontSize:'0.85rem',color:'var(--lm-muted)',lineHeight:1.6,marginLeft:'1.75rem'}}>{step.desc}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div style={{...s.card,background:'#1A1612',textAlign:'center'}}>
-          <h2 style={{...s.h2,color:'#FAF7F2'}}>¿Listo para empezar?</h2>
-          <p style={{color:'#B0A899',fontSize:'0.88rem',marginTop:'0.5rem'}}>
+        <div style={{...s.card,background:'var(--lm-secondary)',textAlign:'center'}}>
+          <h2 style={{...s.h2,color:'var(--lm-surface)'}}>¿Listo para empezar?</h2>
+          <p style={{color:'var(--lm-muted)',fontSize:'0.88rem',marginTop:'0.5rem'}}>
             Explora nuestro catálogo y arma tu pedido
           </p>
           <Link to="/" style={{
-            display:'inline-block',marginTop:'1rem',background:'#C9A96E',color:'#1A1612',
+            display:'inline-block',marginTop:'1rem',background:'var(--lm-primary)',color:'white',
             padding:'0.75rem 2rem',borderRadius:999,fontWeight:600,fontSize:'0.9rem',textDecoration:'none',
           }}>
             Ver catálogo
@@ -85,8 +85,8 @@ export default function HowToBuyPage() {
           <div style={{display:'flex',flexWrap:'wrap',gap:'0.75rem',marginTop:'0.75rem'}}>
             {['Yape', 'Plin', 'Transferencia bancaria', 'Efectivo (entrega)'].map((m, i) => (
               <span key={i} style={{
-                padding:'0.4rem 1rem',borderRadius:999,border:'1px solid #E8D5B0',
-                fontSize:'0.82rem',color:'#1A1612',fontWeight:500,
+                padding:'0.4rem 1rem',borderRadius:999,border:'1px solid var(--lm-border)',
+                fontSize:'0.82rem',color:'var(--lm-text)',fontWeight:500,
               }}>{m}</span>
             ))}
           </div>
@@ -110,15 +110,15 @@ export default function HowToBuyPage() {
 }
 
 const headerS = {
-  background:'#1A1612', height:60, display:'flex', alignItems:'center',
-  padding:'0 1.25rem', fontFamily:'serif', fontSize:'1.5rem', color:'#FAF7F2',
+  background:'var(--lm-secondary)', height:60, display:'flex', alignItems:'center',
+  padding:'0 1.25rem', fontFamily:'var(--lm-font-heading, serif)', fontSize:'1.5rem', color:'var(--lm-surface)',
   textDecoration:'none',
 };
 
 const s = {
-  hero: { position:'relative', minHeight:'40vh', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', background:'#1A1612' },
+  hero: { position:'relative', minHeight:'40vh', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', background:'var(--lm-secondary)' },
   section: { maxWidth:800, margin:'0 auto', padding:'2rem 1.25rem 4rem', display:'flex', flexDirection:'column', gap:'1.5rem' },
-  card: { background:'white', borderRadius:12, padding:'1.5rem', boxShadow:'0 2px 16px rgba(0,0,0,.06)' },
-  h2: { fontFamily:'serif', fontSize:'1.2rem', color:'#1A1612' },
-  p: { fontSize:'0.85rem', color:'#8A7968', lineHeight:1.6, marginTop:'0.5rem', fontWeight:300 },
+  card: { background:'var(--lm-surface)', borderRadius:12, padding:'1.5rem', boxShadow:'0 2px 16px rgba(0,0,0,.06)' },
+  h2: { fontFamily:'var(--lm-font-heading, serif)', fontSize:'1.2rem', color:'var(--lm-text)' },
+  p: { fontSize:'0.85rem', color:'var(--lm-muted)', lineHeight:1.6, marginTop:'0.5rem', fontWeight:300 },
 };

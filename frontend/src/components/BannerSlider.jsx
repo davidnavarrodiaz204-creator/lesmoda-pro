@@ -27,7 +27,7 @@ export default function BannerSlider() {
 
   return (
     <div className="banner-slider">
-      <div className="banner-slide" style={{ background: b.color || '#1A1612' }}>
+      <div className="banner-slide" style={{ background: b.color || 'var(--lm-secondary)' }}>
         <div className="banner-content">
           {b.subtitle && <span className="banner-subtitle">{b.subtitle}</span>}
           <span className="banner-text">{b.text}</span>

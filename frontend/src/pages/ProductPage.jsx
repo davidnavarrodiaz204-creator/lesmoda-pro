@@ -68,20 +68,20 @@ export default function ProductPage() {
   }, [slug]);
 
   if (loading) return (
-    <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',color:'#8A7968'}}>
+    <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',color:'var(--lm-muted)'}}>
       Cargando producto...
     </div>
   );
 
   if (notFound || !product) return (
     <div className="store-page">
-      <header style={{background:'#1A1612',height:60,display:'flex',alignItems:'center',padding:'0 1.25rem'}}>
-        <Link to="/" style={{fontFamily:'serif',fontSize:'1.5rem',color:'#FAF7F2',textDecoration:'none'}}>{config.storeName || 'LeisModa'}</Link>
+      <header style={{background:'var(--lm-secondary)',height:60,display:'flex',alignItems:'center',padding:'0 1.25rem'}}>
+        <Link to="/" style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1.5rem',color:'var(--lm-surface)',textDecoration:'none'}}>{config.storeName || 'LeisModa'}</Link>
       </header>
-      <div style={{textAlign:'center',padding:'4rem 1.5rem',color:'#8A7968'}}>
-        <h2 style={{fontFamily:'serif',fontSize:'1.5rem',color:'#1A1612',marginBottom:'0.5rem'}}>Producto no encontrado</h2>
+      <div style={{textAlign:'center',padding:'4rem 1.5rem',color:'var(--lm-muted)'}}>
+        <h2 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1.5rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Producto no encontrado</h2>
         <p>El producto que buscas no existe o ha sido eliminado.</p>
-        <Link to="/" style={{display:'inline-block',marginTop:'1rem',background:'#C9A96E',color:'#1A1612',padding:'0.7rem 1.5rem',borderRadius:8,fontWeight:600,textDecoration:'none'}}>
+        <Link to="/" style={{display:'inline-block',marginTop:'1rem',background:'var(--lm-primary)',color:'white',padding:'0.7rem 1.5rem',borderRadius:8,fontWeight:600,textDecoration:'none'}}>
           Volver a la tienda
         </Link>
       </div>

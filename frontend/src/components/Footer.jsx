@@ -80,14 +80,14 @@ export default function Footer({
 
 const s = {
   footer:  { background:'var(--lm-secondary)', color:'var(--lm-muted)' },
-  top:     { display:'flex', flexWrap:'wrap', gap:'2rem', padding:'2.5rem 1.25rem', justifyContent:'space-between', borderBottom:'1px solid rgba(201,169,110,.15)', maxWidth:1200, margin:'0 auto' },
+  top:     { display:'flex', flexWrap:'wrap', gap:'2rem', padding:'2rem 1.25rem', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,.08)', maxWidth:1200, margin:'0 auto' },
   brand:   { flex:'1', minWidth:180 },
-  logo:    { fontFamily:'serif', fontSize:'1.5rem', color:'var(--lm-text)', marginBottom:'0.4rem' },
-  slogan:  { fontSize:'0.85rem', color:'var(--lm-muted)', fontStyle:'italic', marginBottom:'0.75rem' },
-  waLink:  { display:'inline-flex', alignItems:'center', gap:'0.35rem', color:'var(--lm-primary)', fontSize:'0.82rem' },
-  col:     { display:'flex', flexDirection:'column', gap:'0.5rem', minWidth:120 },
-  colTitle:{ fontSize:'0.7rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'var(--lm-primary)', fontWeight:600, marginBottom:'0.15rem' },
-  link:    { display:'inline-flex', alignItems:'center', gap:'0.3rem', color:'var(--lm-muted)', fontSize:'0.85rem', textDecoration:'none' },
-  text:    { fontSize:'0.85rem', color:'var(--lm-muted)' },
-  bottom:  { textAlign:'center', padding:'1rem', fontSize:'0.75rem', color:'rgba(176,168,153,.4)', maxWidth:1200, margin:'0 auto' },
+  logo:    { fontFamily:'var(--font-display)', fontSize:'1.35rem', color:'white', marginBottom:'0.4rem' },
+  slogan:  { fontSize:'0.82rem', color:'#9CA3AF', fontStyle:'italic', marginBottom:'0.65rem' },
+  waLink:  { display:'inline-flex', alignItems:'center', gap:'0.35rem', color:'var(--lm-primary)', fontSize:'0.8rem' },
+  col:     { display:'flex', flexDirection:'column', gap:'0.4rem', minWidth:120 },
+  colTitle:{ fontSize:'0.65rem', letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--lm-muted)', fontWeight:600, marginBottom:'0.1rem' },
+  link:    { display:'inline-flex', alignItems:'center', gap:'0.3rem', color:'#9CA3AF', fontSize:'0.82rem', textDecoration:'none' },
+  text:    { fontSize:'0.82rem', color:'#9CA3AF' },
+  bottom:  { textAlign:'center', padding:'1rem', fontSize:'0.72rem', color:'rgba(255,255,255,.25)', maxWidth:1200, margin:'0 auto' },
 };

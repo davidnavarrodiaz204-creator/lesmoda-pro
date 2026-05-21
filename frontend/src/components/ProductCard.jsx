@@ -24,97 +24,71 @@ const ProductCard = React.memo(function ProductCard({ product: rawProduct, waNum
     el.id = PREMIUM_STYLE_ID;
     el.textContent = `
       .product-card {
-        border-radius: 14px; overflow: hidden;
-        transition: transform .4s cubic-bezier(.25,.46,.45,.94),
-                    box-shadow .4s ease;
+        border-radius: 8px; overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+        transition: transform .3s ease, box-shadow .3s ease;
       }
       .product-card:hover {
-        transform: translateY(-4px) scale(1.01);
-        box-shadow: 0 16px 48px rgba(26,22,18,.12);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px -8px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
       }
       .product-card .card-image img {
         transition: transform .5s cubic-bezier(.25,.46,.45,.94);
       }
       .product-card:hover .card-image img {
-        transform: scale(1.04);
-      }
-      .card-badge {
-        border-radius: 999px;
-        padding: .22rem .65rem;
-        font-size: .58rem;
-        font-weight: 700;
-        letter-spacing: .05em;
-        text-transform: uppercase;
-        backdrop-filter: blur(4px);
-      }
-      .card-pricing {
-        display: flex;
-        align-items: baseline;
-        gap: .35rem;
-      }
-      .card-price-current {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #1A1612;
-        letter-spacing: -.02em;
-      }
-      .card-price-old {
-        font-size: .78rem;
-        color: #8A7968;
-        text-decoration: line-through;
+        transform: scale(1.05);
       }
       .card-image-overlay {
         opacity: 0;
         transform: translateY(8px);
-        transition: all .3s cubic-bezier(.25,.46,.45,.94);
+        transition: all .25s ease;
       }
       .product-card:hover .card-image-overlay {
         opacity: 1;
         transform: translateY(0);
       }
       .card-image-skeleton {
-        background: linear-gradient(110deg,#F0EBE3 30%,#F9F5EF 50%,#F0EBE3 70%);
+        background: linear-gradient(110deg,var(--lm-surface-2) 30%,#F8F9FB 50%,var(--lm-surface-2) 70%);
         background-size: 200% 100%;
-        animation: cardShimmer 1.5s ease-in-out infinite;
+        animation: shimmer 1.5s ease-in-out infinite;
       }
-      @keyframes cardShimmer {
+      @keyframes shimmer {
         0% { background-position: 200% 0; }
         100% { background-position: -200% 0; }
       }
       .card-add-btn {
         transition: all .2s ease;
-        opacity: .9;
       }
       .card-add-btn:hover {
-        opacity: 1;
-        transform: scale(1.03);
+        opacity: .9;
       }
       .card-add-btn:active {
         transform: scale(.97);
       }
       .card-add-btn-added {
-        background: #2E7D52 !important;
+        background: var(--lm-success) !important;
+        color: white;
       }
       @media (max-width: 480px) {
-        .product-card { border-radius: 12px; }
+        .product-card { border-radius: 6px; }
         .product-card .card-body {
-          padding: .6rem .65rem .8rem;
+          padding: .5rem .55rem .65rem;
         }
         .product-card .card-name {
-          font-size: .82rem;
+          font-size: .78rem;
         }
         .product-card .card-price-current {
-          font-size: .88rem;
+          font-size: .85rem;
         }
         .product-card .card-price-old {
-          font-size: .68rem;
+          font-size: .65rem;
         }
         .product-card .card-category {
-          font-size: .55rem;
+          font-size: .5rem;
         }
         .product-card .card-add-btn {
-          font-size: .7rem;
-          padding: .35rem .6rem;
+          font-size: .68rem;
+          padding: .3rem .5rem;
         }
       }
     `;

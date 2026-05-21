@@ -46,7 +46,7 @@ export default function AdminPage() {
         <div style={{display:'flex',alignItems:'center',gap:'0.75rem'}}>
           <span style={{fontWeight:600}}>{unviewedCount - prevUnviewed.current} pedido(s) nuevo(s)</span>
           <button onClick={() => { toast.dismiss(t.id); setActiveSection('orders'); }}
-            style={{background:'#C9A96E',color:'#1A1612',border:'none',borderRadius:6,padding:'0.3rem 0.8rem',fontWeight:600,cursor:'pointer',fontSize:'0.75rem',fontFamily:'inherit'}}>
+            style={{background:'#5B7CFA',color:'white',border:'none',borderRadius:6,padding:'0.3rem 0.8rem',fontWeight:600,cursor:'pointer',fontSize:'0.75rem',fontFamily:'inherit'}}>
             Ver pedido
           </button>
         </div>
@@ -66,8 +66,8 @@ export default function AdminPage() {
   return (
     <div style={s.page}>
       <aside style={s.sidebar}>
-        <div style={s.sidebarLogo}>Leis<em style={{color:'#C9A96E',fontStyle:'normal'}}>Mo</em>da</div>
-        <div style={{fontSize:'0.6rem',color:'#5A5045',letterSpacing:'0.05em',marginBottom:'1.5rem',marginTop:'-0.5rem'}}>v1.0 estable</div>
+        <div style={s.sidebarLogo}>LeisModa</div>
+        <div style={{fontSize:'0.6rem',color:'rgba(255,255,255,.35)',letterSpacing:'0.05em',marginBottom:'1.5rem',marginTop:'-0.5rem'}}>v1.0 estable</div>
         <nav style={s.sidebarNav}>
           {[
             ['dashboard', 'Dashboard', <ChartIcon size={16} />],
@@ -78,27 +78,23 @@ export default function AdminPage() {
           ].map(([k, label, icon]) => (
             <div key={k} style={{...s.sideLink, ...(activeSection===k?s.sideLinkActive:{})}}
               onClick={() => setActiveSection(k)}>
-              <span style={{display:'inline-flex',alignItems:'center',gap:'0.5rem'}}>{icon} {label}</span>
+              {icon} {label}
               {k === 'orders' && unviewedCount > 0 && (
-                <span style={{marginLeft:'auto',background:'#C25E5E',color:'white',fontSize:'0.6rem',fontWeight:700,minWidth:18,height:18,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 4px',lineHeight:1}}>{unviewedCount}</span>
+                <span style={{marginLeft:'auto',background:'var(--lm-danger)',color:'white',fontSize:'0.6rem',fontWeight:700,minWidth:18,height:18,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 4px',lineHeight:1}}>{unviewedCount}</span>
               )}
             </div>
           ))}
-          <div style={s.sideLink} onClick={() => navigate('/')}>
-            <span style={{display:'inline-flex',alignItems:'center',gap:'0.5rem'}}><StoreIcon size={16} /> Ver tienda</span>
+          <div style={s.sideLink} onClick={() => navigate('/')}><StoreIcon size={16} /> Ver tienda
           </div>
-          <div style={s.sideLink} onClick={handleLogout}>
-            <span style={{display:'inline-flex',alignItems:'center',gap:'0.5rem'}}><DoorIcon size={16} /> Salir</span>
+          <div style={s.sideLink} onClick={handleLogout}><DoorIcon size={16} /> Salir
           </div>
         </nav>
-        <div style={s.sideUser}>
-          <span style={{display:'inline-flex',alignItems:'center',gap:'0.4rem'}}><UserIcon size={14} /> {user?.name}</span>
-        </div>
+        <div style={s.sideUser}><UserIcon size={14} /> {user?.name}</div>
       </aside>
 
       <main style={{...s.main, paddingBottom: window.innerWidth <= 768 ? '72px' : '1.5rem'}}>
         <div style={s.mobileHeader}>
-          <div style={s.mobileLogo}>Leis<em style={{color:'#C9A96E',fontStyle:'normal'}}>Mo</em>da</div>
+          <div style={s.mobileLogo}>LeisModa</div>
           <button style={s.hamburger} onClick={() => setMenuOpen(!menuOpen)}>
             <span style={s.bar}/><span style={s.bar}/><span style={s.bar}/>
           </button>
@@ -109,14 +105,14 @@ export default function AdminPage() {
             {[['dashboard','Dashboard',<ChartIcon size={16} />],['products','Productos',<PackageIcon size={16} />],['orders','Pedidos',<ClipboardIcon size={16} />],['users','Usuarios',<UsersIcon size={16} />],['config','Config',<GearIcon size={16} />]].map(([k,label,icon]) => (
               <div key={k} style={{...s.mobileMenuItem, ...(activeSection===k?s.mobileMenuActive:{})}}
                 onClick={() => { setActiveSection(k); setMenuOpen(false); }}>
-                <span style={{display:'inline-flex',alignItems:'center',gap:'0.5rem'}}>{icon} {label}</span>
+                {icon} {label}
                 {k === 'orders' && unviewedCount > 0 && (
-                  <span style={{marginLeft:'auto',background:'#C25E5E',color:'white',fontSize:'0.6rem',fontWeight:700,minWidth:18,height:18,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 4px',lineHeight:1}}>{unviewedCount}</span>
+                  <span style={{marginLeft:'auto',background:'var(--lm-danger)',color:'white',fontSize:'0.6rem',fontWeight:700,minWidth:18,height:18,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 4px',lineHeight:1}}>{unviewedCount}</span>
                 )}
               </div>
             ))}
-            <div style={s.mobileMenuItem} onClick={() => navigate('/')}><span style={{display:'inline-flex',alignItems:'center',gap:'0.5rem'}}><StoreIcon size={16} /> Ver tienda</span></div>
-            <div style={s.mobileMenuItem} onClick={handleLogout}><span style={{display:'inline-flex',alignItems:'center',gap:'0.5rem'}}><DoorIcon size={16} /> Salir</span></div>
+            <div style={s.mobileMenuItem} onClick={() => navigate('/')}><StoreIcon size={16} /> Ver tienda</div>
+            <div style={s.mobileMenuItem} onClick={handleLogout}><DoorIcon size={16} /> Salir</div>
           </div>
         )}
 
@@ -135,9 +131,9 @@ export default function AdminPage() {
       {/* Mobile bottom tabs */}
       <nav style={{
         display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0,
-        height: 56, background: '#1A1612', zIndex: 300,
+        height: 56, background: 'var(--lm-surface)', zIndex: 300,
         alignItems: 'center', justifyContent: 'space-around',
-        borderTop: '1px solid rgba(201,169,110,.12)',
+        borderTop: '1px solid var(--lm-border)',
         paddingBottom: 'env(safe-area-inset-bottom)',
         ...(window.innerWidth <= 768 ? { display: 'flex' } : {}),
       }}>
@@ -150,14 +146,14 @@ export default function AdminPage() {
           <button key={k} onClick={() => { setActiveSection(k); setMenuOpen(false); }}
             style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-              background: 'none', border: 'none', color: activeSection === k ? '#C9A96E' : '#8A7968',
+              background: 'none', border: 'none', color: activeSection === k ? 'var(--lm-primary)' : 'var(--lm-muted)',
               fontSize: '0.6rem', fontWeight: 500, cursor: 'pointer', padding: '0.3rem 0.6rem',
               fontFamily: 'inherit',
             }}>
             <div style={{position:'relative'}}>
               <ActionIcon type={icon} size={18} />
               {k === 'orders' && unviewedCount > 0 && (
-                <span style={{position:'absolute',top:-6,right:-8,background:'#C25E5E',color:'white',fontSize:'0.55rem',fontWeight:700,minWidth:16,height:16,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 3px',lineHeight:1}}>{unviewedCount}</span>
+                <span style={{position:'absolute',top:-6,right:-8,background:'var(--lm-danger)',color:'white',fontSize:'0.55rem',fontWeight:700,minWidth:16,height:16,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 3px',lineHeight:1}}>{unviewedCount}</span>
               )}
             </div>
             <span>{label}</span>
@@ -210,17 +206,17 @@ function SystemStatusCard() {
     <div style={s.configCard}>
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'0.75rem'}}>
         <h3 style={s.cardTitle}>Estado del sistema</h3>
-        <span style={{fontSize:'0.7rem',color:'#8A7968'}}>v1.0 estable</span>
+        <span style={{fontSize:'0.7rem',color:'var(--lm-muted)'}}>v1.0 estable</span>
       </div>
       <div style={{display:'flex',flexDirection:'column',gap:'0.5rem'}}>
         {rows.map((r, i) => (
           <div key={i} style={{display:'flex',alignItems:'center',gap:'0.5rem',fontSize:'0.85rem'}}>
             <span style={{
               width:8,height:8,borderRadius:'50%',flexShrink:0,
-              background: r.ok ? '#2E7D52' : '#C25E5E',
+              background: r.ok ? 'var(--lm-success)' : 'var(--lm-danger)',
             }}/>
-            <span style={{color:'#1A1612',fontWeight:500,minWidth:100}}>{r.label}</span>
-            <span style={{color:'#8A7968'}}>{r.value}</span>
+            <span style={{color:'var(--lm-text)',fontWeight:500,minWidth:100}}>{r.label}</span>
+            <span style={{color:'var(--lm-muted)'}}>{r.value}</span>
           </div>
         ))}
       </div>
@@ -237,8 +233,8 @@ function SystemStatusCard() {
       {telegramResult && (
         <div style={{
           marginTop:'0.5rem', fontSize:'0.8rem', padding:'0.4rem 0.75rem', borderRadius:6,
-          background: telegramResult === 'ok' ? '#E0F5EC' : '#FFF5F5',
-          color: telegramResult === 'ok' ? '#2E7D52' : '#C25E5E',
+          background: telegramResult === 'ok' ? 'rgba(var(--lm-success-rgb,34,197,94),0.12)' : 'rgba(var(--lm-danger-rgb,239,68,68),0.08)',
+          color: telegramResult === 'ok' ? 'var(--lm-success)' : 'var(--lm-danger)',
         }}>
           {telegramResult === 'ok' ? 'Mensaje de prueba enviado a Telegram correctamente' : 'Error al enviar mensaje de prueba a Telegram'}
         </div>
@@ -277,7 +273,7 @@ function DashboardSection({ onNavigate }) {
       .catch(() => setApiConnected(false));
   }, []);
 
-  if (loading) return <div style={{padding:'2rem',color:'#8A7968'}}>Cargando dashboard…</div>;
+  if (loading) return <div style={{padding:'2rem',color:'var(--lm-muted)'}}>Cargando dashboard…</div>;
 
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -300,13 +296,13 @@ function DashboardSection({ onNavigate }) {
   const barW = 240;
 
   const metricCards = [
-    { label: 'Total productos', value: stats?.totalProducts ?? '—', color: '#1A1612' },
-    { label: 'Activos', value: stats?.activeProducts ?? '—', color: '#2E7D52' },
-    { label: 'Pedidos hoy', value: orderStats?.todayOrders ?? '—', color: '#C9A96E' },
-    { label: 'Pendientes', value: orderStats?.pendingOrders ?? '—', color: '#C25E5E' },
+    { label: 'Total productos', value: stats?.totalProducts ?? '—', color: 'var(--lm-text)' },
+    { label: 'Activos', value: stats?.activeProducts ?? '—', color: 'var(--lm-success)' },
+    { label: 'Pedidos hoy', value: orderStats?.todayOrders ?? '—', color: 'var(--lm-primary)' },
+    { label: 'Pendientes', value: orderStats?.pendingOrders ?? '—', color: 'var(--lm-danger)' },
     { label: 'Ventas potenciales', value: orderStats?.potentialRevenue != null ? `S/ ${orderStats.potentialRevenue.toFixed(0)}` : '—', color: '#25D366' },
-    { label: 'Clicks WhatsApp', value: stats?.totalWhatsappClicks ?? '—', color: '#1A1612' },
-    { label: 'Pedidos semana', value: orderStats?.weekOrders ?? '---', color: '#C9A96E' },
+    { label: 'Clicks WhatsApp', value: stats?.totalWhatsappClicks ?? '—', color: 'var(--lm-text)' },
+    { label: 'Pedidos semana', value: orderStats?.weekOrders ?? '---', color: 'var(--lm-primary)' },
     { label: 'Total potencial semana', value: orderStats?.weekRevenue != null ? `S/ ${orderStats.weekRevenue.toFixed(0)}` : '---', color: '#25D366' },
     ...(stats?.totalWhatsappClicks > 0 ? [{ label: 'Tasa conversion', value: ((orderStats?.todayOrders ?? 0) / stats.totalWhatsappClicks * 100).toFixed(1) + '%', color: '#1A73E8' }] : [{ label: 'Tasa conversion', value: '---', color: '#1A73E8' }]),
   ];
@@ -316,24 +312,24 @@ function DashboardSection({ onNavigate }) {
 
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'2rem'}}>
-      <h2 style={{fontFamily:'serif',fontSize:'1.3rem',color:'#1A1612'}}>Dashboard</h2>
+      <h2 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1.3rem',color:'var(--lm-text)'}}>Dashboard</h2>
 
       {/* Metric Cards */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(150px,1fr))',gap:'1rem'}}>
         {metricCards.map((m, i) => (
           <div key={i} style={{
-            background:'white', borderRadius:12, padding:'1.25rem', textAlign:'center',
-            boxShadow:'0 2px 12px rgba(0,0,0,0.05)',
+            background:'var(--lm-surface)', borderRadius:12, padding:'1.25rem', textAlign:'center',
+            boxShadow:'0 1px 3px rgba(0,0,0,0.04)',
           }}>
             <div style={{fontSize:'1.6rem',fontWeight:700,color:m.color}}>{m.value}</div>
-            <div style={{fontSize:'0.72rem',color:'#8A7968',fontWeight:500,letterSpacing:'0.05em',marginTop:'0.3rem'}}>{m.label}</div>
+            <div style={{fontSize:'0.72rem',color:'var(--lm-muted)',fontWeight:500,letterSpacing:'0.05em',marginTop:'0.3rem'}}>{m.label}</div>
           </div>
         ))}
       </div>
 
       {/* Quick Actions */}
       <div>
-        <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.75rem'}}>Acciones rapidas</h3>
+        <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.75rem'}}>Acciones rapidas</h3>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(150px, 1fr))',gap:'0.75rem'}}>
           {[
             { label: 'Agregar producto', icon: 'plus', section: 'products' },
@@ -344,13 +340,13 @@ function DashboardSection({ onNavigate }) {
             <button key={i} style={{
               display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
               padding:'1.25rem 1rem',
-              border:'1.5px solid #E8D5B0', borderRadius:12,
-              background:'white', cursor:'pointer', fontFamily:'inherit',
-              fontSize:'0.78rem', fontWeight:600, color:'#1A1612',
-              transition:'all .2s', boxShadow:'0 2px 8px rgba(0,0,0,0.04)',
+              border:'1.5px solid var(--lm-border)', borderRadius:12,
+              background:'var(--lm-surface)', cursor:'pointer', fontFamily:'inherit',
+              fontSize:'0.78rem', fontWeight:600, color:'var(--lm-text)',
+              transition:'all .2s', boxShadow:'0 1px 3px rgba(0,0,0,0.04)',
             }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#C9A96E'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(201,169,110,0.2)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#E8D5B0'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--lm-primary)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(91,124,250,0.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--lm-border)'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}
               onClick={() => {
                 if (item.href) window.location.href = item.href;
                 else onNavigate?.(item.section);
@@ -365,8 +361,8 @@ function DashboardSection({ onNavigate }) {
       {/* Charts row */}
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1.5rem'}}>
         {/* Orders bar chart */}
-        <div style={{background:'white',borderRadius:12,padding:'1.25rem 1.5rem',boxShadow:'0 2px 16px rgba(0,0,0,0.06)'}}>
-          <h3 style={{fontFamily:'serif',fontSize:'0.95rem',color:'#1A1612',marginBottom:'1rem'}}>Pedidos recibidos</h3>
+        <div style={{background:'var(--lm-surface)',borderRadius:12,padding:'1.25rem 1.5rem',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
+          <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'0.95rem',color:'var(--lm-text)',marginBottom:'1rem'}}>Pedidos recibidos</h3>
           <svg width="100%" height={barH} viewBox={`0 0 ${barW} ${barH}`} style={{display:'block'}}>
             {barData.map((d, i) => {
               const colW = 60;
@@ -375,9 +371,9 @@ function DashboardSection({ onNavigate }) {
               const y = barH - 20 - h;
               return (
                 <g key={i}>
-                  <rect x={x} y={y} width={30} height={Math.max(h, 0)} rx={4} fill={i === 0 ? '#C9A96E' : i === 1 ? '#B0A899' : '#8A7968'} />
-                  <text x={x + 15} y={barH - 4} textAnchor="middle" fontSize="11" fill="#8A7968" fontWeight="600">{d.label}</text>
-                  <text x={x + 15} y={y - 6} textAnchor="middle" fontSize="13" fill="#1A1612" fontWeight="700">{d.value}</text>
+                  <rect x={x} y={y} width={30} height={Math.max(h, 0)} rx={4} fill={i === 0 ? 'var(--lm-primary)' : i === 1 ? 'var(--lm-muted)' : 'var(--lm-border)'} />
+                  <text x={x + 15} y={barH - 4} textAnchor="middle" fontSize="11" fill="var(--lm-muted)" fontWeight="600">{d.label}</text>
+                  <text x={x + 15} y={y - 6} textAnchor="middle" fontSize="13" fill="var(--lm-text)" fontWeight="700">{d.value}</text>
                 </g>
               );
             })}
@@ -385,19 +381,19 @@ function DashboardSection({ onNavigate }) {
         </div>
 
         {/* Top products horizontal bar */}
-        <div style={{background:'white',borderRadius:12,padding:'1.25rem 1.5rem',boxShadow:'0 2px 16px rgba(0,0,0,0.06)'}}>
-          <h3 style={{fontFamily:'serif',fontSize:'0.95rem',color:'#1A1612',marginBottom:'1rem'}}>Top {topProducts.length} mas consultados</h3>
+        <div style={{background:'var(--lm-surface)',borderRadius:12,padding:'1.25rem 1.5rem',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
+          <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'0.95rem',color:'var(--lm-text)',marginBottom:'1rem'}}>Top {topProducts.length} mas consultados</h3>
           {topProducts.length === 0 ? (
-            <p style={{fontSize:'0.82rem',color:'#8A7968'}}>Sin datos aun</p>
+            <p style={{fontSize:'0.82rem',color:'var(--lm-muted)'}}>Sin datos aun</p>
           ) : (
             <div style={{display:'flex',flexDirection:'column',gap:'0.6rem'}}>
               {topProducts.map((p, i) => {
                 const pct = ((p.whatsappClicks || 0) / maxClicks) * 100;
                 return (
                   <div key={p._id} style={{display:'flex',alignItems:'center',gap:'0.5rem'}}>
-                    <span style={{fontSize:'0.72rem',fontWeight:700,color:'#C9A96E',minWidth:18}}>#{i+1}</span>
-                    <span style={{flex:1,fontSize:'0.75rem',color:'#1A1612',fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</span>
-                    <div style={{flex:'0 0 100px',height:12,background:'#F0EBE3',borderRadius:6,overflow:'hidden'}}>
+                    <span style={{fontSize:'0.72rem',fontWeight:700,color:'var(--lm-muted)',minWidth:18}}>#{i+1}</span>
+                    <span style={{flex:1,fontSize:'0.75rem',color:'var(--lm-text)',fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</span>
+                    <div style={{flex:'0 0 100px',height:12,background:'var(--lm-surface-2)',borderRadius:6,overflow:'hidden'}}>
                       <div style={{width:`${pct}%`,height:'100%',background:'#25D366',borderRadius:6,transition:'width .4s'}} />
                     </div>
                     <span style={{fontSize:'0.7rem',color:'#25D366',fontWeight:600,minWidth:30,textAlign:'right'}}>{p.whatsappClicks ?? 0}</span>
@@ -411,20 +407,20 @@ function DashboardSection({ onNavigate }) {
 
       {/* Most Ordered Products */}
       {orderStats?.mostOrderedProducts?.length > 0 && (
-        <div style={{background:'white',borderRadius:12,padding:'1.25rem 1.5rem',boxShadow:'0 2px 16px rgba(0,0,0,0.06)'}}>
-          <h3 style={{fontFamily:'serif',fontSize:'0.95rem',color:'#1A1612',marginBottom:'1rem'}}>Productos mas pedidos</h3>
+        <div style={{background:'var(--lm-surface)',borderRadius:12,padding:'1.25rem 1.5rem',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
+          <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'0.95rem',color:'var(--lm-text)',marginBottom:'1rem'}}>Productos mas pedidos</h3>
           <div style={{display:'flex',flexDirection:'column',gap:'0.6rem'}}>
             {orderStats.mostOrderedProducts.map((p, i) => {
               const maxQty = Math.max(...orderStats.mostOrderedProducts.map(x => x.count), 1);
               const pct = (p.count / maxQty) * 100;
               return (
                 <div key={p._id || i} style={{display:'flex',alignItems:'center',gap:'0.5rem'}}>
-                  <span style={{fontSize:'0.72rem',fontWeight:700,color:'#C9A96E',minWidth:18}}>#{i+1}</span>
-                  <span style={{flex:1,fontSize:'0.75rem',color:'#1A1612',fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</span>
-                  <div style={{flex:'0 0 100px',height:12,background:'#F0EBE3',borderRadius:6,overflow:'hidden'}}>
-                    <div style={{width:`${pct}%`,height:'100%',background:'#C9A96E',borderRadius:6,transition:'width .4s'}} />
+                  <span style={{fontSize:'0.72rem',fontWeight:700,color:'var(--lm-muted)',minWidth:18}}>#{i+1}</span>
+                  <span style={{flex:1,fontSize:'0.75rem',color:'var(--lm-text)',fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</span>
+                  <div style={{flex:'0 0 100px',height:12,background:'var(--lm-surface-2)',borderRadius:6,overflow:'hidden'}}>
+                    <div style={{width:`${pct}%`,height:'100%',background:'var(--lm-primary)',borderRadius:6,transition:'width .4s'}} />
                   </div>
-                  <span style={{fontSize:'0.7rem',color:'#C9A96E',fontWeight:600,minWidth:30,textAlign:'right'}}>{p.count}</span>
+                  <span style={{fontSize:'0.7rem',color:'var(--lm-primary)',fontWeight:600,minWidth:30,textAlign:'right'}}>{p.count}</span>
                 </div>
               );
             })}
@@ -433,12 +429,12 @@ function DashboardSection({ onNavigate }) {
       )}
 
       {/* API Status */}
-      <div style={{background:'white',borderRadius:12,padding:'1rem 1.5rem',boxShadow:'0 2px 16px rgba(0,0,0,0.06)',display:'flex',alignItems:'center',gap:'0.75rem'}}>
+      <div style={{background:'var(--lm-surface)',borderRadius:12,padding:'1rem 1.5rem',boxShadow:'0 1px 3px rgba(0,0,0,0.04)',display:'flex',alignItems:'center',gap:'0.75rem'}}>
         <div style={{
           width:36,height:36,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,
-          background: apiConnected ? '#E0F5EC' : '#FDE8E8',
+          background: apiConnected ? 'rgba(var(--lm-success-rgb,34,197,94),0.12)' : 'rgba(var(--lm-danger-rgb,239,68,68),0.08)',
         }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={apiConnected ? '#2E7D52' : '#C25E5E'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={apiConnected ? 'var(--lm-success)' : 'var(--lm-danger)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             {apiConnected ? (
               <><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></>
             ) : (
@@ -447,16 +443,16 @@ function DashboardSection({ onNavigate }) {
           </svg>
         </div>
         <div>
-          <div style={{fontSize:'0.85rem',fontWeight:600,color:'#1A1612'}}>
+          <div style={{fontSize:'0.85rem',fontWeight:600,color:'var(--lm-text)'}}>
             {apiConnected ? 'Backend conectado' : 'Backend no disponible'}
           </div>
-          <div style={{fontSize:'0.72rem',color:'#8A7968',marginTop:'0.1rem'}}>
+          <div style={{fontSize:'0.72rem',color:'var(--lm-muted)',marginTop:'0.1rem'}}>
             {apiConnected ? 'API operativa' : 'Verifica que el servidor este corriendo'}
           </div>
         </div>
         <span style={{
           marginLeft:'auto',width:10,height:10,borderRadius:'50%',flexShrink:0,
-          background: apiConnected ? '#2E7D52' : '#C25E5E',
+          background: apiConnected ? 'var(--lm-success)' : 'var(--lm-danger)',
         }}/>
       </div>
 
@@ -468,11 +464,11 @@ function DashboardSection({ onNavigate }) {
             {orderStats.recentOrders.map((o, i) => (
               <div key={o._id} style={{
                 display:'flex',alignItems:'center',gap:'0.75rem',
-                padding:'0.55rem 0',borderBottom:i<orderStats.recentOrders.length-1?'1px solid #F5F0EB':'none',
+                padding:'0.55rem 0',borderBottom:i<orderStats.recentOrders.length-1?'1px solid var(--lm-border)':'none',
               }}>
-                <span style={{flex:1,fontSize:'0.85rem',color:'#1A1612',fontWeight:500}}>{o.customerName}</span>
+                <span style={{flex:1,fontSize:'0.85rem',color:'var(--lm-text)',fontWeight:500}}>{o.customerName}</span>
                 <StatusBadge status={o.status} />
-                <span style={{fontSize:'0.78rem',color:'#8A7968',fontWeight:600}}>S/ {o.total.toFixed(2)}</span>
+                <span style={{fontSize:'0.78rem',color:'var(--lm-muted)',fontWeight:600}}>S/ {o.total.toFixed(2)}</span>
               </div>
             ))}
           </div>
@@ -481,16 +477,16 @@ function DashboardSection({ onNavigate }) {
 
       {/* Low Stock */}
       {stats?.lowStockProducts?.length > 0 && (
-        <div style={{...s.card,borderLeft:'3px solid #C25E5E'}}>
-          <div style={s.cardHeader}><h3 style={{...s.cardTitle,color:'#C25E5E'}}>Stock bajo ({stats.lowStockProducts.length})</h3></div>
+        <div style={{...s.card,borderLeft:'3px solid var(--lm-danger)'}}>
+          <div style={s.cardHeader}><h3 style={{...s.cardTitle,color:'var(--lm-danger)'}}>Stock bajo ({stats.lowStockProducts.length})</h3></div>
           <div style={{padding:'0.75rem 1.5rem 1rem'}}>
             {stats.lowStockProducts.map((p, i) => (
               <div key={p._id} style={{
                 display:'flex',alignItems:'center',gap:'0.75rem',
-                padding:'0.55rem 0',borderBottom:i<stats.lowStockProducts.length-1?'1px solid #F5F0EB':'none',
+                padding:'0.55rem 0',borderBottom:i<stats.lowStockProducts.length-1?'1px solid var(--lm-border)':'none',
               }}>
-                <span style={{flex:1,fontSize:'0.85rem',color:'#1A1612',fontWeight:500}}>{p.name}</span>
-                <span style={{fontSize:'0.78rem',color:'#C25E5E',fontWeight:700}}>Stock: {p.stock}</span>
+                <span style={{flex:1,fontSize:'0.85rem',color:'var(--lm-text)',fontWeight:500}}>{p.name}</span>
+                <span style={{fontSize:'0.78rem',color:'var(--lm-danger)',fontWeight:700}}>Stock: {p.stock}</span>
               </div>
             ))}
           </div>
@@ -515,11 +511,11 @@ function ActionIcon({ type, size = 20 }) {
 
 function StatusBadge({ status }) {
   const map = {
-    pending:    { label: 'Pendiente', bg: '#FFF5E0', color: '#B8941E' },
+    pending:    { label: 'Pendiente', bg: '#FFFBEB', color: '#B8941E' },
     contacted:  { label: 'Contactado', bg: '#E8F0FE', color: '#1A73E8' },
     confirmed:  { label: 'Confirmado', bg: '#E0F5EC', color: '#1E8E5E' },
     delivered:  { label: 'Entregado', bg: '#E8F5E9', color: '#2E7D52' },
-    cancelled:  { label: 'Cancelado', bg: '#FDE8E8', color: '#C25E5E' },
+    cancelled:  { label: 'Cancelado', bg: 'rgba(var(--lm-danger-rgb,239,68,68),0.08)', color: 'var(--lm-danger)' },
   };
   const m = map[status] || map.pending;
   return (
@@ -603,7 +599,7 @@ function ProductSection({ onEdit, onAdd }) {
       {/* Filtros */}
       <div style={{
         display:'flex',flexWrap:'wrap',gap:'0.6rem',alignItems:'center',
-        padding:'1rem 1.5rem',borderBottom:'1px solid #F0EAE0',background:'#FAF7F2',
+        padding:'1rem 1.5rem',borderBottom:'1px solid var(--lm-border)',background:'var(--lm-bg)',
       }}>
         <input placeholder="Buscar producto…"
           value={search} onChange={e => setSearch(e.target.value)}
@@ -617,12 +613,12 @@ function ProductSection({ onEdit, onAdd }) {
           {SORT_OPTIONS.map(([v,l]) => <option key={v} value={v}>{l}</option>)}
         </select>
 
-        <label style={{display:'flex',alignItems:'center',gap:'0.3rem',fontSize:'0.78rem',color:'#8A7968',cursor:'pointer',whiteSpace:'nowrap'}}>
+        <label style={{display:'flex',alignItems:'center',gap:'0.3rem',fontSize:'0.78rem',color:'var(--lm-muted)',cursor:'pointer',whiteSpace:'nowrap'}}>
           <input type="checkbox" checked={featuredOnly} onChange={e => setFeaturedOnly(e.target.checked)} />
           Destacados
         </label>
 
-        <label style={{display:'flex',alignItems:'center',gap:'0.3rem',fontSize:'0.78rem',color:'#8A7968',cursor:'pointer',whiteSpace:'nowrap'}}>
+        <label style={{display:'flex',alignItems:'center',gap:'0.3rem',fontSize:'0.78rem',color:'var(--lm-muted)',cursor:'pointer',whiteSpace:'nowrap'}}>
           <input type="checkbox" checked={lowStockOnly} onChange={e => setLowStockOnly(e.target.checked)} />
           Stock bajo
         </label>
@@ -635,10 +631,10 @@ function ProductSection({ onEdit, onAdd }) {
         </select>
       </div>
 
-      {loading && <p style={{padding:'2rem',color:'#8A7968'}}>Cargando…</p>}
+      {loading && <p style={{padding:'2rem',color:'var(--lm-muted)'}}>Cargando…</p>}
 
       {!loading && products.length === 0 && (
-        <p style={{padding:'2rem',textAlign:'center',color:'#8A7968'}}>No hay productos con estos filtros</p>
+        <p style={{padding:'2rem',textAlign:'center',color:'var(--lm-muted)'}}>No hay productos con estos filtros</p>
       )}
 
       {/* Tabla escritorio */}
@@ -669,18 +665,18 @@ function ProductSection({ onEdit, onAdd }) {
                 <td style={s.td}>{p.category}</td>
                 <td style={s.td}>
                   S/ {p.price.toFixed(2)}
-                  {p.oldPrice && <span style={{fontSize:'0.7rem',color:'#8A7968',textDecoration:'line-through',marginLeft:'0.2rem'}}>S/ {p.oldPrice.toFixed(2)}</span>}
+                  {p.oldPrice && <span style={{fontSize:'0.7rem',color:'var(--lm-muted)',textDecoration:'line-through',marginLeft:'0.2rem'}}>S/ {p.oldPrice.toFixed(2)}</span>}
                 </td>
-                <td style={{...s.td, textAlign:'center', color: p.stock > 0 && p.stock <= 5 ? '#C25E5E' : '#1A1612', fontWeight: p.stock <= 5 ? 700 : 400}}>
+                <td style={{...s.td, textAlign:'center', color: p.stock > 0 && p.stock <= 5 ? 'var(--lm-danger)' : 'var(--lm-text)', fontWeight: p.stock <= 5 ? 700 : 400}}>
                   {p.stock ?? 0}
                 </td>
                 <td style={{...s.td, textAlign:'center'}}>
-                  {p.featured ? <span style={{background:'#C9A96E',color:'#1A1612',fontSize:'0.62rem',fontWeight:700,padding:'0.15rem 0.4rem',borderRadius:4}}>SÍ</span> : <span style={{color:'#D0C8BE',fontSize:'0.7rem'}}>—</span>}
+                  {p.featured ? <span style={{background:'var(--lm-primary)',color:'white',fontSize:'0.62rem',fontWeight:700,padding:'0.15rem 0.4rem',borderRadius:4}}>SÍ</span> : <span style={{color:'var(--lm-muted)',fontSize:'0.7rem'}}>—</span>}
                 </td>
                 <td style={{...s.td, textAlign:'center'}}>
                   <span style={{
                     display:'inline-block',width:8,height:8,borderRadius:'50%',
-                    background: p.isActive ? '#2E7D52' : '#C25E5E',
+                    background: p.isActive ? 'var(--lm-success)' : 'var(--lm-danger)',
                   }}/>
                 </td>
                 <td style={{...s.td, textAlign:'center', color:'#25D366', fontWeight:600}}>{p.whatsappClicks ?? 0}</td>
@@ -704,8 +700,8 @@ function ProductSection({ onEdit, onAdd }) {
                 ? <img src={p.images[0].url} style={s.thumbMobile} alt=""/>
                 : <div style={s.noThumbMobile}><ImageIcon size={24} /></div>}
               <div style={{flex:1, minWidth:0}}>
-                <div style={{fontWeight:600, fontSize:'0.92rem', color:'#1A1612', marginBottom:'0.2rem', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{p.name}</div>
-                <div style={{fontSize:'0.8rem', color:'#8A7968'}}>
+                <div style={{fontWeight:600, fontSize:'0.92rem', color:'var(--lm-text)', marginBottom:'0.2rem', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{p.name}</div>
+                <div style={{fontSize:'0.8rem', color:'var(--lm-muted)'}}>
                   {p.category} · S/ {p.price.toFixed(2)}
                   {p.stock !== undefined && <span> · Stock: {p.stock}</span>}
                 </div>
@@ -791,7 +787,7 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
 
       <div style={{
         display:'flex',flexWrap:'wrap',gap:'0.6rem',alignItems:'center',
-        padding:'1rem 1.5rem',borderBottom:'1px solid #F0EAE0',background:'#FAF7F2',
+        padding:'1rem 1.5rem',borderBottom:'1px solid var(--lm-border)',background:'var(--lm-bg)',
       }}>
         <input placeholder="Buscar por nombre, celular o producto…"
           value={search} onChange={e => setSearch(e.target.value)}
@@ -803,7 +799,7 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
       </div>
       <div style={{
         display:'flex',flexWrap:'wrap',gap:'0.4rem',alignItems:'center',
-        padding:'0 1.5rem 0.75rem',borderBottom:'1px solid #F0EAE0',background:'#FAF7F2',
+        padding:'0 1.5rem 0.75rem',borderBottom:'1px solid var(--lm-border)',background:'var(--lm-bg)',
       }}>
         {[
           ['', 'Pendientes', 'pending'],
@@ -813,9 +809,9 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
           <button key={val} onClick={() => setQuickFilter(prev => prev === val ? '' : val)}
             style={{
               padding:'0.3rem 0.75rem',borderRadius:999,fontSize:'0.7rem',fontWeight:600,
-              border: quickFilter === val ? '1.5px solid #C9A96E' : '1.5px solid #E0D8CE',
-              background: quickFilter === val ? '#C9A96E' : 'transparent',
-              color: quickFilter === val ? '#1A1612' : '#8A7968',
+              border: quickFilter === val ? '1.5px solid var(--lm-primary)' : '1.5px solid var(--lm-border)',
+              background: quickFilter === val ? 'var(--lm-primary)' : 'transparent',
+              color: quickFilter === val ? 'white' : 'var(--lm-muted)',
               cursor:'pointer',fontFamily:'inherit',transition:'all .15s',
             }}>{lab}</button>
         ))}
@@ -823,32 +819,32 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
           <button key={st} onClick={() => setStatusFilter(prev => prev === st ? '' : st)}
             style={{
               padding:'0.3rem 0.75rem',borderRadius:999,fontSize:'0.7rem',fontWeight:600,
-              border: statusFilter === st ? '1.5px solid #C9A96E' : '1.5px solid #E0D8CE',
-              background: statusFilter === st ? '#C9A96E' : 'transparent',
-              color: statusFilter === st ? '#1A1612' : '#8A7968',
+              border: statusFilter === st ? '1.5px solid var(--lm-primary)' : '1.5px solid var(--lm-border)',
+              background: statusFilter === st ? 'var(--lm-primary)' : 'transparent',
+              color: statusFilter === st ? 'white' : 'var(--lm-muted)',
               cursor:'pointer',fontFamily:'inherit',transition:'all .15s',
             }}>{STATUS_OPTIONS.find(([v])=>v===st)?.[1] || st}</button>
         ))}
       </div>
 
-      {loading && <p style={{padding:'2rem',color:'#8A7968'}}>Cargando pedidos…</p>}
+      {loading && <p style={{padding:'2rem',color:'var(--lm-muted)'}}>Cargando pedidos…</p>}
 
       {!loading && orders.length === 0 && (
-        <p style={{padding:'2rem',textAlign:'center',color:'#8A7968'}}>No hay pedidos</p>
+        <p style={{padding:'2rem',textAlign:'center',color:'var(--lm-muted)'}}>No hay pedidos</p>
       )}
 
       {/* Vista detalle */}
       {detail ? (
         <div style={{padding:'1.25rem 1.5rem',display:'flex',flexDirection:'column',gap:'1rem'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-            <h4 style={{fontSize:'1rem',fontWeight:600,color:'#1A1612'}}>
+            <h4 style={{fontSize:'1rem',fontWeight:600,color:'var(--lm-text)'}}>
               Pedido de <strong>{detail.customerName}</strong>
             </h4>
-            <button style={{background:'none',border:'1px solid #D0C8BE',borderRadius:6,padding:'0.3rem 0.8rem',fontSize:'0.8rem',cursor:'pointer'}}
+            <button style={{background:'none',border:'1px solid var(--lm-border)',borderRadius:6,padding:'0.3rem 0.8rem',fontSize:'0.8rem',cursor:'pointer'}}
               onClick={() => setDetail(null)}>← Volver</button>
           </div>
 
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0.75rem',fontSize:'0.85rem',color:'#1A1612'}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0.75rem',fontSize:'0.85rem',color:'var(--lm-text)'}}>
             <div><strong>Cliente:</strong> {detail.customerName}</div>
             <div><strong>Celular:</strong> {detail.customerPhone}
               <button style={{background:'none',border:'none',color:'#25D366',cursor:'pointer',marginLeft:'0.5rem',fontSize:'0.8rem'}}
@@ -860,7 +856,7 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
             <div style={{gridColumn:'1/-1'}}>
               <strong>Estado:</strong>{' '}
               <select value={detail.status} onChange={e => handleStatusChange(detail._id, e.target.value)}
-                style={{marginLeft:'0.5rem',padding:'0.25rem 0.5rem',borderRadius:6,border:'1.5px solid #E0D8CE',fontSize:'0.82rem'}}>
+                style={{marginLeft:'0.5rem',padding:'0.25rem 0.5rem',borderRadius:6,border:'1.5px solid var(--lm-border)',fontSize:'0.82rem'}}>
                 {STATUS_OPTIONS.filter(([v]) => v).map(([v,l]) => <option key={v} value={v}>{l}</option>)}
               </select>
               {detail.isViewed === false && (
@@ -870,7 +866,7 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
                   setOrders(prev => prev.map(o => o._id === detail._id ? {...o, isViewed: true} : o));
                   if (onUnviewedChange && unviewedCount > 0) onUnviewedChange(unviewedCount - 1);
                 }}
-                  style={{marginLeft:'0.75rem',padding:'0.3rem 0.7rem',borderRadius:6,border:'1.5px solid #C9A96E',background:'#C9A96E',color:'#1A1612',fontSize:'0.75rem',fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                  style={{marginLeft:'0.75rem',padding:'0.3rem 0.7rem',borderRadius:6,border:'1.5px solid var(--lm-primary)',background:'var(--lm-primary)',color:'white',fontSize:'0.75rem',fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
                   Marcar como visto
                 </button>
               )}
@@ -879,9 +875,9 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
               {[['contacted','Contactado'],['confirmed','Confirmado'],['delivered','Entregado']].map(([st,lab]) => (
                 <button key={st} onClick={() => handleStatusChange(detail._id, st)}
                   style={{
-                    padding:'0.3rem 0.7rem',borderRadius:6,border:'1.5px solid #E0D8CE',
-                    background: detail.status === st ? '#1A1612' : 'transparent',
-                    color: detail.status === st ? '#C9A96E' : '#8A7968',
+                    padding:'0.3rem 0.7rem',borderRadius:6,border:'1.5px solid var(--lm-border)',
+                    background: detail.status === st ? 'var(--lm-secondary)' : 'transparent',
+                    color: detail.status === st ? 'var(--lm-primary)' : 'var(--lm-muted)',
                     fontSize:'0.75rem',fontWeight:600,cursor:'pointer',fontFamily:'inherit',
                   }}>{lab}</button>
               ))}
@@ -890,34 +886,34 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
               <strong>Notas internas:</strong>
               <textarea defaultValue={detail.notes || ''}
                 onBlur={e => handleNotesSave(detail._id, e.target.value)}
-                style={{display:'block',width:'100%',marginTop:'0.4rem',padding:'0.5rem 0.75rem',borderRadius:8,border:'1.5px solid #E0D8CE',fontSize:'0.85rem',fontFamily:'inherit',resize:'vertical',minHeight:60,background:'#FAF7F2'}}
+                style={{display:'block',width:'100%',marginTop:'0.4rem',padding:'0.5rem 0.75rem',borderRadius:8,border:'1.5px solid var(--lm-border)',fontSize:'0.85rem',fontFamily:'inherit',resize:'vertical',minHeight:60,background:'var(--lm-bg)'}}
                 placeholder="Agregar notas internas…" />
             </div>
           </div>
 
-          <div style={{borderTop:'1px solid #F0EAE0',paddingTop:'0.75rem'}}>
+          <div style={{borderTop:'1px solid var(--lm-border)',paddingTop:'0.75rem'}}>
             <strong style={{fontSize:'0.85rem'}}>Productos ({detail.items.length})</strong>
             {detail.items.map((item, i) => (
               <div key={i} style={{
                 display:'flex',alignItems:'center',gap:'0.75rem',padding:'0.5rem 0',
-                borderBottom:i<detail.items.length-1?'1px solid #F5F0EB':'none',fontSize:'0.85rem',
+                borderBottom:i<detail.items.length-1?'1px solid var(--lm-border)':'none',fontSize:'0.85rem',
               }}>
                 {item.image
                   ? <img src={item.image} style={{width:40,height:48,borderRadius:6,objectFit:'cover'}} alt=""/>
-                  : <div style={{width:40,height:48,borderRadius:6,background:'#F0EBE3',display:'flex',alignItems:'center',justifyContent:'center',opacity:0.4}}><ImageIcon size={20} /></div>}
+                  : <div style={{width:40,height:48,borderRadius:6,background:'var(--lm-surface-2)',display:'flex',alignItems:'center',justifyContent:'center',opacity:0.4}}><ImageIcon size={20} /></div>}
                 <span style={{flex:1,fontWeight:500}}>{item.name}</span>
-                {item.size && <span style={{color:'#8A7968',fontSize:'0.78rem'}}>T: {item.size}</span>}
-                {item.color && <span style={{color:'#8A7968',fontSize:'0.78rem'}}>C: {item.color}</span>}
-                <span style={{color:'#8A7968'}}>x{item.quantity}</span>
+                {item.size && <span style={{color:'var(--lm-muted)',fontSize:'0.78rem'}}>T: {item.size}</span>}
+                {item.color && <span style={{color:'var(--lm-muted)',fontSize:'0.78rem'}}>C: {item.color}</span>}
+                <span style={{color:'var(--lm-muted)'}}>x{item.quantity}</span>
                 <span style={{fontWeight:600}}>S/ {item.subtotal.toFixed(2)}</span>
               </div>
             ))}
           </div>
 
           {detail.whatsappMessage && (
-            <div style={{borderTop:'1px solid #F0EAE0',paddingTop:'0.75rem'}}>
+            <div style={{borderTop:'1px solid var(--lm-border)',paddingTop:'0.75rem'}}>
               <strong style={{fontSize:'0.85rem',display:'block',marginBottom:'0.4rem'}}>Mensaje WhatsApp:</strong>
-              <pre style={{fontSize:'0.78rem',color:'#8A7968',whiteSpace:'pre-wrap',fontFamily:'monospace',background:'#F5F1EB',padding:'0.75rem',borderRadius:8,lineHeight:1.5}}>{detail.whatsappMessage}</pre>
+              <pre style={{fontSize:'0.78rem',color:'var(--lm-muted)',whiteSpace:'pre-wrap',fontFamily:'monospace',background:'var(--lm-bg)',padding:'0.75rem',borderRadius:8,lineHeight:1.5}}>{detail.whatsappMessage}</pre>
             </div>
           )}
         </div>
@@ -941,14 +937,14 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
                 {orders.map(o => (
                   <tr key={o._id} style={s.tr}>
                     <td style={{...s.td,fontWeight:500}}>
-                      {o.isViewed === false && <NewBadgeIcon size={12} style={{marginRight:'0.3rem',verticalAlign:'middle',color:'#C25E5E'}} />}
+                      {o.isViewed === false && <NewBadgeIcon size={12} style={{marginRight:'0.3rem',verticalAlign:'middle',color:'var(--lm-danger)'}} />}
                       {o.customerName}
                     </td>
                     <td style={s.td}>{o.customerPhone}</td>
                     <td style={{...s.td,textAlign:'center'}}>{o.items?.length ?? 0}</td>
                     <td style={{...s.td,fontWeight:600}}>S/ {o.total.toFixed(2)}</td>
                     <td style={s.td}><StatusBadge status={o.status} /></td>
-                    <td style={{...s.td,fontSize:'0.78rem',color:'#8A7968'}}>
+                    <td style={{...s.td,fontSize:'0.78rem',color:'var(--lm-muted)'}}>
                       {new Date(o.createdAt).toLocaleDateString('es-PE', { day:'2-digit', month:'2-digit' })}
                     </td>
                     <td style={s.td}>
@@ -968,16 +964,16 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
               <div key={o._id} style={s.mobileCard}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'start'}}>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontWeight:600,fontSize:'0.92rem',color:'#1A1612'}}>
-                      {o.isViewed === false && <NewBadgeIcon size={12} style={{marginRight:'0.3rem',verticalAlign:'middle',color:'#C25E5E'}} />}
+                    <div style={{fontWeight:600,fontSize:'0.92rem',color:'var(--lm-text)'}}>
+                      {o.isViewed === false && <NewBadgeIcon size={12} style={{marginRight:'0.3rem',verticalAlign:'middle',color:'var(--lm-danger)'}} />}
                       {o.customerName}
                     </div>
-                    <div style={{fontSize:'0.8rem',color:'#8A7968',marginTop:'0.2rem'}}>{o.customerPhone} · {o.items?.length} items</div>
+                    <div style={{fontSize:'0.8rem',color:'var(--lm-muted)',marginTop:'0.2rem'}}>{o.customerPhone} · {o.items?.length} items</div>
                   </div>
                   <StatusBadge status={o.status} />
                 </div>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:'0.6rem'}}>
-                  <span style={{fontWeight:700,fontSize:'1rem',color:'#1A1612'}}>S/ {o.total.toFixed(2)}</span>
+                  <span style={{fontWeight:700,fontSize:'1rem',color:'var(--lm-text)'}}>S/ {o.total.toFixed(2)}</span>
                   <div style={{display:'flex',gap:'0.4rem'}}>
                     <button style={s.btnEdit} onClick={() => setDetail(o)}><EyeIcon size={14} /> Ver</button>
                     <button style={s.btnEdit} onClick={() => contactWa(o.customerPhone)}><MobileIcon size={14} /></button>
@@ -1017,7 +1013,7 @@ function UserSection() {
   return (
     <div style={s.configCard}>
       <h3 style={s.cardTitle}>Agregar nuevo usuario</h3>
-      <p style={{fontSize:'0.85rem', color:'#8A7968', margin:'0.5rem 0 1.25rem'}}>
+      <p style={{fontSize:'0.85rem', color:'var(--lm-muted)', margin:'0.5rem 0 1.25rem'}}>
         Los usuarios con rol Admin pueden gestionar productos y configuración.
       </p>
       {msg && (
@@ -1025,7 +1021,7 @@ function UserSection() {
           padding:'0.75rem 1rem', borderRadius:8, marginBottom:'1rem', fontSize:'0.88rem',
           background: msg.ok ? '#F0FBF4' : '#FFF5F5',
           border: `1px solid ${msg.ok ? '#A8E6C3' : '#F5C0C0'}`,
-          color: msg.ok ? '#2E7D52' : '#C25E5E',
+          color: msg.ok ? 'var(--lm-success)' : 'var(--lm-danger)',
         }}>{msg.text}</div>
       )}
       <div style={s.configRow}>
@@ -1119,18 +1115,18 @@ function BannersManager() {
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-        <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612'}}>Banners promocionales</h3>
+        <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)'}}>Banners promocionales</h3>
         <button onClick={handleCreate} disabled={saving} style={{...s.btnAdd, padding:'0.45rem 0.9rem', fontSize:'0.78rem'}}>
           <PlusCircleIcon size={12} /> Agregar banner
         </button>
       </div>
-      {banners.length === 0 && <p style={{fontSize:'0.85rem',color:'#8A7968'}}>No hay banners aun. Crea uno para mostrar promociones.</p>}
+      {banners.length === 0 && <p style={{fontSize:'0.85rem',color:'var(--lm-muted)'}}>No hay banners aun. Crea uno para mostrar promociones.</p>}
       {banners.map(b => {
         const isEditing = editing?._id === b._id;
         return (
         <div key={b._id} style={{
-          background:'#FAF7F2', borderRadius:10, padding:'0.75rem 1rem',
-          border: `1.5px solid ${isEditing ? '#C9A96E' : '#E8D5B0'}`,
+          background:'var(--lm-bg)', borderRadius:10, padding:'0.75rem 1rem',
+          border: `1.5px solid ${isEditing ? 'var(--lm-primary)' : 'var(--lm-border)'}`,
           display:'flex', flexDirection:'column', gap:'0.5rem',
           opacity: b.isActive ? 1 : 0.6,
         }}>
@@ -1143,17 +1139,17 @@ function BannersManager() {
                 <input style={{...s.input, flex:1, minWidth:100}} value={editing.link || ''} onChange={e => setEditing({...editing, link: e.target.value})} placeholder="URL del boton" />
               </div>
               <div style={{display:'flex',gap:'0.5rem',alignItems:'center',flexWrap:'wrap'}}>
-                <label style={{fontSize:'0.78rem',color:'#1A1612',display:'flex',alignItems:'center',gap:'0.3rem'}}>
-                  Color: <input type="color" value={editing.color || '#C9A96E'} onChange={e => setEditing({...editing, color: e.target.value})} style={{width:32,height:28,border:'1px solid #E0D8CE',borderRadius:4,cursor:'pointer',padding:0}} />
+                <label style={{fontSize:'0.78rem',color:'var(--lm-text)',display:'flex',alignItems:'center',gap:'0.3rem'}}>
+                  Color: <input type="color" value={editing.color || '#5B7CFA'} onChange={e => setEditing({...editing, color: e.target.value})} style={{width:32,height:28,border:'1px solid var(--lm-border)',borderRadius:4,cursor:'pointer',padding:0}} />
                 </label>
-                <label style={{fontSize:'0.78rem',color:'#1A1612',display:'flex',alignItems:'center',gap:'0.3rem'}}>
+                <label style={{fontSize:'0.78rem',color:'var(--lm-text)',display:'flex',alignItems:'center',gap:'0.3rem'}}>
                   <input type="checkbox" checked={editing.isActive} onChange={e => setEditing({...editing, isActive: e.target.checked})} />
                   Activo
                 </label>
               </div>
               <div style={{
                 padding:'0.5rem 1rem', borderRadius:6, textAlign:'center', fontSize:'0.82rem',
-                background: editing.color || '#C9A96E', color:'white', fontWeight:500,
+                background: editing.color || '#5B7CFA', color:'white', fontWeight:500,
               }}>
                 {editing.text} {editing.cta && <span style={{textDecoration:'underline',marginLeft:'0.5rem'}}>{editing.cta}</span>}
               </div>
@@ -1161,29 +1157,29 @@ function BannersManager() {
                 <button onClick={() => handleUpdate(b._id, editing)} disabled={saving} style={{...s.btnSave, fontSize:'0.78rem', padding:'0.4rem 0.9rem'}}>
                   {saving ? 'Guardando...' : <><SaveIcon size={12} /> Guardar</>}
                 </button>
-                <button onClick={() => setEditing(null)} style={{fontSize:'0.78rem',padding:'0.4rem 0.9rem',background:'transparent',border:'1.5px solid #D0C8BE',borderRadius:6,color:'#8A7968',cursor:'pointer',fontFamily:'inherit'}}>Cancelar</button>
+                <button onClick={() => setEditing(null)} style={{fontSize:'0.78rem',padding:'0.4rem 0.9rem',background:'transparent',border:'1.5px solid var(--lm-border)',borderRadius:6,color:'var(--lm-muted)',cursor:'pointer',fontFamily:'inherit'}}>Cancelar</button>
               </div>
             </>
           ) : (
             <>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <div style={{display:'flex',alignItems:'center',gap:'0.5rem'}}>
-                  <span style={{width:10,height:10,borderRadius:'50%',background:b.isActive?'#2E7D52':'#E0D8CE'}} />
-                  <strong style={{fontSize:'0.88rem',color:'#1A1612'}}>{b.text || '(sin texto)'}</strong>
+                  <span style={{width:10,height:10,borderRadius:'50%',background:b.isActive?'var(--lm-success)':'var(--lm-border)'}} />
+                  <strong style={{fontSize:'0.88rem',color:'var(--lm-text)'}}>{b.text || '(sin texto)'}</strong>
                 </div>
                 <div style={{display:'flex',gap:'0.3rem'}}>
-                  <button onClick={() => handleToggleActive(b)} disabled={saving} style={{background:'none',border:'none',color:'#8A7968',cursor:'pointer',padding:'0.2rem'}} title={b.isActive ? 'Desactivar' : 'Activar'}>
+                  <button onClick={() => handleToggleActive(b)} disabled={saving} style={{background:'none',border:'none',color:'var(--lm-muted)',cursor:'pointer',padding:'0.2rem'}} title={b.isActive ? 'Desactivar' : 'Activar'}>
                     {b.isActive ? <EyeIcon size={14} /> : <EyeOffIcon size={14} />}
                   </button>
-                  <button onClick={() => setEditing({...b})} disabled={saving} style={{background:'none',border:'none',color:'#8A7968',cursor:'pointer',padding:'0.2rem'}} title="Editar"><PencilIcon size={14} /></button>
-                  <button onClick={() => handleDelete(b._id)} disabled={saving} style={{background:'none',border:'none',color:'#C25E5E',cursor:'pointer',padding:'0.2rem'}} title="Eliminar"><TrashIcon size={14} /></button>
+                  <button onClick={() => setEditing({...b})} disabled={saving} style={{background:'none',border:'none',color:'var(--lm-muted)',cursor:'pointer',padding:'0.2rem'}} title="Editar"><PencilIcon size={14} /></button>
+                  <button onClick={() => handleDelete(b._id)} disabled={saving} style={{background:'none',border:'none',color:'var(--lm-danger)',cursor:'pointer',padding:'0.2rem'}} title="Eliminar"><TrashIcon size={14} /></button>
                 </div>
               </div>
-              {b.subtitle && <div style={{fontSize:'0.78rem',color:'#8A7968'}}>{b.subtitle}</div>}
-              {b.cta && <div style={{fontSize:'0.72rem',color:'#C9A96E',fontWeight:600}}>CTA: {b.cta}{b.link ? ' → '+b.link : ''}</div>}
+              {b.subtitle && <div style={{fontSize:'0.78rem',color:'var(--lm-muted)'}}>{b.subtitle}</div>}
+              {b.cta && <div style={{fontSize:'0.72rem',color:'var(--lm-primary)',fontWeight:600}}>CTA: {b.cta}{b.link ? ' → '+b.link : ''}</div>}
               <div style={{
                 padding:'0.5rem 1rem', borderRadius:6, textAlign:'center', fontSize:'0.82rem',
-                background: b.color || '#C9A96E', color:'white', fontWeight:500,
+                background: b.color || '#5B7CFA', color:'white', fontWeight:500,
               }}>
                 {b.text} {b.cta && <span style={{textDecoration:'underline',marginLeft:'0.5rem'}}>{b.cta}</span>}
               </div>
@@ -1220,21 +1216,21 @@ function AnalyticsDashboard() {
 
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-      <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Analytics comerciales (local)</h3>
+      <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Analytics comerciales (local)</h3>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:'0.75rem'}}>
         {[
-          { label: 'Productos vistos', value: counts.views, color: '#1A1612' },
-          { label: 'Vistos hoy', value: todayCount.views, color: '#C9A96E' },
+          { label: 'Productos vistos', value: counts.views, color: 'var(--lm-text)' },
+          { label: 'Vistos hoy', value: todayCount.views, color: 'var(--lm-primary)' },
           { label: 'Clicks WhatsApp', value: counts.waClicks, color: '#25D366' },
-          { label: 'Favoritos', value: localData?.favorites?.length ? [...new Set(localData.favorites.map(f => f.productId))].length : 0, color: '#C25E5E' },
+          { label: 'Favoritos', value: localData?.favorites?.length ? [...new Set(localData.favorites.map(f => f.productId))].length : 0, color: 'var(--lm-danger)' },
           { label: 'Veces compartido', value: counts.shares, color: '#1A73E8' },
         ].map((m, i) => (
           <div key={i} style={{
             background:'white', borderRadius:10, padding:'1rem', textAlign:'center',
-            boxShadow:'0 2px 8px rgba(0,0,0,0.04)', border:'1.5px solid #F0EAE0',
+            boxShadow:'0 1px 3px rgba(0,0,0,0.04)', border:'1.5px solid var(--lm-border)',
           }}>
             <div style={{fontSize:'1.4rem',fontWeight:700,color:m.color}}>{m.value}</div>
-            <div style={{fontSize:'0.68rem',color:'#8A7968',fontWeight:500,letterSpacing:'0.05em',marginTop:'0.25rem'}}>{m.label}</div>
+            <div style={{fontSize:'0.68rem',color:'var(--lm-muted)',fontWeight:500,letterSpacing:'0.05em',marginTop:'0.25rem'}}>{m.label}</div>
           </div>
         ))}
       </div>
@@ -1247,7 +1243,7 @@ function ConfigSection() {
   const [form, setForm] = useState({
     storeName: '', storeSlogan: '', storeDescription: '',
     waNumber: '', facebook: '', instagram: '', tiktok: '', address: '', hours: '',
-    logo: '', banner: '', primaryColor: '#C9A96E', secondaryColor: '#1A1612', bgColor: '#FAF7F2', surfaceColor: '#FFFFFF', textColor: '#1A1612', mutedColor: '#8A7968', borderColor: '#E0D8CE', visualMode: 'claro-premium',
+    logo: '', banner: '',     primaryColor: '#5B7CFA', secondaryColor: '#111827', bgColor: '#F6F7FB', surfaceColor: '#FFFFFF', textColor: '#111827', mutedColor: '#6B7280', borderColor: '#E5E7EB', visualMode: 'claro-premium',
     freeShippingText: '', freeShippingMin: '', waMessage: '',
     promoBannerEnabled: false, featuredProductsEnabled: false, stockVisible: false,
     newOrderSound: true, pollInterval: '30', showOutOfStock: true,
@@ -1266,9 +1262,9 @@ function ConfigSection() {
 
   const THEME_PRESETS = [
     {
-      label: 'Premium elegante',
+      label: 'Nordic Fashion',
       values: {
-        primaryColor: '#C9A96E', secondaryColor: '#1A1612', bgColor: '#FAF7F2', surfaceColor: '#FFFFFF', textColor: '#1A1612', mutedColor: '#8A7968', borderColor: '#E0D8CE',
+        primaryColor: '#5B7CFA', secondaryColor: '#111827', bgColor: '#F6F7FB', surfaceColor: '#FFFFFF', textColor: '#111827', mutedColor: '#6B7280', borderColor: '#E5E7EB',
       },
     },
     {
@@ -1494,8 +1490,8 @@ function ConfigSection() {
       {/* Tab buttons */}
       <div style={{
         display:'flex', gap:'0.25rem', flexWrap:'wrap',
-        background:'white', borderRadius:12, padding:'0.5rem',
-        boxShadow:'0 2px 16px rgba(0,0,0,0.06)',
+        background:'var(--lm-surface)', borderRadius:12, padding:'0.5rem',
+        boxShadow:'0 1px 3px rgba(0,0,0,0.04)',
       }}>
         {tabs.map(t => (
           <button key={t.key} onClick={() => setActiveTab(t.key)} style={tabStyle(activeTab === t.key)}>
@@ -1507,10 +1503,10 @@ function ConfigSection() {
       <ThemePreview />
 
       {/* Tab content */}
-      <div style={{background:'white',borderRadius:12,padding:'1.5rem',boxShadow:'0 2px 16px rgba(0,0,0,0.06)'}}>
+      <div style={{background:'var(--lm-surface)',borderRadius:12,padding:'1.5rem',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
         {activeTab === 'general' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Informacion general</h3>
+            <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Informacion general</h3>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
               <Field label="Nombre de la tienda">
                 <input style={s.input} value={form.storeName || ''} onChange={e => set('storeName', e.target.value)} />
@@ -1535,7 +1531,7 @@ function ConfigSection() {
 
         {activeTab === 'branding' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Marca</h3>
+            <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Marca</h3>
             <Field label="Logo">
               <input type="file" ref={logoRef} accept="image/*" onChange={handleLogoFile} style={{fontSize:'0.85rem'}} />
               <input style={{...s.input, marginTop:'0.3rem'}} placeholder="o pegar URL" value={form.logo && typeof form.logo === 'string' ? form.logo : ''}
@@ -1553,7 +1549,7 @@ function ConfigSection() {
 
         {activeTab === 'social' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Redes sociales y contacto</h3>
+            <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Redes sociales y contacto</h3>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
               <Field label="Facebook">
                 <input style={s.input} placeholder="URL de Facebook" value={form.facebook || ''} onChange={e => set('facebook', e.target.value)} />
@@ -1570,13 +1566,13 @@ function ConfigSection() {
 
         {activeTab === 'whatsapp' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>WhatsApp</h3>
+            <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>WhatsApp</h3>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
               <Field label="WhatsApp (9 digitos)">
-                <input style={{...s.input, borderColor: waError ? '#C25E5E' : undefined}} placeholder="987654321" maxLength={9}
+                <input style={{...s.input, borderColor: waError ? 'var(--lm-danger)' : undefined}} placeholder="987654321" maxLength={9}
                   value={(form.waNumber || '').replace(/\D/g, '')}
                   onChange={e => { set('waNumber', e.target.value.replace(/\D/g, '').slice(0,9)); setWaError(''); }} />
-                {waError && <span style={{fontSize:'0.72rem',color:'#C25E5E',marginTop:'0.2rem'}}>{waError}</span>}
+                {waError && <span style={{fontSize:'0.72rem',color:'var(--lm-danger)',marginTop:'0.2rem'}}>{waError}</span>}
               </Field>
             </div>
             <Field label="Mensaje WhatsApp">
@@ -1587,7 +1583,7 @@ function ConfigSection() {
 
         {activeTab === 'marketing' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Marketing</h3>
+            <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Marketing</h3>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
               <Field label="Texto envio gratis">
                 <input style={s.input} value={form.freeShippingText || ''} onChange={e => set('freeShippingText', e.target.value)} />
@@ -1606,7 +1602,7 @@ function ConfigSection() {
 
         {activeTab === 'commercial' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Configuracion comercial</h3>
+            <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Configuracion comercial</h3>
             <div style={{display:'flex',flexWrap:'wrap',gap:'0.65rem'}}>
               <Toggle label="Productos relacionados" checked={form.relatedProductsEnabled} onChange={v => set('relatedProductsEnabled', v)} />
               <Toggle label="Compartir producto" checked={form.shareProductEnabled} onChange={v => set('shareProductEnabled', v)} />
@@ -1623,14 +1619,14 @@ function ConfigSection() {
 
         {activeTab === 'backups' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Exportacion y respaldos</h3>
+            <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Exportacion y respaldos</h3>
 
             <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:'0.75rem'}}>
               <button onClick={handleExportProducts} style={{
                 display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
-                padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid #E8D5B0',
-                background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
-                fontWeight:600, color:'#1A1612', transition:'all .2s',
+                padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid var(--lm-border)',
+                background:'var(--lm-surface)', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
+                fontWeight:600, color:'var(--lm-text)', transition:'all .2s',
               }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -1640,9 +1636,9 @@ function ConfigSection() {
 
               <button onClick={handleExportOrders} style={{
                 display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
-                padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid #E8D5B0',
-                background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
-                fontWeight:600, color:'#1A1612', transition:'all .2s',
+                padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid var(--lm-border)',
+                background:'var(--lm-surface)', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
+                fontWeight:600, color:'var(--lm-text)', transition:'all .2s',
               }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -1652,9 +1648,9 @@ function ConfigSection() {
 
               <button onClick={handleDownloadBackup} style={{
                 display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
-                padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid #E8D5B0',
-                background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
-                fontWeight:600, color:'#1A1612', transition:'all .2s',
+                padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid var(--lm-border)',
+                background:'var(--lm-surface)', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
+                fontWeight:600, color:'var(--lm-text)', transition:'all .2s',
               }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -1664,9 +1660,9 @@ function ConfigSection() {
 
               <button onClick={handleRestore} style={{
                 display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
-                padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid #F5C0C0',
-                background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
-                fontWeight:600, color:'#C25E5E', transition:'all .2s',
+                padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid rgba(var(--lm-danger-rgb,239,68,68),0.3)',
+                background:'var(--lm-surface)', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
+                fontWeight:600, color:'var(--lm-danger)', transition:'all .2s',
               }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
@@ -1677,27 +1673,27 @@ function ConfigSection() {
 
             {restoreResult && (
               <div style={{
-                background:'#FFF5F5', border:'1.5px solid #F5C0C0', borderRadius:12,
+                background:'rgba(var(--lm-danger-rgb,239,68,68),0.06)', border:'1px solid rgba(var(--lm-danger-rgb,239,68,68),0.2)', borderRadius:12,
                 padding:'1.25rem', display:'flex', flexDirection:'column', gap:'0.75rem',
               }}>
-                <div style={{fontSize:'0.9rem',fontWeight:600,color:'#C25E5E'}}>Restaurar backup</div>
-                <div style={{fontSize:'0.82rem',color:'#8A7968',lineHeight:1.6}}>
+                <div style={{fontSize:'0.9rem',fontWeight:600,color:'var(--lm-danger)'}}>Restaurar backup</div>
+                <div style={{fontSize:'0.82rem',color:'var(--lm-muted)',lineHeight:1.6}}>
                   Se encontraron {restoreResult.backup.products?.length || 0} productos y {restoreResult.backup.orders?.length || 0} pedidos en el archivo.
                   Los productos con nombre existente se saltaran.
                 </div>
-                <label style={{display:'flex',alignItems:'center',gap:'0.5rem',fontSize:'0.82rem',color:'#1A1612',cursor:'pointer'}}>
+                <label style={{display:'flex',alignItems:'center',gap:'0.5rem',fontSize:'0.82rem',color:'var(--lm-text)',cursor:'pointer'}}>
                   <input type="checkbox" checked={restoreMerge} onChange={e => setRestoreMerge(e.target.checked)} />
                   Actualizar productos existentes (merge)
                 </label>
                 <div style={{display:'flex',gap:'0.5rem'}}>
                   <button onClick={handleConfirmRestore} style={{
                     padding:'0.55rem 1.25rem', borderRadius:6, border:'none',
-                    background:'#C25E5E', color:'white', fontWeight:600, fontSize:'0.85rem',
+                    background:'var(--lm-danger)', color:'white', fontWeight:600, fontSize:'0.85rem',
                     cursor:'pointer', fontFamily:'inherit',
                   }}>Confirmar restauracion</button>
                   <button onClick={() => setRestoreResult(null)} style={{
-                    padding:'0.55rem 1.25rem', borderRadius:6, border:'1.5px solid #D0C8BE',
-                    background:'transparent', color:'#8A7968', fontWeight:500, fontSize:'0.85rem',
+                    padding:'0.55rem 1.25rem', borderRadius:6, border:'1.5px solid var(--lm-border)',
+                    background:'transparent', color:'var(--lm-muted)', fontWeight:500, fontSize:'0.85rem',
                     cursor:'pointer', fontFamily:'inherit',
                   }}>Cancelar</button>
                 </div>
@@ -1708,7 +1704,7 @@ function ConfigSection() {
 
         {activeTab === 'seo' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>SEO y posicionamiento</h3>
+            <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>SEO y posicionamiento</h3>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
               <Field label="Site Title (para buscadores)">
                 <input style={s.input} value={form.siteTitle || ''} onChange={e => set('siteTitle', e.target.value)} placeholder="LeisModa — Moda que te define" />
@@ -1731,9 +1727,9 @@ function ConfigSection() {
             <div style={{display:'flex',flexWrap:'wrap',gap:'0.65rem'}}>
               <Toggle label="Indexable (permitir a Google indexar)" checked={form.indexable === true} onChange={v => set('indexable', v)} />
             </div>
-            <div style={{fontSize:'0.8rem',color:'#8A7968',background:'#F5F1EB',borderRadius:8,padding:'0.75rem 1rem',lineHeight:1.6}}>
-              Sitemap disponible en: <code style={{background:'#EBE5DB',padding:'0.15rem 0.4rem',borderRadius:4}}>/sitemap.xml</code><br />
-              Robots.txt disponible en: <code style={{background:'#EBE5DB',padding:'0.15rem 0.4rem',borderRadius:4}}>/robots.txt</code>
+            <div style={{fontSize:'0.8rem',color:'var(--lm-muted)',background:'var(--lm-bg)',borderRadius:8,padding:'0.75rem 1rem',lineHeight:1.6}}>
+              Sitemap disponible en: <code style={{background:'var(--lm-surface-2)',padding:'0.15rem 0.4rem',borderRadius:4}}>/sitemap.xml</code><br />
+              Robots.txt disponible en: <code style={{background:'var(--lm-surface-2)',padding:'0.15rem 0.4rem',borderRadius:4}}>/robots.txt</code>
             </div>
           </div>
         )}
@@ -1748,7 +1744,7 @@ function ConfigSection() {
 
         {activeTab === 'appearance' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Apariencia</h3>
+            <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Apariencia</h3>
             <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(120px,1fr))',gap:'1rem'}}>
               <Field label="Color primario">
                 <input type="color" style={{...s.input, padding:'0.2rem', minWidth:60, width:60, height:38, cursor:'pointer'}} value={form.primaryColor} onChange={e => set('primaryColor', e.target.value)} />
@@ -1794,7 +1790,7 @@ function ConfigSection() {
 
         {activeTab === 'advanced' && (
           <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-            <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Configuracion avanzada</h3>
+            <h3 style={{fontFamily:'var(--lm-font-heading, serif)',fontSize:'1rem',color:'var(--lm-text)',marginBottom:'0.5rem'}}>Configuracion avanzada</h3>
             <div style={{display:'flex',flexWrap:'wrap',gap:'0.65rem'}}>
               <Toggle label="Sonido de pedido nuevo" checked={form.newOrderSound} onChange={v => set('newOrderSound', v)} />
               <Toggle label="Mostrar stock publico" checked={form.stockVisible} onChange={v => set('stockVisible', v)} />
@@ -1950,11 +1946,11 @@ function ProductModal({ product, onClose, onSaved }) {
         {/* Step indicator */}
         <div className="lm-prod-step-indicator" style={{
           display: 'flex', alignItems: 'center', gap: '0.4rem',
-          padding: '0.65rem 1.5rem 0.5rem', borderBottom: '1px solid #F0EAE0',
+          padding: '0.65rem 1.5rem 0.5rem', borderBottom: '1px solid var(--lm-border)',
           flexWrap: 'wrap',
         }}>
           {isMobile && (
-            <span style={{fontSize:'0.7rem',color:'#8A7968',fontWeight:600,marginRight:'0.3rem',whiteSpace:'nowrap'}}>
+            <span style={{fontSize:'0.7rem',color:'var(--lm-muted)',fontWeight:600,marginRight:'0.3rem',whiteSpace:'nowrap'}}>
               Paso {currentStepIndex + 1} de {STEPS.length}
             </span>
           )}
@@ -1962,10 +1958,10 @@ function ProductModal({ product, onClose, onSaved }) {
             <button key={s.key} onClick={() => setFormTab(s.key)}
               style={{
                 padding: '0.3rem 0.7rem', borderRadius: 999, fontSize: '0.7rem', fontWeight: 600,
-                border: formTab === s.key ? '1.5px solid #1A1612' : '1.5px solid #E0D8CE',
+                border: formTab === s.key ? '1.5px solid var(--lm-secondary)' : '1.5px solid var(--lm-border)',
                 cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit',
-                background: formTab === s.key ? '#1A1612' : 'transparent',
-                color: formTab === s.key ? '#C9A96E' : '#8A7968',
+                background: formTab === s.key ? 'var(--lm-secondary)' : 'transparent',
+                color: formTab === s.key ? 'var(--lm-primary)' : 'var(--lm-muted)',
                 transition: 'all .2s', minHeight: 36,
               }}>
               {isMobile ? `${i + 1}` : s.label}
@@ -2028,18 +2024,18 @@ function ProductModal({ product, onClose, onSaved }) {
             <div>
               {images.length > 0 && (
                 <div style={{marginBottom:'0.75rem'}}>
-                  <label style={{fontSize:'0.7rem',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8A7968',display:'block',marginBottom:'0.4rem'}}>Imágenes existentes</label>
+                  <label style={{fontSize:'0.7rem',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase',color:'var(--lm-muted)',display:'block',marginBottom:'0.4rem'}}>Imágenes existentes</label>
                   <div style={{display:'flex',gap:'0.5rem',flexWrap:'wrap'}}>
                     {images.map((img) => (
                       <div key={img._id} style={{
                         position:'relative', width:88, height:88, borderRadius:8, overflow:'hidden', flexShrink:0,
-                        border: img.isMain ? '2px solid #C9A96E' : '2px solid transparent',
+                        border: img.isMain ? '2px solid var(--lm-primary)' : '2px solid transparent',
                       }}>
                         <img src={img.url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>
                         {img.isMain && (
                           <span style={{
                             position:'absolute', top:0, left:0,
-                            background:'#C9A96E', color:'#1A1612',
+                            background:'var(--lm-primary)', color:'white',
                             fontSize:'0.55rem', fontWeight:700,
                             padding:'1px 5px', borderBottomRightRadius:6,
                           }}>Principal</span>
@@ -2077,7 +2073,7 @@ function ProductModal({ product, onClose, onSaved }) {
                     <button key={i} onClick={() => setPreview(url)}
                       style={{
                         flexShrink:0,width:56,height:56,borderRadius:8,overflow:'hidden',
-                        border: preview === url ? '2px solid #C9A96E' : '2px solid transparent',
+                        border: preview === url ? '2px solid var(--lm-primary)' : '2px solid transparent',
                         padding:0,cursor:'pointer',background:'none',
                       }}>
                       <img src={url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>
@@ -2135,22 +2131,22 @@ function Toggle({ label, checked, onChange }) {
   return (
     <label style={{
       display:'flex',alignItems:'center',gap:'0.5rem',cursor:'pointer',
-      padding:'0.35rem 0.75rem',borderRadius:8,border:'1.5px solid #E0D8CE',
-      background: checked ? '#1A1612' : 'transparent',transition:'all .2s',
+      padding:'0.35rem 0.75rem',borderRadius:8,border:'1.5px solid var(--lm-border)',
+      background: checked ? 'var(--lm-secondary)' : 'transparent',transition:'all .2s',
       userSelect:'none',
     }}>
       <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)}
         style={{display:'none'}} />
       <span style={{
         width:32,height:18,borderRadius:999,position:'relative',transition:'all .25s',
-        background: checked ? '#C9A96E' : '#D0C8BE',flexShrink:0,
+        background: checked ? 'var(--lm-primary)' : 'var(--lm-muted)',flexShrink:0,
       }}>
         <span style={{
           position:'absolute',top:2,left:checked?16:2,width:14,height:14,borderRadius:'50%',
           background:'white',transition:'all .25s',
         }}/>
       </span>
-      <span style={{fontSize:'0.78rem',fontWeight:600,color: checked ? '#C9A96E' : '#8A7968'}}>{label}</span>
+      <span style={{fontSize:'0.78rem',fontWeight:600,color: checked ? 'var(--lm-primary)' : 'var(--lm-muted)'}}>{label}</span>
     </label>
   );
 }
@@ -2177,10 +2173,10 @@ function SizeSelector({ selected = [], onChange }) {
           onChange={e => setCustom(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustom())} />
         <button type="button" onClick={addCustom}
-          style={{background:'#C9A96E',color:'#1A1612',border:'none',borderRadius:8,padding:'0 0.75rem',fontWeight:700,cursor:'pointer',fontSize:'0.85rem'}}>+</button>
+          style={{background:'var(--lm-primary)',color:'white',border:'none',borderRadius:8,padding:'0 0.75rem',fontWeight:700,cursor:'pointer',fontSize:'0.85rem'}}>+</button>
       </div>
       {selected.length > 0 && (
-        <div style={{marginTop:'0.3rem',fontSize:'0.75rem',color:'#8A7968'}}>
+        <div style={{marginTop:'0.3rem',fontSize:'0.75rem',color:'var(--lm-muted)'}}>
           {selected.join(', ')}
         </div>
       )}
@@ -2210,10 +2206,10 @@ function ColorSelector({ selected = [], onChange }) {
           onChange={e => setCustom(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustom())} />
         <button type="button" onClick={addCustom}
-          style={{background:'#C9A96E',color:'#1A1612',border:'none',borderRadius:8,padding:'0 0.75rem',fontWeight:700,cursor:'pointer',fontSize:'0.85rem'}}>+</button>
+          style={{background:'var(--lm-primary)',color:'white',border:'none',borderRadius:8,padding:'0 0.75rem',fontWeight:700,cursor:'pointer',fontSize:'0.85rem'}}>+</button>
       </div>
       {selected.length > 0 && (
-        <div style={{marginTop:'0.3rem',fontSize:'0.75rem',color:'#8A7968'}}>
+        <div style={{marginTop:'0.3rem',fontSize:'0.75rem',color:'var(--lm-muted)'}}>
           {selected.join(', ')}
         </div>
       )}
@@ -2226,9 +2222,9 @@ function ChipBtn({ label, selected, onClick }) {
     <button type="button" onClick={onClick}
       style={{
         padding:'0.25rem 0.65rem',borderRadius:999,fontSize:'0.8rem',cursor:'pointer',
-        border: selected ? '1.5px solid #1A1612' : '1.5px solid #E0D8CE',
-        background: selected ? '#1A1612' : 'transparent',
-        color: selected ? '#C9A96E' : '#8A7968',
+        border: selected ? '1.5px solid var(--lm-secondary)' : '1.5px solid var(--lm-border)',
+        background: selected ? 'var(--lm-secondary)' : 'transparent',
+        color: selected ? 'var(--lm-primary)' : 'var(--lm-muted)',
         fontWeight: selected ? 600 : 400,transition:'all .15s',fontFamily:'inherit',
       }}>{label}</button>
   );
@@ -2237,7 +2233,7 @@ function ChipBtn({ label, selected, onClick }) {
 function Field({ label, children }) {
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'0.35rem'}}>
-      <label style={{fontSize:'0.7rem',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase',color:'#8A7968'}}>{label}</label>
+      <label style={{fontSize:'0.7rem',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase',color:'var(--lm-muted)'}}>{label}</label>
       {children}
     </div>
   );
@@ -2245,69 +2241,69 @@ function Field({ label, children }) {
 
 // ── ESTILOS ────────────────────────────────────────────────────────────────
 const s = {
-  page:          { display:'flex', minHeight:'100vh', background:'#FAF7F2', fontFamily:'sans-serif' },
-  sidebar:       { width:220, background:'#1A1612', display:'flex', flexDirection:'column', padding:'1.5rem 1rem', position:'sticky', top:0, height:'100vh', flexShrink:0 },
-  sidebarLogo:   { fontFamily:'serif', fontSize:'1.5rem', color:'#FAF7F2', letterSpacing:'0.05em', marginBottom:'2rem' },
+  page:          { display:'flex', minHeight:'100vh', background:'var(--lm-bg)', fontFamily:'var(--font-sans)' },
+  sidebar:       { width:220, background:'var(--lm-secondary)', display:'flex', flexDirection:'column', padding:'1.5rem 1rem', position:'sticky', top:0, height:'100vh', flexShrink:0 },
+  sidebarLogo:   { fontFamily:'var(--font-display)', fontSize:'1.4rem', color:'white', letterSpacing:'0.02em', marginBottom:'2rem' },
   sidebarNav:    { display:'flex', flexDirection:'column', gap:'0.25rem', flex:1 },
-  sideLink:      { color:'#B0A899', padding:'0.65rem 0.75rem', borderRadius:6, cursor:'pointer', fontSize:'0.88rem', fontWeight:500 },
-  sideLinkActive:{ background:'rgba(201,169,110,0.12)', color:'#C9A96E' },
-  sideUser:      { color:'#8A7968', fontSize:'0.78rem', paddingTop:'1rem', borderTop:'1px solid rgba(255,255,255,0.08)' },
+  sideLink:      { color:'rgba(255,255,255,.6)', padding:'0.6rem 0.75rem', borderRadius:6, cursor:'pointer', fontSize:'0.85rem', fontWeight:500, display:'flex', alignItems:'center', gap:'0.5rem' },
+  sideLinkActive:{ background:'rgba(255,255,255,.08)', color:'white' },
+  sideUser:      { color:'rgba(255,255,255,.4)', fontSize:'0.75rem', paddingTop:'1rem', borderTop:'1px solid rgba(255,255,255,.08)' },
 
   main:          { flex:1, padding:'1.5rem', display:'flex', flexDirection:'column', gap:'1.5rem', overflowY:'auto', minWidth:0 },
 
-  mobileHeader:  { display:'none', alignItems:'center', justifyContent:'space-between', background:'#1A1612', padding:'0.85rem 1.25rem', borderRadius:10, marginBottom:'0.25rem' },
-  mobileLogo:    { fontFamily:'serif', fontSize:'1.3rem', color:'#FAF7F2' },
-  hamburger:     { display:'flex', flexDirection:'column', gap:4, background:'none', border:'none', cursor:'pointer', padding:'0.3rem' },
-  bar:           { width:20, height:2, background:'#C9A96E', borderRadius:2, display:'block' },
+  mobileHeader:  { display:'none', alignItems:'center', justifyContent:'space-between', background:'var(--lm-secondary)', padding:'0.75rem 1rem', borderRadius:8, marginBottom:'0.25rem' },
+  mobileLogo:    { fontFamily:'var(--font-display)', fontSize:'1.2rem', color:'white' },
+  hamburger:     { display:'flex', flexDirection:'column', gap:3, background:'none', border:'none', cursor:'pointer', padding:'0.3rem' },
+  bar:           { width:20, height:2, background:'white', borderRadius:2, display:'block' },
 
-  mobileMenu:    { background:'#1A1612', borderRadius:10, padding:'0.5rem', marginBottom:'0.5rem', display:'flex', flexDirection:'column' },
-  mobileMenuItem:{ color:'#B0A899', padding:'0.75rem 1rem', fontSize:'0.92rem', cursor:'pointer', borderRadius:6 },
-  mobileMenuActive:{ color:'#C9A96E', background:'rgba(201,169,110,0.12)' },
+  mobileMenu:    { background:'var(--lm-secondary)', borderRadius:8, padding:'0.5rem', marginBottom:'0.5rem', display:'flex', flexDirection:'column' },
+  mobileMenuItem:{ color:'rgba(255,255,255,.6)', padding:'0.65rem 1rem', fontSize:'0.88rem', cursor:'pointer', borderRadius:6, display:'flex', alignItems:'center', gap:'0.5rem' },
+  mobileMenuActive:{ color:'white', background:'rgba(255,255,255,.08)' },
 
-  card:          { background:'white', borderRadius:12, overflow:'hidden', boxShadow:'0 2px 16px rgba(0,0,0,0.06)' },
-  configCard:    { background:'white', borderRadius:12, padding:'1.5rem', boxShadow:'0 2px 16px rgba(0,0,0,0.06)' },
+  card:          { background:'var(--lm-surface)', borderRadius:8, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)' },
+  configCard:    { background:'var(--lm-surface)', borderRadius:8, padding:'1.5rem', boxShadow:'0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)' },
   configRow:     { display:'flex', alignItems:'flex-end', gap:'1rem', flexWrap:'wrap', marginTop:'1rem' },
-  cardHeader:    { display:'flex', alignItems:'center', justifyContent:'space-between', padding:'1rem 1.5rem', borderBottom:'1px solid #F0EAE0' },
-  cardTitle:     { fontFamily:'serif', fontSize:'1.05rem', color:'#1A1612' },
-  btnAdd:        { background:'#1A1612', color:'#C9A96E', border:'none', fontFamily:'sans-serif', fontSize:'0.82rem', fontWeight:700, padding:'0.5rem 1.1rem', borderRadius:6, cursor:'pointer' },
-  btnSave:       { background:'#C9A96E', color:'#1A1612', border:'none', fontFamily:'sans-serif', fontSize:'0.82rem', fontWeight:700, padding:'0.5rem 1.1rem', borderRadius:6, cursor:'pointer', whiteSpace:'nowrap' },
+  cardHeader:    { display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0.85rem 1.25rem', borderBottom:'1px solid var(--lm-border)' },
+  cardTitle:     { fontFamily:'var(--font-display)', fontSize:'1rem', color:'var(--lm-text)', fontWeight:600 },
+  btnAdd:        { background:'var(--lm-secondary)', color:'white', border:'none', fontFamily:'var(--font-sans)', fontSize:'0.8rem', fontWeight:600, padding:'0.45rem 1rem', borderRadius:6, cursor:'pointer' },
+  btnSave:       { background:'var(--lm-primary)', color:'white', border:'none', fontFamily:'var(--font-sans)', fontSize:'0.8rem', fontWeight:600, padding:'0.45rem 1rem', borderRadius:6, cursor:'pointer', whiteSpace:'nowrap' },
 
   tableWrap:     { overflowX:'auto' },
   table:         { width:'100%', borderCollapse:'collapse', minWidth:700 },
-  thead:         { background:'#FAF7F2' },
-  th:            { padding:'0.65rem 0.75rem', textAlign:'left', fontSize:'0.7rem', fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase', color:'#8A7968', whiteSpace:'nowrap' },
-  tr:            { borderBottom:'1px solid #F5F0EB' },
-  td:            { padding:'0.65rem 0.75rem', fontSize:'0.85rem', color:'#1A1612' },
-  thumb:         { width:40, height:40, objectFit:'cover', borderRadius:6 },
-  noThumb:       { width:40, height:40, background:'#F0EBE3', borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center', opacity:0.5, color:'#8A7968' },
-  btnEdit:       { background:'none', border:'1px solid #D0C8BE', borderRadius:6, padding:'0.3rem 0.6rem', cursor:'pointer', marginRight:'0.3rem', fontSize:'0.85rem' },
-  btnDel:        { background:'none', border:'1px solid #F5C0C0', borderRadius:6, padding:'0.3rem 0.6rem', cursor:'pointer', fontSize:'0.85rem' },
+  thead:         { background:'var(--lm-bg)' },
+  th:            { padding:'0.6rem 0.75rem', textAlign:'left', fontSize:'0.65rem', fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase', color:'var(--lm-muted)', whiteSpace:'nowrap' },
+  tr:            { borderBottom:'1px solid var(--lm-border)' },
+  td:            { padding:'0.6rem 0.75rem', fontSize:'0.83rem', color:'var(--lm-text)' },
+  thumb:         { width:36, height:36, objectFit:'cover', borderRadius:4 },
+  noThumb:       { width:36, height:36, background:'var(--lm-surface-2)', borderRadius:4, display:'flex', alignItems:'center', justifyContent:'center', opacity:0.5, color:'var(--lm-muted)' },
+  btnEdit:       { background:'none', border:'1px solid var(--lm-border)', borderRadius:6, padding:'0.25rem 0.5rem', cursor:'pointer', marginRight:'0.25rem', fontSize:'0.82rem', color:'var(--lm-text)' },
+  btnDel:        { background:'none', border:'1px solid #FECACA', borderRadius:6, padding:'0.25rem 0.5rem', cursor:'pointer', fontSize:'0.82rem', color:'var(--lm-danger)' },
 
-  mobileCards:   { display:'none', flexDirection:'column', gap:'0.75rem', padding:'1rem' },
-  mobileCard:    { border:'1px solid #F0EAE0', borderRadius:10, padding:'0.85rem' },
-  thumbMobile:   { width:52, height:52, objectFit:'cover', borderRadius:8, flexShrink:0 },
-  noThumbMobile: { width:52, height:52, background:'#F0EBE3', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', opacity:0.5, flexShrink:0, color:'#8A7968' },
+  mobileCards:   { display:'none', flexDirection:'column', gap:'0.65rem', padding:'0.85rem' },
+  mobileCard:    { border:'1px solid var(--lm-border)', borderRadius:8, padding:'0.75rem' },
+  thumbMobile:   { width:48, height:48, objectFit:'cover', borderRadius:6, flexShrink:0 },
+  noThumbMobile: { width:48, height:48, background:'var(--lm-surface-2)', borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center', opacity:0.5, flexShrink:0, color:'var(--lm-muted)' },
 
   formGroup:     { display:'flex', flexDirection:'column', gap:'0.35rem' },
-  label:         { fontSize:'0.7rem', fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase', color:'#8A7968' },
-  input:         { border:'1.5px solid #E0D8CE', borderRadius:8, padding:'0.55rem 0.8rem', fontFamily:'sans-serif', fontSize:'0.88rem', outline:'none', background:'#FAF7F2', minWidth:140, color:'#1A1612' },
+  label:         { fontSize:'0.65rem', fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase', color:'var(--lm-muted)' },
+  input:         { border:'1.5px solid var(--lm-border)', borderRadius:6, padding:'0.5rem 0.75rem', fontFamily:'var(--font-sans)', fontSize:'0.85rem', outline:'none', background:'var(--lm-surface)', minWidth:140, color:'var(--lm-text)' },
 
   quickActions: { display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(140px, 1fr))', gap:'0.75rem' },
-  quickBtn: { display:'flex', flexDirection:'column', alignItems:'center', gap:'0.4rem', padding:'1rem 0.75rem', border:'1.5px solid #E8D5B0', borderRadius:10, background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.75rem', fontWeight:600, color:'#1A1612', transition:'all .2s' },
+  quickBtn: { display:'flex', flexDirection:'column', alignItems:'center', gap:'0.4rem', padding:'1rem 0.75rem', border:'1.5px solid var(--lm-border)', borderRadius:8, background:'var(--lm-surface)', cursor:'pointer', fontFamily:'inherit', fontSize:'0.75rem', fontWeight:600, color:'var(--lm-text)', transition:'all .2s' },
 };
 
 const ms = {
-  overlay:   { position:'fixed', inset:0, background:'rgba(26,22,18,0.72)', backdropFilter:'blur(5px)', zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:'1rem' },
-  modal:     { background:'white', borderRadius:16, width:'100%', maxWidth:600, maxHeight:'92dvh', overflowY:'auto', boxShadow:'0 8px 32px rgba(0,0,0,0.2)' },
-  header:    { padding:'1.25rem 1.5rem 0.75rem', borderBottom:'1px solid #F0EAE0', display:'flex', alignItems:'center', justifyContent:'space-between' },
-  title:     { fontFamily:'serif', fontSize:'1.15rem', color:'#1A1612' },
-  close:     { background:'none', border:'none', cursor:'pointer', color:'#8A7968', display:'flex', alignItems:'center', justifyContent:'center', padding:'0.25rem' },
-  body:      { padding:'1.25rem 1.5rem', display:'flex', flexDirection:'column', gap:'0.85rem' },
-  row:       { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.85rem' },
-  row3:      { display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'0.85rem' },
-  toggleRow: { display:'flex', gap:'0.65rem', flexWrap:'wrap' },
-  input:     { border:'1.5px solid #E0D8CE', borderRadius:8, padding:'0.55rem 0.8rem', fontFamily:'sans-serif', fontSize:'0.88rem', color:'#1A1612', background:'#FAF7F2', outline:'none', width:'100%' },
-  footer:    { padding:'0.75rem 1.5rem 1.25rem', display:'flex', gap:'0.75rem', justifyContent:'flex-end' },
-  btnCancel: { background:'none', border:'1.5px solid #D0C8BE', color:'#8A7968', fontFamily:'sans-serif', fontSize:'0.85rem', fontWeight:500, padding:'0.5rem 1.2rem', borderRadius:8, cursor:'pointer' },
-  btnSave:   { background:'#1A1612', color:'#C9A96E', border:'none', fontFamily:'sans-serif', fontSize:'0.85rem', fontWeight:700, padding:'0.5rem 1.4rem', borderRadius:8, cursor:'pointer' },
+  overlay:   { position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', backdropFilter:'blur(4px)', zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:'1rem' },
+  modal:     { background:'var(--lm-surface)', borderRadius:12, width:'100%', maxWidth:600, maxHeight:'92dvh', overflowY:'auto', boxShadow:'0 8px 32px rgba(0,0,0,0.15)' },
+  header:    { padding:'1rem 1.25rem 0.65rem', borderBottom:'1px solid var(--lm-border)', display:'flex', alignItems:'center', justifyContent:'space-between' },
+  title:     { fontFamily:'var(--font-display)', fontSize:'1.1rem', color:'var(--lm-text)', fontWeight:600 },
+  close:     { background:'none', border:'none', cursor:'pointer', color:'var(--lm-muted)', display:'flex', alignItems:'center', justifyContent:'center', padding:'0.25rem' },
+  body:      { padding:'1rem 1.25rem', display:'flex', flexDirection:'column', gap:'0.75rem' },
+  row:       { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.75rem' },
+  row3:      { display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'0.75rem' },
+  toggleRow: { display:'flex', gap:'0.5rem', flexWrap:'wrap' },
+  input:     { border:'1.5px solid var(--lm-border)', borderRadius:6, padding:'0.5rem 0.75rem', fontFamily:'var(--font-sans)', fontSize:'0.85rem', color:'var(--lm-text)', background:'var(--lm-surface)', outline:'none', width:'100%' },
+  footer:    { padding:'0.65rem 1.25rem 1rem', display:'flex', gap:'0.75rem', justifyContent:'flex-end' },
+  btnCancel: { background:'none', border:'1.5px solid var(--lm-border)', color:'var(--lm-muted)', fontFamily:'var(--font-sans)', fontSize:'0.82rem', fontWeight:500, padding:'0.45rem 1.1rem', borderRadius:6, cursor:'pointer' },
+  btnSave:   { background:'var(--lm-secondary)', color:'white', border:'none', fontFamily:'var(--font-sans)', fontSize:'0.82rem', fontWeight:600, padding:'0.45rem 1.3rem', borderRadius:6, cursor:'pointer' },
 };

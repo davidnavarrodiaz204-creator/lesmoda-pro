@@ -28,16 +28,16 @@ export default function App() {
             position="top-center"
             toastOptions={{
               style: {
-                background: '#1A1612',
-                color: '#FAF7F2',
-                borderRadius: 10,
-                fontFamily: 'DM Sans, sans-serif',
-                fontSize: '0.9rem',
+                background: '#111827',
+                color: '#FFFFFF',
+                borderRadius: 8,
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '0.88rem',
               },
-              success: { iconTheme: { primary: '#C9A96E', secondary: '#FAF7F2' } },
+              success: { iconTheme: { primary: '#5B7CFA', secondary: '#FFFFFF' } },
             }}
           />
-          <Suspense fallback={<div style={{ display:'flex', minHeight:'100vh', alignItems:'center', justifyContent:'center', color:'#8A7968' }}>Cargando...</div>}>
+          <Suspense fallback={<div style={{ display:'flex', minHeight:'100vh', alignItems:'center', justifyContent:'center', color:'var(--lm-muted)' }}>Cargando...</div>}>
             <Routes>
               <Route path="/"            element={<StorePage />} />
               <Route path="/about"       element={<AboutPage />} />
