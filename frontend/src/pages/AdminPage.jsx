@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api, { productService, configService, authService, orderService, systemService, bannerService, analyticsService } from '../services/api';
+import { applyConfigStyles } from '../components/ConfigStyles';
 import ImportModal from '../components/ImportModal';
 import { validatePeruNumber, normalizeWaNumber } from '../utils/waNumber';
 import {
@@ -22,9 +23,9 @@ export default function AdminPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [unviewedCount, setUnviewedCount] = useState(0);
 
-  useState(() => {
+  useEffect(() => {
     configService.get().then(({ data }) => setConfig(c => ({ ...c, ...data.data }))).catch(() => {});
-  });
+  }, []);
 
   useEffect(() => {
     const fetchUnviewed = async () => {
@@ -1273,9 +1274,16 @@ function ConfigSection() {
         setForm(f => ({...f, ...norm}));
         if (data.data.logo) setLogoPreview(data.data.logo);
         if (data.data.banner) setBannerPreview(data.data.banner);
+        // apply preview styles immediately when admin opens config
+        try { applyConfigStyles(norm); } catch (e) {}
       }
     }).catch(() => {});
   }, []);
+
+  // live preview: apply styles locally as form changes (does not save)
+  useEffect(() => {
+    try { applyConfigStyles(form); } catch (e) {}
+  }, [form]);
 
   const handleSave = async () => {
     const waErr = validatePeruNumber(form.waNumber || '');
@@ -1423,10 +1431,40 @@ function ConfigSection() {
   const tabStyle = (isActive) => ({
     padding:'0.5rem 1rem', borderRadius:8, fontSize:'0.78rem', fontWeight:600,
     border:'none', cursor:'pointer', whiteSpace:'nowrap', fontFamily:'inherit',
-    background: isActive ? '#1A1612' : 'transparent',
-    color: isActive ? '#C9A96E' : '#8A7968',
+    background: isActive ? 'var(--lm-secondary)' : 'transparent',
+    color: isActive ? 'var(--lm-primary)' : 'var(--lm-muted)',
     transition:'all .2s',
   });
+
+  const ThemePreview = () => (
+    <div style={{
+      display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem', marginBottom:'1.5rem',
+      background:'var(--lm-surface)', padding:'1rem', borderRadius:14, border:'1px solid var(--lm-border)',
+    }}>
+      <div style={{ display:'flex', flexDirection:'column', gap:'0.6rem' }}>
+        <div style={{ fontSize:'0.95rem', color:'var(--lm-muted)', fontWeight:700 }}>Previsualizacion de tienda</div>
+        <div style={{ fontFamily:'serif', fontSize:'1.4rem', color:'var(--lm-secondary)', lineHeight:1.1 }}>
+          {form.storeName || 'Mi tienda editable'}
+        </div>
+        <div style={{ fontSize:'0.95rem', color:'var(--lm-text)' }}>{form.storeSlogan || 'Tu eslogan premium aqui'}</div>
+        <div style={{ display:'flex', gap:'0.65rem', flexWrap:'wrap', marginTop:'0.8rem' }}>
+          <button style={{ background:'var(--lm-primary)', color:'var(--lm-primary-contrast)', border:'none', borderRadius:10, padding:'0.65rem 1rem', fontWeight:700, cursor:'pointer' }}>
+            {form.ctaText || 'Ver coleccion'}
+          </button>
+          <button style={{ background:'transparent', color:'var(--lm-primary)', border:'1px solid var(--lm-primary)', borderRadius:10, padding:'0.65rem 1rem', cursor:'pointer' }}>
+            WhatsApp
+          </button>
+        </div>
+      </div>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:120, background:'var(--lm-bg-alt)', borderRadius:14 }}>
+        {bannerPreview || form.banner ? (
+          <img src={bannerPreview || form.banner} alt="Banner preview" style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:14 }} />
+        ) : (
+          <div style={{ padding:'1rem', textAlign:'center', color:'var(--lm-muted)' }}>Vista previa del banner</div>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'1.5rem'}}>
@@ -1442,6 +1480,8 @@ function ConfigSection() {
           </button>
         ))}
       </div>
+
+      <ThemePreview />
 
       {/* Tab content */}
       <div style={{background:'white',borderRadius:12,padding:'1.5rem',boxShadow:'0 2px 16px rgba(0,0,0,0.06)'}}>

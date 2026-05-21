@@ -79,15 +79,15 @@ export default function Footer({
 }
 
 const s = {
-  footer:  { background:'#1A1612', color:'#B0A899' },
+  footer:  { background:'var(--lm-secondary)', color:'var(--lm-muted)' },
   top:     { display:'flex', flexWrap:'wrap', gap:'2rem', padding:'2.5rem 1.25rem', justifyContent:'space-between', borderBottom:'1px solid rgba(201,169,110,.15)', maxWidth:1200, margin:'0 auto' },
   brand:   { flex:'1', minWidth:180 },
-  logo:    { fontFamily:'serif', fontSize:'1.5rem', color:'#FAF7F2', marginBottom:'0.4rem' },
-  slogan:  { fontSize:'0.85rem', color:'#8A7968', fontStyle:'italic', marginBottom:'0.75rem' },
-  waLink:  { display:'inline-flex', alignItems:'center', gap:'0.35rem', color:'#25D366', fontSize:'0.82rem' },
+  logo:    { fontFamily:'serif', fontSize:'1.5rem', color:'var(--lm-text)', marginBottom:'0.4rem' },
+  slogan:  { fontSize:'0.85rem', color:'var(--lm-muted)', fontStyle:'italic', marginBottom:'0.75rem' },
+  waLink:  { display:'inline-flex', alignItems:'center', gap:'0.35rem', color:'var(--lm-primary)', fontSize:'0.82rem' },
   col:     { display:'flex', flexDirection:'column', gap:'0.5rem', minWidth:120 },
-  colTitle:{ fontSize:'0.7rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'#C9A96E', fontWeight:600, marginBottom:'0.15rem' },
-  link:    { display:'inline-flex', alignItems:'center', gap:'0.3rem', color:'#B0A899', fontSize:'0.85rem', textDecoration:'none' },
-  text:    { fontSize:'0.85rem', color:'#8A7968' },
+  colTitle:{ fontSize:'0.7rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'var(--lm-primary)', fontWeight:600, marginBottom:'0.15rem' },
+  link:    { display:'inline-flex', alignItems:'center', gap:'0.3rem', color:'var(--lm-muted)', fontSize:'0.85rem', textDecoration:'none' },
+  text:    { fontSize:'0.85rem', color:'var(--lm-muted)' },
   bottom:  { textAlign:'center', padding:'1rem', fontSize:'0.75rem', color:'rgba(176,168,153,.4)', maxWidth:1200, margin:'0 auto' },
 };

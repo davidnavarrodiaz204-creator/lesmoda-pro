@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './components/CartContext';
 import StorePage from './pages/StorePage';
 import LoginPage from './pages/LoginPage';
+import ConfigStyles from './components/ConfigStyles';
 
 const AdminPage    = lazy(() => import('./pages/AdminPage'));
 const ProductPage  = lazy(() => import('./pages/ProductPage'));
@@ -21,6 +22,7 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
+        <ConfigStyles />
         <BrowserRouter>
           <Toaster
             position="top-center"
