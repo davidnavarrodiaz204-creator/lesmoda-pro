@@ -206,6 +206,26 @@ exports.updateNotes = async (req, res) => {
   res.json({ success: true, data: order });
 };
 
+// ── DELETE /api/orders/:id (admin) ──────────────────────────────────────
+exports.deleteOrder = async (req, res) => {
+  const order = await Order.findByIdAndDelete(req.params.id);
+  if (!order) return res.status(404).json({ success: false, message: 'Pedido no encontrado' });
+  res.json({ success: true, message: 'Pedido eliminado' });
+};
+
+// ── DELETE /api/orders/cleanup/test (admin) ─────────────────────────────
+exports.cleanupTestOrders = async (req, res) => {
+  const patterns = ['test', 'prueba', 'demo'];
+  const orConditions = [];
+  patterns.forEach(p => {
+    orConditions.push({ customerName: { $regex: p, $options: 'i' } });
+    orConditions.push({ customerPhone: { $regex: p, $options: 'i' } });
+  });
+  const filter = { $or: orConditions };
+  const result = await Order.deleteMany(filter);
+  res.json({ success: true, deletedCount: result.deletedCount, message: `Se eliminaron ${result.deletedCount} pedidos de prueba` });
+};
+
 // ── GET /api/orders/export/csv ────────────────────────────────────────────
 exports.exportOrdersCSV = async (req, res) => {
   console.log('[backup] exporting orders');

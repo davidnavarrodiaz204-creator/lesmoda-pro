@@ -48,10 +48,10 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
 }));
 
-// Rate limiting — máx 100 req / 15min por IP
+// Rate limiting — configurable via RATE_LIMIT_MAX env, default 200 req / 15min
 app.use('/api/', rateLimit({
   windowMs: 15 * 60 * 1000,
-  max:      100,
+  max:      parseInt(process.env.RATE_LIMIT_MAX || '200', 10),
   message:  { success: false, message: 'Demasiadas peticiones, intenta más tarde' },
 }));
 

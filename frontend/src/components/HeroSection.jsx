@@ -1,4 +1,4 @@
-import { WhatsAppIcon, CheckIcon, TruckIcon, ChatIcon, LockIcon } from './Icons';
+import { WhatsAppIcon, CheckIcon, TruckIcon, ChatIcon, LockIcon, ShoppingBagIcon } from './Icons';
 import ShareStoreButton from './ShareStoreButton';
 
 const TRUST_BADGES = [
@@ -67,12 +67,16 @@ export default function HeroSection({
             </div>
           </div>
         </div>
-        <div className="hero-col hero-col-image">
+        <div className={`hero-col hero-col-image${!banner ? ' hero-col-image-empty' : ''}`}>
           {banner ? (
             <img src={banner} alt="" className="hero-lifestyle-img" />
           ) : (
-            <div className="hero-lifestyle-fallback">
-              <div className="hero-bg" />
+            <div className="hero-card-fallback">
+              <div className="hero-card-fallback-inner">
+                <ShoppingBagIcon size={32} />
+                <span className="hero-card-fallback-title">Nueva coleccion disponible</span>
+                <span className="hero-card-fallback-sub">Descubre las ultimas tendencias en moda</span>
+              </div>
             </div>
           )}
         </div>

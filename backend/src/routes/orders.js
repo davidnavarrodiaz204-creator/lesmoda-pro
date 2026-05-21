@@ -14,5 +14,7 @@ router.patch('/:id/viewed', protect, ctrl.markViewed);
 router.get('/:id',    protect, ctrl.getOrder);
 router.patch('/:id/status', protect, ctrl.updateStatus);
 router.patch('/:id/notes',  protect, ctrl.updateNotes);
+router.delete('/cleanup/test', protect, ctrl.cleanupTestOrders);
+router.delete('/:id',    protect, ctrl.deleteOrder);
 
 module.exports = router;

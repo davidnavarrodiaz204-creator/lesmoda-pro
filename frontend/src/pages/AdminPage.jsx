@@ -741,6 +741,8 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
   const [search, setSearch] = useState('');
   const [detail, setDetail] = useState(null);
   const [quickFilter, setQuickFilter] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [cleaning, setCleaning] = useState(false);
   const num = waNumber?.replace(/\D/g, '');
 
   const fetchOrders = async () => {
@@ -759,7 +761,42 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
     } catch {} finally { setLoading(false); }
   };
 
+  const refreshStats = async () => {
+    try {
+      const { data } = await orderService.getStats();
+      if (onUnviewedChange) onUnviewedChange(data?.data?.unviewedCount ?? 0);
+    } catch {}
+  };
+
   useEffect(() => { fetchOrders(); }, [statusFilter, search, quickFilter]);
+
+  const handleDeleteOrder = async (id) => {
+    if (!confirm('Eliminar este pedido permanentemente?')) return;
+    setDeleting(true);
+    try {
+      await orderService.remove(id);
+      toast.success('Pedido eliminado');
+      fetchOrders();
+      refreshStats();
+      if (detail?._id === id) setDetail(null);
+    } catch {
+      toast.error('Error al eliminar pedido');
+    } finally { setDeleting(false); }
+  };
+
+  const handleCleanupTest = async () => {
+    if (!confirm('Limpiar pedidos de prueba? Se eliminaran pedidos con nombre "test", "prueba" o "demo".')) return;
+    if (!confirm('Confirmacion final: Esta accion no se puede deshacer. Continuar?')) return;
+    setCleaning(true);
+    try {
+      const { data } = await orderService.cleanupTest();
+      toast.success(data?.message || 'Pedidos de prueba eliminados');
+      fetchOrders();
+      refreshStats();
+    } catch {
+      toast.error('Error al limpiar pedidos de prueba');
+    } finally { setCleaning(false); }
+  };
 
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -787,6 +824,11 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
     <div style={s.card}>
       <div style={s.cardHeader}>
         <h3 style={s.cardTitle}>Pedidos ({orders.length})</h3>
+        <div style={{display:'flex',gap:'0.5rem'}}>
+          <button onClick={handleCleanupTest} disabled={cleaning} style={{...s.btnDel, fontSize:'0.72rem', padding:'0.3rem 0.7rem', display:'inline-flex', alignItems:'center', gap:'0.3rem'}}>
+            {cleaning ? 'Limpiando...' : <><TrashIcon size={12} /> Limpiar prueba</>}
+          </button>
+        </div>
       </div>
 
       <div style={{
@@ -955,6 +997,7 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
                       <button style={s.btnEdit} onClick={() => setDetail(o)}><EyeIcon size={14} /></button>
                       <button style={{...s.btnEdit,marginLeft:'0.3rem'}}
                         onClick={() => contactWa(o.customerPhone)}><MobileIcon size={14} /></button>
+                      <button style={{...s.btnDel,marginLeft:'0.3rem'}} onClick={() => handleDeleteOrder(o._id)} disabled={deleting}><TrashIcon size={14} /></button>
                     </td>
                   </tr>
                 ))}
@@ -981,6 +1024,7 @@ function OrdersSection({ waNumber, unviewedCount, onUnviewedChange }) {
                   <div style={{display:'flex',gap:'0.4rem'}}>
                     <button style={s.btnEdit} onClick={() => setDetail(o)}><EyeIcon size={14} /> Ver</button>
                     <button style={s.btnEdit} onClick={() => contactWa(o.customerPhone)}><MobileIcon size={14} /></button>
+                    <button style={s.btnDel} onClick={() => handleDeleteOrder(o._id)} disabled={deleting}><TrashIcon size={14} /></button>
                   </div>
                 </div>
               </div>
@@ -1255,6 +1299,10 @@ function ConfigSection() {
     siteTitle: '', siteDescription: '', keywords: '', ogImage: '', favicon: '', indexable: true,
   });
   const [saving, setSaving] = useState(false);
+  const [exportingProducts, setExportingProducts] = useState(false);
+  const [exportingOrders, setExportingOrders] = useState(false);
+  const [downloadingBackup, setDownloadingBackup] = useState(false);
+  const [restoring, setRestoring] = useState(false);
   const [waError, setWaError] = useState('');
   const [activeTab, setActiveTab] = useState('general');
   const logoRef = useRef();
@@ -1269,6 +1317,27 @@ function ConfigSection() {
       label: 'Premium elegante',
       values: {
         primaryColor: '#C9A96E', secondaryColor: '#1A1612', bgColor: '#FAF7F2', surfaceColor: '#FFFFFF', textColor: '#1A1612', mutedColor: '#8A7968', borderColor: '#E0D8CE',
+      },
+    },
+    {
+      label: 'Blanco Azul Premium',
+      values: {
+        primaryColor: '#3B82F6', secondaryColor: '#1E3A5F', bgColor: '#FFFFFF', surfaceColor: '#FFFFFF', textColor: '#1E293B', mutedColor: '#64748B', borderColor: '#E2E8F0',
+        visualMode: 'claro-premium',
+      },
+    },
+    {
+      label: 'Blanco Negro Minimal',
+      values: {
+        primaryColor: '#1A1A2E', secondaryColor: '#0F0F1A', bgColor: '#FAFAFA', surfaceColor: '#FFFFFF', textColor: '#1A1A2E', mutedColor: '#6B7280', borderColor: '#E5E7EB',
+        visualMode: 'claro-premium',
+      },
+    },
+    {
+      label: 'Suave Moda',
+      values: {
+        primaryColor: '#D4869C', secondaryColor: '#2D1B2E', bgColor: '#FFF8F7', surfaceColor: '#FFFFFF', textColor: '#2D1B2E', mutedColor: '#9CA3AF', borderColor: '#F3E8E6',
+        visualMode: 'claro-premium',
       },
     },
     {
@@ -1356,6 +1425,7 @@ function ConfigSection() {
   const set = (k, v) => setForm(f => ({...f, [k]: v}));
 
   const handleExportProducts = async () => {
+    setExportingProducts(true);
     try {
       const { data } = await productService.exportCSV();
       const url = URL.createObjectURL(new Blob([data]));
@@ -1364,11 +1434,13 @@ function ConfigSection() {
       a.download = 'productos_export.csv';
       a.click();
       URL.revokeObjectURL(url);
-      toast.success('Productos exportados');
+      toast.success('Productos exportados correctamente');
     } catch { toast.error('Error al exportar productos'); }
+    setExportingProducts(false);
   };
 
   const handleExportOrders = async () => {
+    setExportingOrders(true);
     try {
       const { data } = await orderService.exportCSV();
       const url = URL.createObjectURL(new Blob([data]));
@@ -1377,11 +1449,13 @@ function ConfigSection() {
       a.download = 'pedidos_export.csv';
       a.click();
       URL.revokeObjectURL(url);
-      toast.success('Pedidos exportados');
+      toast.success('Pedidos exportados correctamente');
     } catch { toast.error('Error al exportar pedidos'); }
+    setExportingOrders(false);
   };
 
   const handleDownloadBackup = async () => {
+    setDownloadingBackup(true);
     try {
       const { data } = await systemService.backup();
       if (data.success) {
@@ -1392,9 +1466,12 @@ function ConfigSection() {
         a.download = `backup_lesmoda_${new Date().toISOString().split('T')[0]}.json`;
         a.click();
         URL.revokeObjectURL(url);
-        toast.success('Backup descargado');
+        toast.success('Backup descargado correctamente');
+      } else {
+        toast.error('Error al generar backup');
       }
     } catch { toast.error('Error al generar backup'); }
+    setDownloadingBackup(false);
   };
 
   const [restoreOpen, setRestoreOpen] = useState(false);
@@ -1412,12 +1489,12 @@ function ConfigSection() {
         const text = await file.text();
         const backup = JSON.parse(text);
         if (!backup.products || !backup.orders) {
-          toast.error('El archivo no es un backup valido');
+          toast.error('El archivo no es un backup valido. Debe contener productos y pedidos.');
           return;
         }
         setRestoreResult({ backup, file });
       } catch {
-        toast.error('Error al leer el archivo JSON');
+        toast.error('Error al leer el archivo JSON. Verifica que sea un backup valido.');
       }
     };
     input.click();
@@ -1425,6 +1502,7 @@ function ConfigSection() {
 
   const handleConfirmRestore = async () => {
     if (!restoreResult) return;
+    setRestoring(true);
     try {
       const { data } = await systemService.restore(restoreResult.backup, restoreMerge);
       if (data.success) {
@@ -1432,8 +1510,9 @@ function ConfigSection() {
         setRestoreResult(null);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Error al restaurar');
+      toast.error(err.response?.data?.message || 'Error al restaurar backup');
     }
+    setRestoring(false);
   };
 
   const tabs = [
@@ -1626,52 +1705,52 @@ function ConfigSection() {
             <h3 style={{fontFamily:'serif',fontSize:'1rem',color:'#1A1612',marginBottom:'0.5rem'}}>Exportacion y respaldos</h3>
 
             <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:'0.75rem'}}>
-              <button onClick={handleExportProducts} style={{
+              <button onClick={handleExportProducts} disabled={exportingProducts} style={{
                 display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
                 padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid #E8D5B0',
-                background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
-                fontWeight:600, color:'#1A1612', transition:'all .2s',
+                background:'white', cursor: exportingProducts ? 'wait' : 'pointer', fontFamily:'inherit', fontSize:'0.82rem',
+                fontWeight:600, color:'#1A1612', transition:'all .2s', opacity: exportingProducts ? 0.6 : 1,
               }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                Exportar productos CSV
+                {exportingProducts ? 'Exportando...' : 'Exportar productos CSV'}
               </button>
 
-              <button onClick={handleExportOrders} style={{
+              <button onClick={handleExportOrders} disabled={exportingOrders} style={{
                 display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
                 padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid #E8D5B0',
-                background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
-                fontWeight:600, color:'#1A1612', transition:'all .2s',
+                background:'white', cursor: exportingOrders ? 'wait' : 'pointer', fontFamily:'inherit', fontSize:'0.82rem',
+                fontWeight:600, color:'#1A1612', transition:'all .2s', opacity: exportingOrders ? 0.6 : 1,
               }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                Exportar pedidos CSV
+                {exportingOrders ? 'Exportando...' : 'Exportar pedidos CSV'}
               </button>
 
-              <button onClick={handleDownloadBackup} style={{
+              <button onClick={handleDownloadBackup} disabled={downloadingBackup} style={{
                 display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
                 padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid #E8D5B0',
-                background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
-                fontWeight:600, color:'#1A1612', transition:'all .2s',
+                background:'white', cursor: downloadingBackup ? 'wait' : 'pointer', fontFamily:'inherit', fontSize:'0.82rem',
+                fontWeight:600, color:'#1A1612', transition:'all .2s', opacity: downloadingBackup ? 0.6 : 1,
               }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                Descargar backup completo
+                {downloadingBackup ? 'Descargando...' : 'Descargar backup completo'}
               </button>
 
-              <button onClick={handleRestore} style={{
+              <button onClick={handleRestore} disabled={restoring} style={{
                 display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem',
                 padding:'1.25rem 1rem', borderRadius:10, border:'1.5px solid #F5C0C0',
-                background:'white', cursor:'pointer', fontFamily:'inherit', fontSize:'0.82rem',
-                fontWeight:600, color:'#C25E5E', transition:'all .2s',
+                background:'white', cursor: restoring ? 'wait' : 'pointer', fontFamily:'inherit', fontSize:'0.82rem',
+                fontWeight:600, color:'#C25E5E', transition:'all .2s', opacity: restoring ? 0.6 : 1,
               }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
                 </svg>
-                Restaurar backup
+                {restoring ? 'Restaurando...' : 'Restaurar backup'}
               </button>
             </div>
 
@@ -1690,11 +1769,11 @@ function ConfigSection() {
                   Actualizar productos existentes (merge)
                 </label>
                 <div style={{display:'flex',gap:'0.5rem'}}>
-                  <button onClick={handleConfirmRestore} style={{
+                  <button onClick={handleConfirmRestore} disabled={restoring} style={{
                     padding:'0.55rem 1.25rem', borderRadius:6, border:'none',
                     background:'#C25E5E', color:'white', fontWeight:600, fontSize:'0.85rem',
-                    cursor:'pointer', fontFamily:'inherit',
-                  }}>Confirmar restauracion</button>
+                    cursor: restoring ? 'wait' : 'pointer', fontFamily:'inherit', opacity: restoring ? 0.6 : 1,
+                  }}>{restoring ? 'Restaurando...' : 'Confirmar restauracion'}</button>
                   <button onClick={() => setRestoreResult(null)} style={{
                     padding:'0.55rem 1.25rem', borderRadius:6, border:'1.5px solid #D0C8BE',
                     background:'transparent', color:'#8A7968', fontWeight:500, fontSize:'0.85rem',
@@ -1739,7 +1818,12 @@ function ConfigSection() {
         )}
 
         {activeTab === 'banners' && (
-          <BannersManager />
+          <div style={{display:'flex',flexDirection:'column',gap:'0.75rem'}}>
+            <div style={{fontSize:'0.8rem',color:'#64748B',background:'#F0F7FF',borderRadius:8,padding:'0.75rem 1rem',lineHeight:1.6,border:'1px solid #DBEAFE'}}>
+              Los banners son avisos promocionales que aparecen en la tienda publica, por ejemplo ofertas, envios o campanas. Puedes crear varios y activarlos/desactivarlos individualmente.
+            </div>
+            <BannersManager />
+          </div>
         )}
 
         {activeTab === 'analytics' && (

@@ -67,6 +67,8 @@ export const orderService = {
   markViewed:   (id)        => api.patch(`/orders/${id}/viewed`),
   testTelegram: () => api.get('/orders/test-telegram'),
   exportCSV: () => api.get('/orders/export/csv', { responseType: 'blob' }),
+  remove:     (id) => api.delete(`/orders/${id}`),
+  cleanupTest: () => api.delete('/orders/cleanup/test'),
 };
 
 // ── System ─────────────────────────────────────────────────────────────────
