@@ -57,7 +57,11 @@ export function useConfig() {
 }
 
 function normalizeLegacyTheme(cfg) {
-  const legacy = new Set(['#b8941e', '#d4af37', '#c9a86a', '#c8a165', '#d2b48c', '#f5f5dc', '#beige']);
+  const legacy = new Set([
+    '#c9a96e', '#d4b574', '#b8955a', '#e8d5b0',
+    '#faf7f2', '#f5f1eb', '#1a1612', '#8a7968', '#e0d8ce',
+    '#b8941e', '#d4af37', '#c9a86a', '#c8a165', '#d2b48c', '#f5f5dc', '#beige',
+  ]);
   const isLegacy = (v) => typeof v === 'string' && legacy.has(v.trim().toLowerCase());
   if (!isLegacy(cfg.primaryColor) && !isLegacy(cfg.secondaryColor) && !isLegacy(cfg.bgColor)) return cfg;
   return {

@@ -1141,6 +1141,10 @@ function BannersManager() {
           <PlusCircleIcon size={12} /> Agregar banner
         </button>
       </div>
+      <div style={{fontSize:'0.8rem',color:'var(--lm-muted)',background:'var(--lm-bg)',borderRadius:8,padding:'0.6rem 0.8rem',lineHeight:1.5}}>
+        <strong>Importante:</strong> el <strong>banner principal (hero)</strong> se configura en <em>Config → Branding → Banner</em>.
+        Esta sección maneja solo <strong>banners promocionales de marketing</strong>.
+      </div>
       {banners.length === 0 && <p style={{fontSize:'0.85rem',color:'var(--lm-muted)'}}>No hay banners aun. Crea uno para mostrar promociones.</p>}
       {banners.map(b => {
         const isEditing = editing?._id === b._id;
@@ -1309,17 +1313,27 @@ function ConfigSection() {
   ];
 
   const applyThemePreset = (preset) => setForm(f => ({ ...f, ...preset }));
-  const resetModernTheme = () => setForm(f => ({
-    ...f,
-    primaryColor: '#111827',
-    secondaryColor: '#0F172A',
-    bgColor: '#F6F7FB',
-    surfaceColor: '#FFFFFF',
-    textColor: '#111827',
-    mutedColor: '#6B7280',
-    borderColor: '#E5E7EB',
-    visualMode: 'claro-premium',
-  }));
+  const resetModernTheme = async () => {
+    if (!confirm('¿Restablecer tema moderno?')) return;
+    if (!confirm('Confirmación final: se reemplazará el tema actual.')) return;
+    setSaving(true);
+    try {
+      await configService.resetTheme();
+      const { data } = await configService.get();
+      const incoming = data?.data || {};
+      const norm = {};
+      Object.entries(incoming).forEach(([k, v]) => {
+        norm[k] = boolKeys.includes(k) ? (v === true || v === 'true' || v === 1) : v;
+      });
+      setForm(f => ({ ...f, ...norm }));
+      applyConfigStyles(norm);
+      toast.success('Tema moderno restablecido');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'No se pudo restablecer el tema');
+    } finally {
+      setSaving(false);
+    }
+  };
 
 
   useEffect(() => {

@@ -82,6 +82,7 @@ export const systemService = {
 export const configService = {
   get:  ()      => api.get('/config'),
   save: (data)  => api.put('/config', data),
+  resetTheme: () => api.post('/config/reset-theme'),
 };
 
 export const bannerService = {

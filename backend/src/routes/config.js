@@ -1,43 +1,25 @@
 // backend/src/routes/config.js
 const router = require('express').Router();
 const Config = require('../models/Config');
-const { protect } = require('../middleware/auth');
+const { protect, adminOnly } = require('../middleware/auth');
 const { configUpload } = require('../config/cloudinary');
 
 const SEO_KEYS = ['siteTitle','siteDescription','keywords','ogImage','favicon','indexable'];
 
 // GET /api/config  — pública
 router.get('/', async (req, res) => {
-  const count = await Config.countDocuments({});
-  console.log(`[config] count: ${count}`);
   const docs = await Config.find({}).lean();
   const result = {};
   docs.forEach(d => { result[d.key] = d.value; });
-  const hasSeo = SEO_KEYS.some(k => k in result);
-  if (hasSeo) {
-    const vals = SEO_KEYS.filter(k => k in result).map(k => `${k}="${result[k]}"`);
-    console.log(`[config] returned seo: ${vals.join(', ')}`);
-  }
-  const missing = SEO_KEYS.filter(k => !(k in result));
-  if (missing.length) console.log(`[config] missing seo keys: ${missing.join(', ')}`);
   res.json({ success: true, data: result });
 });
 
 // PUT /api/config  — solo admin (soporta JSON + FormData con archivos)
-router.put('/', protect, configUpload.fields([
+router.put('/', protect, adminOnly, configUpload.fields([
   { name: 'logo', maxCount: 1 },
   { name: 'banner', maxCount: 1 },
 ]), async (req, res) => {
   const updates = req.body;
-  const keys = Object.keys(updates || {});
-  console.log(`[config] === SAVE START ===`);
-  console.log(`[config] count before: ${await Config.countDocuments({})}`);
-
-  // Log each value with quotes
-  keys.forEach(k => {
-    const v = updates[k];
-    console.log(`[config]  ${k}=${JSON.stringify(v)} (type=${typeof v}, len=${(v||'').length})`);
-  });
 
   if (req.files) {
     if (req.files.logo) updates.logo = req.files.logo[0].path;
@@ -47,7 +29,6 @@ router.put('/', protect, configUpload.fields([
   const updatedKeys = [];
   for (const [key, value] of Object.entries(updates)) {
     if (value === undefined || value === null) {
-      console.log(`[config]  SKIP ${key} (null/undefined)`);
       continue;
     }
     let saveValue = value;
@@ -56,20 +37,26 @@ router.put('/', protect, configUpload.fields([
     }
     await Config.set(key, saveValue);
     updatedKeys.push(key);
-
-    // Verify persistence immediately
-    const verify = await Config.findOne({ key }).lean();
-    if (verify) {
-      console.log(`[config]  ${key} -> _id=${verify._id} value=${JSON.stringify(verify.value)}`);
-    } else {
-      console.log(`[config]  ${key} -> NOT FOUND after save!`);
-    }
   }
+  res.json({ success: true, message: 'Configuracion guardada', updatedKeys });
+});
 
-  console.log(`[config] count after: ${await Config.countDocuments({})}`);
-  console.log(`[config] updated: ${updatedKeys.join(', ')}`);
-  console.log(`[config] === SAVE END ===`);
-  res.json({ success: true, message: 'Configuracion guardada' });
+// POST /api/config/reset-theme — solo admin
+router.post('/reset-theme', protect, adminOnly, async (req, res) => {
+  const theme = {
+    primaryColor: '#111827',
+    secondaryColor: '#111827',
+    bgColor: '#F6F7FB',
+    surfaceColor: '#FFFFFF',
+    textColor: '#111827',
+    mutedColor: '#6B7280',
+    borderColor: '#E5E7EB',
+    visualMode: 'modern-fashion',
+  };
+  for (const [k, v] of Object.entries(theme)) {
+    await Config.set(k, v);
+  }
+  res.json({ success: true, message: 'Tema moderno restablecido', data: theme });
 });
 
 module.exports = router;

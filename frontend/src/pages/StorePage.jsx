@@ -75,14 +75,20 @@ export default function StorePage() {
   }, [searchQuery]);
 
   const searchedProducts = useMemo(() => {
-    if (!debouncedSearch.trim()) return visibleProducts;
+    const categoryTabs = ['Mujer', 'Hombre', 'Accesorios'];
+    const activeCategory = categoryTabs.includes(activeTab) ? activeTab : null;
+    const activeBadge = BADGES.some(b => b.value === activeTab) ? activeTab : null;
+    let base = visibleProducts;
+    if (activeCategory) base = base.filter(p => (p.category || '').toLowerCase() === activeCategory.toLowerCase());
+    if (activeBadge) base = base.filter(p => (p.badge || '') === activeBadge || (activeBadge === 'featured' && p.featured));
+    if (!debouncedSearch.trim()) return base;
     const q = debouncedSearch.toLowerCase();
-    return visibleProducts.filter(p =>
+    return base.filter(p =>
       (p.name || '').toLowerCase().includes(q) ||
       (p.description || '').toLowerCase().includes(q) ||
       (p.category || '').toLowerCase().includes(q)
     );
-  }, [visibleProducts, debouncedSearch]);
+  }, [visibleProducts, debouncedSearch, activeTab]);
 
   const activeFilterLabel = activeTab === 'Todos'
     ? 'Todos'

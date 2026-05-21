@@ -40,7 +40,11 @@ export function applyConfigStyles(cfg = {}) {
 }
 
 function normalizeLegacyTheme(cfg) {
-  const legacy = new Set(['#b8941e', '#d4af37', '#c9a86a', '#c8a165', '#d2b48c', '#f5f5dc', '#beige']);
+  const legacy = new Set([
+    '#c9a96e', '#d4b574', '#b8955a', '#e8d5b0',
+    '#faf7f2', '#f5f1eb', '#1a1612', '#8a7968', '#e0d8ce',
+    '#b8941e', '#d4af37', '#c9a86a', '#c8a165', '#d2b48c', '#f5f5dc', '#beige',
+  ]);
   const isLegacy = (v) => {
     if (!v || typeof v !== 'string') return false;
     const c = v.trim().toLowerCase();
