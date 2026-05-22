@@ -29,7 +29,16 @@ exports.protect = async (req, res, next) => {
 
 // Solo admins
 exports.adminOnly = (req, res, next) => {
-  if (req.user?.role !== 'admin') {
+  const allowed = new Set(['admin', 'owner', 'superadmin']);
+  if (!allowed.has(req.user?.role)) {
+    return res.status(403).json({ success: false, message: 'Acceso denegado' });
+  }
+  next();
+};
+
+exports.allowRoles = (...roles) => (req, res, next) => {
+  const allowed = new Set(roles);
+  if (!allowed.has(req.user?.role)) {
     return res.status(403).json({ success: false, message: 'Acceso denegado' });
   }
   next();

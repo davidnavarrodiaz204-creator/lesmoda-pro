@@ -89,7 +89,7 @@ export default function AdminPage() {
           <div style={s.sideLink} onClick={handleLogout}><DoorIcon size={16} /> Salir
           </div>
         </nav>
-        <div style={s.sideUser}><UserIcon size={14} /> {user?.name}</div>
+        <div style={s.sideUser}><UserIcon size={14} /> {user?.name} <span style={{marginLeft:6,opacity:.8}}>({user?.role || 'sin rol'})</span></div>
       </aside>
 
       <main style={{...s.main, paddingBottom: window.innerWidth <= 768 ? '72px' : '1.5rem'}}>
@@ -1371,7 +1371,7 @@ function ConfigSection() {
         else if (typeof v === 'boolean') fd.append(k, v ? 'true' : 'false');
         else fd.append(k, v);
       });
-      await api.put('/config', fd);
+      const saveRes = await api.put('/config', fd);
       const {data} = await configService.get();
       if (data?.data) {
         const norm = {};
@@ -1379,10 +1379,18 @@ function ConfigSection() {
           norm[k] = boolKeys.includes(k) ? (v === true || v === 'true' || v === 1) : v;
         });
         setForm(f => ({...f, ...norm}));
+        applyConfigStyles(norm);
       }
-      toast.success('Configuracion guardada correctamente');
+      const updated = saveRes?.data?.updatedKeys?.length ? ` (${saveRes.data.updatedKeys.join(', ')})` : '';
+      toast.success(`Configuracion guardada correctamente${updated}`);
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Error al guardar configuracion');
+      if (err?.response?.status === 401) {
+        toast.error('Sesión expirada. Vuelve a iniciar sesión.');
+      } else if (err?.response?.status === 403) {
+        toast.error(err?.response?.data?.message || 'Tu rol no tiene permisos para guardar configuración');
+      } else {
+        toast.error(err?.response?.data?.message || 'Error al guardar configuracion');
+      }
     } finally {
       setSaving(false);
     }
