@@ -56,13 +56,18 @@ export default function StorePage() {
   useEffect(() => {
     const domain = getDomain();
     const storeName = config.storeName || 'LeisModa';
+    const seoTitle = config.siteTitle || `${storeName} — Moda online en Paita`;
+    const seoDescription = config.siteDescription || `${storeName} — Tienda de ropa online en Paita. Moda para Mujer, Hombre y Accesorios. Compra facil por WhatsApp.`;
+    const seoImage = config.ogImage || config.logo || `${domain}/icons/icon.svg`;
     setMeta({
-      title: `${storeName} — Moda online en Paita`,
-      description: config.siteDescription || `${storeName} — Tienda de ropa online en Paita. Moda para Mujer, Hombre y Accesorios. Compra facil por WhatsApp.`,
-      image: config.logo || `${domain}/icons/icon.svg`,
+      title: seoTitle,
+      description: seoDescription,
+      image: seoImage,
       url: domain,
+      favicon: config.favicon || '/icons/icon.svg',
+      indexable: config.indexable !== false,
     });
-  }, [config.storeName, config.siteDescription, config.logo]);
+  }, [config.storeName, config.siteTitle, config.siteDescription, config.ogImage, config.logo, config.favicon, config.indexable]);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchQuery), 300);
@@ -70,14 +75,20 @@ export default function StorePage() {
   }, [searchQuery]);
 
   const searchedProducts = useMemo(() => {
-    if (!debouncedSearch.trim()) return visibleProducts;
+    const categoryTabs = ['Mujer', 'Hombre', 'Accesorios'];
+    const activeCategory = categoryTabs.includes(activeTab) ? activeTab : null;
+    const activeBadge = BADGES.some(b => b.value === activeTab) ? activeTab : null;
+    let base = visibleProducts;
+    if (activeCategory) base = base.filter(p => (p.category || '').toLowerCase() === activeCategory.toLowerCase());
+    if (activeBadge) base = base.filter(p => (p.badge || '') === activeBadge || (activeBadge === 'featured' && p.featured));
+    if (!debouncedSearch.trim()) return base;
     const q = debouncedSearch.toLowerCase();
-    return visibleProducts.filter(p =>
+    return base.filter(p =>
       (p.name || '').toLowerCase().includes(q) ||
       (p.description || '').toLowerCase().includes(q) ||
       (p.category || '').toLowerCase().includes(q)
     );
-  }, [visibleProducts, debouncedSearch]);
+  }, [visibleProducts, debouncedSearch, activeTab]);
 
   const activeFilterLabel = activeTab === 'Todos'
     ? 'Todos'
@@ -444,4 +455,3 @@ function SearchEmpty() {
     productGrid:     { display:'grid', gap:'1rem' },
     center:          { textAlign:'center', padding:'3rem', color:'var(--lm-muted)' },
   };
-

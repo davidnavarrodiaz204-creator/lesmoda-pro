@@ -9,6 +9,10 @@ export function useProducts(initialParams = {}) {
   const [params,   setParams]   = useState(initialParams);
   const debounceRef = useRef(null);
 
+  useEffect(() => {
+    setParams(initialParams || {});
+  }, [JSON.stringify(initialParams)]);
+
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError(null);

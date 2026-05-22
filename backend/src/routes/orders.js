@@ -15,6 +15,7 @@ router.get('/:id',    protect, ctrl.getOrder);
 router.patch('/:id/status', protect, ctrl.updateStatus);
 router.patch('/:id/notes',  protect, ctrl.updateNotes);
 router.delete('/cleanup/test', protect, ctrl.cleanupTestOrders);
+router.delete('/all', protect, ctrl.deleteAllOrders);
 router.delete('/:id',    protect, ctrl.deleteOrder);
 
 module.exports = router;
